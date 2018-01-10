@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.9)
+project(pqc-crypto)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
+
+include_directories(/usr/local/opt/fftw/include)
+link_directories(/usr/local/opt/fftw/lib)
+
+add_subdirectory(src)
+add_subdirectory(test)
+
+
+enable_testing()
+
