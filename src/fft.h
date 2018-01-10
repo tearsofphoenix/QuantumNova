@@ -10,7 +10,11 @@
 
     extern double *QCInverseFFT(double * x, int size);
 
+    extern double *QCComplexMultiply(double * x, double * y, int size);
+
     extern void QCArrayRound(double *x, int size);
+
+    extern void QCArrayMod(double *x, int mod, int size);
 
     extern double *QCGetRealParts(double *complexArray, int size);
 

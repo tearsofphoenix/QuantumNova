@@ -6,7 +6,7 @@
 #define PQC_CRYPTO_ARITHMETIC_H
 
 
-    extern double *QCMulPoly(double * x, double * y);
+    extern double *QCMulPoly(double * x, double * y, int count);
 
     extern double *QCSquareSparsePoly(double *x, int time2);
 
