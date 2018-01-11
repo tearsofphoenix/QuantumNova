@@ -8,7 +8,7 @@
 
     extern double *QCMulPoly(double * x, double * y, int count);
 
-    extern double *QCSquareSparsePoly(double *x, int time2);
+    extern double *QCSquareSparsePoly(double *x, int size, int times);
 
     extern double *QCExpPoly(double *x, int n);
 

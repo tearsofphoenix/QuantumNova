@@ -20,11 +20,16 @@ void QCPrintDoubleArray(double *array, int count) {
 
 bool QCCompareArray(double *array, double *expected, int count) {
     bool equal = true;
+    int total = 0;
     for (int i = 0; i < count; ++i) {
         if (fabs(array[i] - expected[i]) > 0.00000005) {
             printf("not equal: %d %f %f\n", i, array[i], expected[i]);
             equal = false;
+            ++total;
         }
+    }
+    if (!equal) {
+        printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
     }
     return equal;
 }
