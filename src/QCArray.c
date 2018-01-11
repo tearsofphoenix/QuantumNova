@@ -10,6 +10,7 @@
 struct QCArray {
     double *data;
     int count;
+    bool fft;
 };
 
 QCArrayRef QCArrayCreate(int count) {
@@ -17,14 +18,16 @@ QCArrayRef QCArrayCreate(int count) {
     array->data = fftw_alloc_real(count);
     memset(array->data, 0, sizeof(double) * count);
     array->count = count;
+    array->fft = false;
     return array;
 }
 
 QCArrayRef QCArrayCreateFrom(const double *x, int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = fftw_alloc_real(count);
+    array->data = fftw_malloc(sizeof(double) * count);
     memcpy(array->data, x, sizeof(double) * count);
     array->count = count;
+    array->fft = false;
     return array;
 }
 
@@ -32,16 +35,36 @@ QCArrayRef QCArrayCreateNoCopy(double *x, int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
     array->data = x;
     array->count = count;
+    array->fft = false;
     return array;
 }
 
+void QCArraySetCount(QCArrayRef array, int newCount) {
+    if (array) {
+        array->count = newCount;
+    }
+}
+
+void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
+    if (array) {
+        array->fft = flag;
+    }
+}
+
 QCArrayRef QCArrayFFT(QCArrayRef array) {
-    int count = array->count;
-    double *out = fftw_malloc((count + 2) * sizeof(double));
-    fftw_plan plan = fftw_plan_dft_r2c_1d(count, array->data, out, FFTW_ESTIMATE);
-    fftw_execute(plan);
-    fftw_destroy_plan(plan);
-    return QCArrayCreateNoCopy(out, count + 2);
+    if (array) {
+        int count = array->count;
+        double *out = fftw_malloc((count + 2) * sizeof(double));
+
+        fftw_plan plan = fftw_plan_dft_r2c_1d(count, array->data, out, FFTW_ESTIMATE);
+        fftw_execute(plan);
+        fftw_destroy_plan(plan);
+
+        QCArrayRef result = QCArrayCreateNoCopy(out, count + 2);
+        result->fft = true;
+        return result;
+    }
+    return NULL;
 }
 
 void QCArrayScale(QCArrayRef array, double scale) {
@@ -88,7 +111,7 @@ QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
         }
         return QCArrayCreateNoCopy(out, count);
     }
-    return  NULL;
+    return NULL;
 }
 
 
@@ -125,6 +148,9 @@ void QCArrayMod(QCArrayRef array, int mod) {
 QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray) {
     if (complexArray) {
         int count = complexArray->count;
+        if (complexArray->fft) {
+            count -= 2;
+        }
         double *array = complexArray->data;
         double *out = fftw_malloc(count * sizeof(double));
         for (int i = 0; i < count; i = i + 2) {
@@ -164,40 +190,45 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
 }
 
 QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {
-    times = 1;
+    if (array) {
+        times = 1;
 
-    int count = array->count;
-    QCArrayRef indices = QCArrayGetNoZeroIndices(array);
+        int count = array->count;
+        QCArrayRef indices = QCArrayGetNoZeroIndices(array);
 
-    int mod = count;
-    QCArrayRef result = QCArrayCreate(mod);
-    double *x = result->data;
-    int mul = (int)pow(2, times) % mod;
-    QCArrayMultiply(indices, mul);
+        int mod = count;
+        QCArrayRef result = QCArrayCreate(mod);
+        double *x = result->data;
+        int mul = (int) pow(2, times) % mod;
+        QCArrayMultiply(indices, mul);
 
-    for (int i = 0; i < indices->count; ++i) {
-        int index = indices->data[i];
-        int idx = index % mod;
-        x[idx] = (int)x[idx] ^ 1;
+        for (int i = 0; i < indices->count; ++i) {
+            int index = indices->data[i];
+            int idx = index % mod;
+            x[idx] = (int) x[idx] ^ 1;
+        }
+
+        QCArrayFree(indices);
+
+        return result;
     }
-
-    QCArrayFree(indices);
-
-    return result;
+    return NULL;
 }
 
-static bool _arrayCompare(const double * array, const double *expected, int count) {
+static bool _arrayCompare(const double *array, const double *expected, int count) {
     bool equal = true;
-    int total = 0;
-    for (int i = 0; i < count; ++i) {
-        if (fabs(array[i] - expected[i]) > 0.00000005) {
-            printf("not equal: %d %f %f\n", i, array[i], expected[i]);
-            equal = false;
-            ++total;
+    if (array && expected) {
+        int total = 0;
+        for (int i = 0; i < count; ++i) {
+            if (fabs(array[i] - expected[i]) > 0.00000005) {
+                printf("not equal: %d %f %f\n", i, array[i], expected[i]);
+                equal = false;
+                ++total;
+            }
         }
-    }
-    if (!equal) {
-        printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
+        if (!equal) {
+            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
+        }
     }
     return equal;
 }

@@ -12,8 +12,9 @@ static void fft_test() {
     int size = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef array = QCArrayCreateFrom(H0, size);
-    QCArrayFFT(array);
-    QCArrayRef real = QCArrayGetRealParts(array);
+    QCArrayRef fft = QCArrayFFT(array);
+
+    QCArrayRef real = QCArrayGetRealParts(fft);
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0FFTReal);
 }
@@ -23,10 +24,11 @@ static void complex_multiply_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
-    QCArrayFFT(tempH0);
+    QCArrayRef x = QCArrayFFT(tempH0);
     QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
-    QCArrayFFT(tempC0);
-    QCArrayRef result = QCArrayComplexMultiply(tempH0, tempC0);
+    QCArrayRef y = QCArrayFFT(tempC0);
+    QCArrayRef result = QCArrayComplexMultiply(x, y);
+    QCArraySetCount(result, count);
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0C0Multiply);
@@ -38,8 +40,8 @@ static void inverse_fft_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
-    QCArrayFFT(tempH0);
-    QCArrayRef result = QCArrayInverseFFT(tempH0);
+    QCArrayRef x = QCArrayFFT(tempH0);
+    QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
     QCArrayCompareRaw(result, H0);
 }

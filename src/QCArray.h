@@ -25,6 +25,16 @@ extern QCArrayRef QCArrayCreateFrom(const double *x, int count);
 extern QCArrayRef QCArrayCreateNoCopy(double *x, int count);
 
 /*
+ * reset the count in array, this will not release memory
+ */
+extern void QCArraySetCount(QCArrayRef array, int newCount);
+
+/*
+ * set fft flag
+ */
+extern void QCArraySetFFTFlag(QCArrayRef array, bool flag);
+
+/*
  * do fft on `array`, return a new array
  */
 extern QCArrayRef QCArrayFFT(QCArrayRef array);
