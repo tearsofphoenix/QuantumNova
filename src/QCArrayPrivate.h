@@ -23,4 +23,32 @@ struct QCArray {
 
 extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
 
+#define QCARRAYONE(array, iexp, dexp) do { \
+                                            switch(array->datatype) { \
+                                                case QCDTInt: { \
+                                                    int *d = array->data; \
+                                                    iexp; \
+                                                } \
+                                                default: { \
+                                                    double *d = array->data; \
+                                                    dexp; \
+                                                } \
+                                            } \
+                                       } while(0)
+
+#define QCARRAYEACH(array, iexp, dexp) do { \
+                                            switch(array->datatype) { \
+                                                case QCDTInt: { \
+                                                    int *d = array->data; \
+                                                    for(int i=0; i<array->count; ++i) { iexp; } \
+                                                    break; \
+                                                } \
+                                                default: { \
+                                                    double *d = array->data; \
+                                                    for(int i=0; i<array->count; ++i) { dexp; } \
+                                                    break; \
+                                                } \
+                                            } \
+                                       } while(0)
+
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H

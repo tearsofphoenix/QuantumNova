@@ -52,23 +52,7 @@ QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree) {
 
 void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx) {
     if (array && func) {
-        int count = array->count;
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                for (int i = 0; i < count; ++i) {
-                    func(d[i], i, ctx);
-                }
-                break;
-            }
-            default: {
-                double *d = array->data;
-                for (int i = 0; i < count; ++i) {
-                    func(d[i], i, ctx);
-                }
-                break;
-            }
-        }
+        QCARRAYEACH(array, func(d[i], i, ctx), func(d[i], i, ctx));
     }
 }
 
@@ -141,47 +125,13 @@ QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
 
 void QCArrayAddArray(QCArrayRef x, QCArrayRef y) {
     if (x && y) {
-        int count = x->count;
-        switch (x->datatype) {
-            case QCDTInt: {
-                int *dx = x->data;
-                int *dy = y->data;
-                for (int i = 0; i < count; ++i) {
-                    dx[i] += dy[i];
-                }
-                break;
-            }
-            default: {
-                double *dx = x->data;
-                double *dy = y->data;
-                for (int i = 0; i < count; ++i) {
-                    dx[i] += dy[i];
-                }
-                break;
-            }
-        }
+        QCARRAYEACH(x, d[i] += ((int *)y->data)[i], d[i] += ((double *)y->data)[i]);
     }
 }
 
 void QCArrayMultiply(QCArrayRef array, double mul) {
     if (array) {
-        int count = array->count;
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *x = array->data;
-                for (int i = 0; i < count; ++i) {
-                    x[i] *= mul;
-                }
-                break;
-            }
-            default: {
-                double *x = array->data;
-                for (int i = 0; i < count; ++i) {
-                    x[i] *= mul;
-                }
-                break;
-            }
-        }
+        QCARRAYEACH(array, d[i] *= mul, d[i] *= mul);
     }
 }
 
@@ -227,16 +177,7 @@ double QCArrayMax(QCArrayRef array) {
 
 void QCArrayAddAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                d[index] += (int)value;
-            }
-            default: {
-                double *d = array->data;
-                d[index] += value;
-            }
-        }
+        QCARRAYEACH(array, d[index] += (int)value, d[index] += value);
     }
 }
 

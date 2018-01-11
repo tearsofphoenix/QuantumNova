@@ -45,31 +45,13 @@ void QCArraySetCount(QCArrayRef array, int newCount) {
 
 void QCArraySetValueAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                d[index] = (int)value;
-            }
-            default: {
-                double *d = array->data;
-                d[index] = value;
-            }
-        }
+        QCARRAYONE(array, d[index] = (int)value, d[index] = value);
     }
 }
 
 double QCArrayValueAt(QCArrayRef array, int index) {
     if (array) {
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                return d[index];
-            }
-            default: {
-                double *d = array->data;
-                return d[index];
-            }
-        }
+        QCARRAYONE(array, return d[index], return d[index]);
     }
     return 0;
 }
@@ -77,27 +59,7 @@ double QCArrayValueAt(QCArrayRef array, int index) {
 int QCArrayGetNonZeroCount(QCArrayRef array) {
     if (array) {
         int total = 0;
-        int count = 0;
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                for (int i = 0; i < count; ++i) {
-                    if (d[i] != 0) {
-                        ++total;
-                    }
-                }
-                break;
-            }
-            default: {
-                double *d = array->data;
-                for (int i = 0; i < count; ++i) {
-                    if ((int)d[i] != 0) {
-                        ++total;
-                    }
-                }
-                break;
-            }
-        }
+        QCARRAYEACH(array, if (d[i] != 0) { ++total; }, if ((int)d[i] != 0) { ++total; });
         return total;
     }
     return 0;
@@ -162,31 +124,9 @@ void QCArrayPrint(QCArrayRef array) {
     int padding = 25;
     printf("\n[ ");
 
-    switch(type) {
-        case QCDTInt: {
-            const char* fmt = "%d, ";
-            double *data = array->data;
-            for (int i = 0; i < count; ++i) {
-                printf(fmt, (int)data[i]);
-                if (i % padding == 0 && i > 0) {
-                    printf("\n");
-                }
-            }
-            break;
-        }
-        case QCDTFloat:
-        case QCDTDouble: {
-            const char* fmt = "%f, ";
-            double *data = array->data;
-            for (int i = 0; i < count; ++i) {
-                printf(fmt, data[i]);
-                if (i % padding == 0 && i > 0) {
-                    printf("\n");
-                }
-            }
-            break;
-        }
-    }
+    QCARRAYEACH(array,
+                printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); },
+                printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
 
     printf(" ]\n");
 }
