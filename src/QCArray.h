@@ -34,7 +34,7 @@ extern QCArrayRef QCArrayCreateFrom(const double *x, int count);
 /*
  * create an array with `count`, retain pointer x, no-copy data
  */
-extern QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree);
+extern QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree);
 
 /*
  * reset the count in array, this will not release memory

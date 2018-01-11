@@ -50,7 +50,7 @@ QCArrayRef QCArrayCreateFrom(const double *x, int count) {
     return array;
 }
 
-QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree) {
+QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
     array->data = x;
     array->count = count;
@@ -129,7 +129,7 @@ QCArrayRef QCArrayFFT(QCArrayRef array) {
         int count = array->count;
         double *out = fftw_malloc((count + 2) * sizeof(double));
 
-        fftw_plan plan = fftw_plan_dft_r2c_1d(count, array->data, out, FFTW_ESTIMATE);
+        fftw_plan plan = fftw_plan_dft_r2c_1d(count, array->data, (void *)out, FFTW_ESTIMATE);
         fftw_execute(plan);
         fftw_destroy_plan(plan);
 
@@ -195,9 +195,21 @@ QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
 void QCArrayMultiply(QCArrayRef array, double mul) {
     if (array) {
         int count = array->count;
-        double *x = array->data;
-        for (int i = 0; i < count; ++i) {
-            x[i] *= mul;
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *x = array->data;
+                for (int i = 0; i < count; ++i) {
+                    x[i] *= mul;
+                }
+                break;
+            }
+            default: {
+                double *x = array->data;
+                for (int i = 0; i < count; ++i) {
+                    x[i] *= mul;
+                }
+                break;
+            }
         }
     }
 }
@@ -262,7 +274,7 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
 
         fftw_free(indices);
 
-        QCArrayRef ref = QCArrayCreateNoCopy(result, idx, true);
+        QCArrayRef ref = QCArrayCreateNoCopy((void *)result, idx, true);
         ref->datatype = QCDTInt;
         return ref;
     }

@@ -21,11 +21,11 @@ QCArrayRef QCRandomVector(int count) {
 
 QCArrayRef QCRandomWeightVector(int count, int weight) {
     QCArrayRef random_indices = QCArrayCreateWithType(QCDTInt, weight);
-    while (QCArrayGetNoZeroIndices(random_indices) < weight) {
-        int count = QCArrayGetNoZeroIndices(random_indices);
+    while (QCArrayGetNonZeroCount(random_indices) < weight) {
+        int ind = QCArrayGetNonZeroCount(random_indices);
         int rnd = getRandomInt(0, count);
         if (QCArrayFindIndex(random_indices, rnd) == -1) {
-            QCArraySetValueAt(random_indices, count, rnd);
+            QCArraySetValueAt(random_indices, ind, rnd);
         }
     }
 

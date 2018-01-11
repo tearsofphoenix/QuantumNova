@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <math.h>
 
+typedef void (* QCTestFunc)(void);
+
 static void fft_test() {
     printf("-----------FFT test--------------\n");
 
@@ -98,19 +100,29 @@ static void exp_poly_test() {
     QCArrayCompareRaw(result, kExp20);
 }
 
+static void loop_test(QCTestFunc func, int count) {
+    for (int i = 0; i < count; ++i) {
+        func();
+    }
+}
+
+static void test_all(int count) {
+    loop_test(fft_test, count);
+
+    loop_test(complex_multiply_test, count);
+
+    loop_test(inverse_fft_test, count);
+
+    loop_test(square_sparse_test, count);
+
+    loop_test(mul_poly_test, count);
+
+    loop_test(exp_poly_test, count);
+}
+
 int main() {
 
-//    fft_test();
-
-//    complex_multiply_test();
-
-//    inverse_fft_test();
-
-//    square_sparse_test();
-
-//    mul_poly_test();
-
-//    exp_poly_test();
+    test_all(1);
 
     return 0;
 }
