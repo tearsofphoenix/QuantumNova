@@ -3,34 +3,51 @@
 //
 
 #include "QCArray.h"
+#include "QCArrayPrivate.h"
+
 #include <fftw3.h>
 #include <memory.h>
 #include <math.h>
 
-struct QCArray {
-    double *data;
-    int count; // count of number in data
-    bool fft; // data contains fft result
-    bool needfree; // if data need to be freed
-};
+static void *_QCMallocData(QCArrayDataType type, int count) {
+    size_t size = 0;
+    switch (type) {
+        case QCDTInt: {
+            size = sizeof(int) * count;
+            break;
+        }
+        case QCDTFloat: {
+            size = sizeof(float) * count;
+            break;
+        }
+        case QCDTDouble: {
+            size = sizeof(double) * count;
+            break;
+        }
+    }
+    void *data = fftw_malloc(size);
+    memset(data, 0, size);
+    return data;
+}
 
 QCArrayRef QCArrayCreate(int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = fftw_alloc_real(count);
-    memset(array->data, 0, sizeof(double) * count);
+    array->data = _QCMallocData(QCDTDouble, count);
     array->count = count;
     array->fft = false;
     array->needfree = true;
+    array->datatype = QCDTDouble;
     return array;
 }
 
 QCArrayRef QCArrayCreateFrom(const double *x, int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = fftw_malloc(sizeof(double) * count);
+    array->data = _QCMallocData(QCDTDouble, count);
     memcpy(array->data, x, sizeof(double) * count);
     array->count = count;
     array->fft = false;
     array->needfree = true;
+    array->datatype = QCDTDouble;
     return array;
 }
 
@@ -40,6 +57,7 @@ QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree) {
     array->count = count;
     array->fft = false;
     array->needfree = needfree;
+    array->datatype = QCDTDouble;
     return array;
 }
 
@@ -51,7 +69,8 @@ void QCArraySetCount(QCArrayRef array, int newCount) {
 
 void QCArraySetValueAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        array->data[index] = value;
+        double *x = array->data;
+        x[index] = value;
     }
 }
 
@@ -92,14 +111,15 @@ void QCArrayScale(QCArrayRef array, double scale) {
 QCArrayRef QCArrayInverseFFT(QCArrayRef array) {
     if (array) {
         int count = array->count;
-        double *out = fftw_malloc((count - 2) * sizeof(double));
+        int realCount = count - 2;
+        double *out = fftw_malloc(realCount * sizeof(double));
 
-        QCArrayScale(array, 1.0 / count);
-        fftw_plan plan = fftw_plan_dft_c2r_1d(count - 2, array->data, out, FFTW_ESTIMATE);
+        QCArrayScale(array, 1.0 / realCount);
+        fftw_plan plan = fftw_plan_dft_c2r_1d(realCount, array->data, out, FFTW_ESTIMATE);
         fftw_execute(plan);
         fftw_destroy_plan(plan);
 
-        QCArrayRef result = QCArrayCreateNoCopy(out, count - 2, true);
+        QCArrayRef result = QCArrayCreateNoCopy(out, realCount, true);
         return result;
     }
     return NULL;
@@ -143,8 +163,9 @@ void QCArrayRound(QCArrayRef array) {
         int count = array->count;
         double *x = array->data;
         for (int i = 0; i < count; ++i) {
-            x[i] = round(x[i]);
+            x[i] = (int)round(x[i]);
         }
+        array->datatype = QCDTInt;
     }
 }
 
@@ -180,7 +201,7 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
     if (array) {
         int count = array->count;
         double *x = array->data;
-        int *indices = fftw_malloc(sizeof(int) * count);
+        int *indices = _QCMallocData(QCDTInt, count);
         int idx = 0;
         for (int i = 0; i < count; ++i) {
             if ((int) round(x[i]) != 0) {
@@ -191,13 +212,15 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
 
         int *result = NULL;
         if (idx > 0) {
-            result = fftw_malloc(sizeof(int) * idx);
+            result = _QCMallocData(QCDTInt, idx);
             memcpy(result, indices, sizeof(int) * idx);
         }
 
         fftw_free(indices);
 
-        return QCArrayCreateNoCopy(result, idx, true);
+        QCArrayRef ref = QCArrayCreateNoCopy(result, idx, true);
+        ref->datatype = QCDTInt;
+        return ref;
     }
     return NULL;
 }
@@ -215,8 +238,9 @@ QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {
         int mul = (int) pow(2, times) % mod;
         QCArrayMultiply(indices, mul);
 
+        int *d = indices->data;
         for (int i = 0; i < indices->count; ++i) {
-            int index = indices->data[i];
+            int index = d[i];
             int idx = index % mod;
             x[idx] = (int) x[idx] ^ 1;
         }
@@ -235,9 +259,16 @@ QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
     QCArrayRef mul = QCArrayComplexMultiply(fx, fy);
     QCArrayRef result = QCArrayInverseFFT(mul);
     QCArraySetCount(result, count);
+
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
-    QCArrayMod(real, 2);
+//    QCArrayMod(real, 2);
+
+    QCArrayFree(fx);
+    QCArrayFree(fy);
+    QCArrayFree(mul);
+    QCArrayFree(result);
+
     return real;
 }
 
@@ -268,6 +299,7 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
     QCArrayRef result = QCArrayMulPoly(x, y);
     QCArrayRound(result);
     QCArrayMod(result, 2);
+
     return result;
 }
 
@@ -307,8 +339,9 @@ void QCArrayPrint(QCArrayRef array) {
     double *data = array->data;
     int padding = 25;
     printf("\n[ ");
+    const char* fmt = "%f, ";
     for (int i = 0; i < count; ++i) {
-        printf("%f, ", data[i]);
+        printf(fmt, data[i]);
         if (i % padding == 0 && i > 0) {
             printf("\n");
         }
