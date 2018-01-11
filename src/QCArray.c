@@ -137,12 +137,7 @@ void QCArrayMultiply(QCArrayRef array, double mul) {
 
 void QCArrayRound(QCArrayRef array) {
     if (array) {
-        int count = array->count;
-        double *x = array->data;
-        for (int i = 0; i < count; ++i) {
-            x[i] = (int)round(x[i]);
-        }
-        array->datatype = QCDTInt;
+        QCARRAYEACH(array, d[i] = (int)round(d[i]), d[i] = round(d[i]));
     }
 }
 
@@ -183,11 +178,7 @@ void QCArrayAddAt(QCArrayRef array, int index, double value) {
 
 void QCArrayMod(QCArrayRef array, int mod) {
     if (array) {
-        int count = array->count;
-        double *x = array->data;
-        for (int i = 0; i < count; ++i) {
-            x[i] = (int) x[i] % mod;
-        }
+        QCARRAYEACH(array, d[i] = d[i] % mod, d[i] = (int) d[i] % mod);
     }
 }
 

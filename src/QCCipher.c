@@ -31,6 +31,7 @@ QCArrayRef QCCipherSyndrome(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef
     QCArrayRef t2 = QCArrayMulPoly(privateKey->h1, c1);
 
     QCArrayAddArray(temp, t2);
+
     QCArrayMod(temp, 2);
 
     QCArrayFree(t2);

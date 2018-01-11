@@ -161,3 +161,27 @@ bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
     double *array = x->data;
     return _arrayCompare(array, expected, count);
 }
+
+void QCArrayFixConjugateHalf(QCArrayRef array) {
+    if (array) {
+        int count = array->count;
+        int half = count / 2;
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                for (int i = 0; i < half; ++i) {
+                    printf("%d\n", count - i);
+                    d[count - i] = d[i];
+                }
+                break;
+            }
+            default: {
+                double *d = array->data;
+                for (int i = 0; i < half; ++i) {
+                    d[count - i] = d[i];
+                }
+                break;
+            }
+        }
+    }
+}

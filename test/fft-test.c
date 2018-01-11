@@ -4,6 +4,7 @@
 
 #include "fft-test.h"
 #include "data.h"
+#include "cipher-test.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -122,7 +123,9 @@ static void test_all(int count) {
 
 int main() {
 
-    test_all(1);
+//    test_all(1);
+
+    cipher_test();
 
     return 0;
 }

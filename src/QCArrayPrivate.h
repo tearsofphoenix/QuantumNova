@@ -51,4 +51,6 @@ extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
                                             } \
                                        } while(0)
 
+extern void QCArrayFixConjugateHalf(QCArrayRef array);
+
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H
