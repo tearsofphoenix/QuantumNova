@@ -22,7 +22,7 @@ extern QCArrayRef QCArrayCreateFrom(const double *x, int count);
 /*
  * create an array with `count`, retain pointer x, no-copy data
  */
-extern QCArrayRef QCArrayCreateNoCopy(double *x, int count);
+extern QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree);
 
 /*
  * reset the count in array, this will not release memory
@@ -97,8 +97,12 @@ extern void QCArrayPrint(QCArrayRef array);
 /*
  * square spare poly
  */
-
 extern QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times);
+
+/*
+ * mul poly
+ */
+extern QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
 
 /*
  * free array's data

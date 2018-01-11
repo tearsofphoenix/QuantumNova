@@ -9,8 +9,9 @@
 
 struct QCArray {
     double *data;
-    int count;
-    bool fft;
+    int count; // count of number in data
+    bool fft; // data contains fft result
+    bool needfree; // if data need to be freed
 };
 
 QCArrayRef QCArrayCreate(int count) {
@@ -19,6 +20,7 @@ QCArrayRef QCArrayCreate(int count) {
     memset(array->data, 0, sizeof(double) * count);
     array->count = count;
     array->fft = false;
+    array->needfree = true;
     return array;
 }
 
@@ -28,14 +30,16 @@ QCArrayRef QCArrayCreateFrom(const double *x, int count) {
     memcpy(array->data, x, sizeof(double) * count);
     array->count = count;
     array->fft = false;
+    array->needfree = true;
     return array;
 }
 
-QCArrayRef QCArrayCreateNoCopy(double *x, int count) {
+QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
     array->data = x;
     array->count = count;
     array->fft = false;
+    array->needfree = needfree;
     return array;
 }
 
@@ -60,7 +64,7 @@ QCArrayRef QCArrayFFT(QCArrayRef array) {
         fftw_execute(plan);
         fftw_destroy_plan(plan);
 
-        QCArrayRef result = QCArrayCreateNoCopy(out, count + 2);
+        QCArrayRef result = QCArrayCreateNoCopy(out, count + 2, true);
         result->fft = true;
         return result;
     }
@@ -88,8 +92,11 @@ QCArrayRef QCArrayInverseFFT(QCArrayRef array) {
         fftw_plan plan = fftw_plan_dft_c2r_1d(count - 2, array->data, out, FFTW_ESTIMATE);
         fftw_execute(plan);
         fftw_destroy_plan(plan);
-        return QCArrayCreateNoCopy(out, count - 2);
+
+        QCArrayRef result = QCArrayCreateNoCopy(out, count - 2, true);
+        return result;
     }
+    return NULL;
 }
 
 QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
@@ -109,7 +116,7 @@ QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
         if (count % 2 == 1) {
             out[count - 1] = x[count - 1] * y[count - 1];
         }
-        return QCArrayCreateNoCopy(out, count);
+        return QCArrayCreateNoCopy(out, count, true);
     }
     return NULL;
 }
@@ -158,7 +165,7 @@ QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray) {
             out[i / 2] = temp;
             out[count - i / 2] = temp;
         }
-        return QCArrayCreateNoCopy(out, count);
+        return QCArrayCreateNoCopy(out, count, true);
     }
     return NULL;
 }
@@ -184,7 +191,7 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
 
         fftw_free(indices);
 
-        return QCArrayCreateNoCopy(result, idx);
+        return QCArrayCreateNoCopy(result, idx, true);
     }
     return NULL;
 }
@@ -213,6 +220,19 @@ QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {
         return result;
     }
     return NULL;
+}
+
+QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
+    int count = x->count;
+    QCArrayRef fx = QCArrayFFT(x);
+    QCArrayRef fy = QCArrayFFT(y);
+    QCArrayRef mul = QCArrayComplexMultiply(fx, fy);
+    QCArrayRef result = QCArrayInverseFFT(mul);
+    QCArraySetCount(result, count);
+    QCArrayRef real = QCArrayGetRealParts(result);
+    QCArrayRound(real);
+    QCArrayMod(real, 2);
+    return real;
 }
 
 static bool _arrayCompare(const double *array, const double *expected, int count) {
@@ -261,7 +281,7 @@ void QCArrayPrint(QCArrayRef array) {
 }
 
 void QCArrayFree(QCArrayRef array) {
-    if (array) {
+    if (array && array->needfree) {
         fftw_free(array->data);
     }
 }

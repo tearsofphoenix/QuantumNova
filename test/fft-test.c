@@ -17,6 +17,10 @@ static void fft_test() {
     QCArrayRef real = QCArrayGetRealParts(fft);
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0FFTReal);
+
+    QCArrayFree(array);
+    QCArrayFree(fft);
+    QCArrayFree(real);
 }
 
 static void complex_multiply_test() {
@@ -32,6 +36,11 @@ static void complex_multiply_test() {
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0C0Multiply);
+
+    QCArrayFree(tempH0);
+    QCArrayFree(tempC0);
+    QCArrayFree(result);
+    QCArrayFree(real);
 }
 
 static void inverse_fft_test() {
@@ -44,6 +53,10 @@ static void inverse_fft_test() {
     QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
     QCArrayCompareRaw(result, H0);
+
+    QCArrayFree(tempH0);
+    QCArrayFree(x);
+    QCArrayFree(result);
 }
 
 static void square_sparse_test() {
@@ -53,12 +66,23 @@ static void square_sparse_test() {
     QCArrayRef array = QCArrayCreateFrom(H0, count);
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
     QCArrayCompareRaw(tempH0, kH0Sparse);
+
+    QCArrayFree(array);
+    QCArrayFree(tempH0);
 }
 
 static void mul_poly_test() {
     printf("-----------mul_poly test--------------\n");
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
+    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
+    QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
+    QCArrayCompareRaw(result, kMulPoly);
+
+    QCArrayFree(tempH0);
+    QCArrayFree(tempC0);
+    QCArrayFree(result);
 }
 
 int main() {
@@ -69,7 +93,9 @@ int main() {
 
     inverse_fft_test();
 
-    square_sparse_test();
+//    square_sparse_test();
 
-//    mul_poly_test();
+    mul_poly_test();
+
+    return 0;
 }
