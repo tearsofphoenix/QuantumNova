@@ -49,6 +49,12 @@ void QCArraySetCount(QCArrayRef array, int newCount) {
     }
 }
 
+void QCArraySetValueAt(QCArrayRef array, int index, double value) {
+    if (array && index < array->count) {
+        array->data[index] = value;
+    }
+}
+
 void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
     if (array) {
         array->fft = flag;
@@ -233,6 +239,36 @@ QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
     QCArrayRound(real);
     QCArrayMod(real, 2);
     return real;
+}
+
+QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
+    int length = array->count;
+    QCArrayRef y = QCArrayCreate(length);
+    QCArraySetValueAt(y, 0, 1);
+    QCArrayRef x = array;
+    while (n > 1) {
+        if (n % 2 == 0) {
+            x = QCArraySquareSparsePoly(x, 1);
+            n = n / 2;
+        } else {
+            // precision does not allow us to stay in FFT domain
+            // hence, interchanging ifft(fft).
+            QCArrayRef X = QCArrayFFT(x);
+            QCArrayRef Y = QCArrayFFT(y);
+
+            QCArrayRef temp = QCArrayComplexMultiply(X, Y);
+            temp = QCArrayInverseFFT(temp);
+            QCArrayRound(temp);
+            QCArrayMod(temp, 2);
+            y = temp;
+            x = QCArraySquareSparsePoly(x, 1);
+            n = (n - 1) / 2;
+        }
+    }
+    QCArrayRef result = QCArrayMulPoly(x, y);
+    QCArrayRound(result);
+    QCArrayMod(result, 2);
+    return result;
 }
 
 static bool _arrayCompare(const double *array, const double *expected, int count) {

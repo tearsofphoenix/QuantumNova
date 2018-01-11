@@ -85,6 +85,13 @@ static void mul_poly_test() {
     QCArrayFree(result);
 }
 
+static void exp_poly_test() {
+    printf("-----------exp_poly test--------------\n");
+
+    size_t count = sizeof(H0) / sizeof(H0[0]);
+    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+}
+
 int main() {
 
     fft_test();

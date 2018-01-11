@@ -6,6 +6,7 @@
 #define PQC_CRYPTO_QCARRAY_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct QCArray * QCArrayRef;
 
@@ -28,6 +29,11 @@ extern QCArrayRef QCArrayCreateNoCopy(double *x, int count, bool needfree);
  * reset the count in array, this will not release memory
  */
 extern void QCArraySetCount(QCArrayRef array, int newCount);
+
+/*
+ * set value at index
+ */
+extern void QCArraySetValueAt(QCArrayRef array, int index, double value);
 
 /*
  * set fft flag
@@ -103,6 +109,11 @@ extern QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times);
  * mul poly
  */
 extern QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
+
+/*
+ * exp poly
+ */
+extern QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n);
 
 /*
  * free array's data
