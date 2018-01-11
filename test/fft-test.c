@@ -5,6 +5,7 @@
 #include "fft-test.h"
 #include "data.h"
 #include <stdio.h>
+#include <math.h>
 
 static void fft_test() {
     printf("-----------FFT test--------------\n");
@@ -90,21 +91,26 @@ static void mul_poly_test() {
 static void exp_poly_test() {
     printf("-----------exp_poly test--------------\n");
 
-    size_t count = sizeof(H0) / sizeof(H0[0]);
-    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    size_t count = sizeof(kExpInput) / sizeof(kExp20[0]);
+    QCArrayRef tempH0 = QCArrayCreateFrom(kExpInput, count);
+    int64_t n = pow(2, 20) - 2;
+    QCArrayRef result = QCArrayExpPoly(tempH0, n);
+    QCArrayCompareRaw(result, kExp20);
 }
 
 int main() {
 
-    fft_test();
+//    fft_test();
 
-    complex_multiply_test();
+//    complex_multiply_test();
 
-    inverse_fft_test();
+//    inverse_fft_test();
 
-    square_sparse_test();
+//    square_sparse_test();
 
-    mul_poly_test();
+//    mul_poly_test();
+
+//    exp_poly_test();
 
     return 0;
 }

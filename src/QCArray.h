@@ -8,12 +8,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef enum {
+    QCDTInt = 0,
+    QCDTFloat,
+    QCDTDouble,
+} QCArrayDataType;
+
 typedef struct QCArray * QCArrayRef;
 
 /*
  *  create an array with `count`, zero filled
  */
 extern QCArrayRef QCArrayCreate(int count);
+
+/*
+ *  create an array with `count`, zero filled
+ */
+extern QCArrayRef QCArrayCreateWithType(QCArrayDataType type, int count);
 
 /*
  * create an array with `count`, copy data from x
@@ -34,6 +45,22 @@ extern void QCArraySetCount(QCArrayRef array, int newCount);
  * set value at index
  */
 extern void QCArraySetValueAt(QCArrayRef array, int index, double value);
+
+/*
+ * get value at index
+ */
+extern double QCArrayValueAt(QCArrayRef array, int index);
+
+/*
+ * find first index of value
+ */
+extern int QCArrayFindIndex(QCArrayRef array, int value);
+
+/*
+ * get nonzero number count
+ */
+
+extern int QCArrayGetNonZeroCount(QCArrayRef array);
 
 /*
  * set fft flag

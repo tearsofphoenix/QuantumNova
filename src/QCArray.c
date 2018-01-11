@@ -31,23 +31,22 @@ static void *_QCMallocData(QCArrayDataType type, int count) {
 }
 
 QCArrayRef QCArrayCreate(int count) {
+    return QCArrayCreateWithType(QCDTDouble, count);
+}
+
+QCArrayRef QCArrayCreateWithType(QCArrayDataType type, int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = _QCMallocData(QCDTDouble, count);
+    array->data = _QCMallocData(type, count);
     array->count = count;
     array->fft = false;
     array->needfree = true;
-    array->datatype = QCDTDouble;
+    array->datatype = type;
     return array;
 }
 
 QCArrayRef QCArrayCreateFrom(const double *x, int count) {
-    QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = _QCMallocData(QCDTDouble, count);
+    QCArrayRef array = QCArrayCreate(count);
     memcpy(array->data, x, sizeof(double) * count);
-    array->count = count;
-    array->fft = false;
-    array->needfree = true;
-    array->datatype = QCDTDouble;
     return array;
 }
 
@@ -72,6 +71,51 @@ void QCArraySetValueAt(QCArrayRef array, int index, double value) {
         double *x = array->data;
         x[index] = value;
     }
+}
+
+double QCArrayValueAt(QCArrayRef array, int index) {
+    if (array) {
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                return d[index];
+            }
+            default: {
+                double *d = array->data;
+                return d[index];
+            }
+        }
+    }
+    return 0;
+}
+
+int QCArrayGetNonZeroCount(QCArrayRef array) {
+    if (array) {
+        int total = 0;
+        int count = 0;
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                for (int i = 0; i < count; ++i) {
+                    if (d[i] != 0) {
+                        ++total;
+                    }
+                }
+                break;
+            }
+            default: {
+                double *d = array->data;
+                for (int i = 0; i < count; ++i) {
+                    if ((int)d[i] != 0) {
+                        ++total;
+                    }
+                }
+                break;
+            }
+        }
+        return total;
+    }
+    return 0;
 }
 
 void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
@@ -223,6 +267,19 @@ QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
         return ref;
     }
     return NULL;
+}
+
+int QCArrayFindIndex(QCArrayRef array, int value) {
+    if (array) {
+        int count = array->count;
+        int *data = array->data;
+        for (int i = 0; i < count; ++i) {
+            if (data[i] == value) {
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {

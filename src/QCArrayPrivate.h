@@ -6,12 +6,7 @@
 #define PQC_CRYPTO_QCARRAYPRIVATE_H
 
 #include <stdbool.h>
-
-typedef enum {
-    QCDTInt = 0,
-    QCDTFloat,
-    QCDTDouble,
-} QCArrayDataType;
+#include "QCArray.h"
 
 struct QCArray {
     void *data;
