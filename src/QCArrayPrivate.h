@@ -5,8 +5,10 @@
 #ifndef PQC_CRYPTO_QCARRAYPRIVATE_H
 #define PQC_CRYPTO_QCARRAYPRIVATE_H
 
-#include <stdbool.h>
+
 #include "QCArray.h"
+#include <stdbool.h>
+#include <ntsid.h>
 
 struct QCArray {
     void *data;
@@ -18,5 +20,7 @@ struct QCArray {
         unsigned int unused: 27;
     };
 };
+
+extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
 
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H

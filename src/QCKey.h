@@ -7,9 +7,17 @@
 
 #include <stdbool.h>
 
+typedef struct {
+    int length;
+    int weight;
+    int error;
+} QCKeyConfig;
+
 typedef struct QCKey *QCKeyRef;
 
 extern QCKeyRef QCKeyCreate(int length, int weight, bool privateOrPublic);
+
+extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey);
 
 extern QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
 

@@ -5,6 +5,155 @@
 #include "QCArray.h"
 #include <printf.h>
 #include <math.h>
+#include <fftw3.h>
+#include <memory.h>
+
+void *_QCMallocData(QCArrayDataType type, int count, size_t *outsize) {
+    size_t size = 0;
+    switch (type) {
+        case QCDTInt: {
+            size = sizeof(int) * count;
+            break;
+        }
+        case QCDTFloat: {
+            size = sizeof(float) * count;
+            break;
+        }
+        case QCDTDouble: {
+            size = sizeof(double) * count;
+            break;
+        }
+    }
+    void *data = fftw_malloc(size);
+    memset(data, 0, size);
+
+    if (outsize) {
+        *outsize = size;
+    }
+    return data;
+}
+
+////////////////////////////////////////////////////////////////
+//                base collection functions                   //
+////////////////////////////////////////////////////////////////
+
+void QCArraySetCount(QCArrayRef array, int newCount) {
+    if (array) {
+        array->count = newCount;
+    }
+}
+
+void QCArraySetValueAt(QCArrayRef array, int index, double value) {
+    if (array && index < array->count) {
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                d[index] = (int)value;
+            }
+            default: {
+                double *d = array->data;
+                d[index] = value;
+            }
+        }
+    }
+}
+
+double QCArrayValueAt(QCArrayRef array, int index) {
+    if (array) {
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                return d[index];
+            }
+            default: {
+                double *d = array->data;
+                return d[index];
+            }
+        }
+    }
+    return 0;
+}
+
+int QCArrayGetNonZeroCount(QCArrayRef array) {
+    if (array) {
+        int total = 0;
+        int count = 0;
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                for (int i = 0; i < count; ++i) {
+                    if (d[i] != 0) {
+                        ++total;
+                    }
+                }
+                break;
+            }
+            default: {
+                double *d = array->data;
+                for (int i = 0; i < count; ++i) {
+                    if ((int)d[i] != 0) {
+                        ++total;
+                    }
+                }
+                break;
+            }
+        }
+        return total;
+    }
+    return 0;
+}
+
+void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
+    if (array) {
+        array->fft = flag;
+    }
+}
+
+QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
+    if (array) {
+        int count = array->count;
+        double *x = array->data;
+        int *indices = _QCMallocData(QCDTInt, count, NULL);
+        int idx = 0;
+        for (int i = 0; i < count; ++i) {
+            if ((int) round(x[i]) != 0) {
+                indices[idx] = i;
+                ++idx;
+            }
+        }
+
+        int *result = NULL;
+        if (idx > 0) {
+            size_t size = 0;
+            result = _QCMallocData(QCDTInt, idx, &size);
+            memcpy(result, indices, size);
+        }
+
+        fftw_free(indices);
+
+        QCArrayRef ref = QCArrayCreateNoCopy((void *)result, idx, true);
+        ref->datatype = QCDTInt;
+        return ref;
+    }
+    return NULL;
+}
+
+int QCArrayFindIndex(QCArrayRef array, int value) {
+    if (array) {
+        int count = array->count;
+        int *data = array->data;
+        for (int i = 0; i < count; ++i) {
+            if (data[i] == value) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+////////////////////////////////////////////////////////////////
+//                auxiliary functions                         //
+////////////////////////////////////////////////////////////////
 
 void QCArrayPrint(QCArrayRef array) {
     int count = array->count;

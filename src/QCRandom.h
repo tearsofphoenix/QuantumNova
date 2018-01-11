@@ -11,4 +11,6 @@ extern QCArrayRef QCRandomVector(int count);
 
 extern QCArrayRef QCRandomWeightVector(int count, int weight);
 
+extern int QCRandomFlipCoin();
+
 #endif //PQC_CRYPTO_QCRANDOM_H

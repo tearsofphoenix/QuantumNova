@@ -14,6 +14,8 @@ typedef enum {
     QCDTDouble,
 } QCArrayDataType;
 
+typedef void (QCArrayEnumerator)(double num, int index, const void *ctx);
+
 typedef struct QCArray * QCArrayRef;
 
 /*
@@ -35,6 +37,11 @@ extern QCArrayRef QCArrayCreateFrom(const double *x, int count);
  * create an array with `count`, retain pointer x, no-copy data
  */
 extern QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree);
+
+/*
+ * create copy of array
+ */
+extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);
 
 /*
  * reset the count in array, this will not release memory
@@ -68,6 +75,11 @@ extern int QCArrayGetNonZeroCount(QCArrayRef array);
 extern void QCArraySetFFTFlag(QCArrayRef array, bool flag);
 
 /*
+ * for-each loop on array
+ */
+extern void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx);
+
+/*
  * do fft on `array`, return a new array
  */
 extern QCArrayRef QCArrayFFT(QCArrayRef array);
@@ -88,6 +100,16 @@ extern void QCArrayScale(QCArrayRef array, double scale);
 extern QCArrayRef QCArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
 
 /*
+ * add each number of two arrays
+ */
+extern void QCArrayAddArray(QCArrayRef x, QCArrayRef y);
+
+/*
+ * add each number of two arrays
+ */
+extern void QCArrayAddAt(QCArrayRef x, int index, double value);
+
+/*
  * multiply each number in array by mul
  */
 extern void QCArrayMultiply(QCArrayRef array, double mul);
@@ -96,6 +118,11 @@ extern void QCArrayMultiply(QCArrayRef array, double mul);
  * do `round` on each number in array
  */
 extern void QCArrayRound(QCArrayRef array);
+
+/*
+ * get max value in array
+ */
+extern double QCArrayMax(QCArrayRef array);
 
 /*
  * do `mod` on each number in array, result store in array

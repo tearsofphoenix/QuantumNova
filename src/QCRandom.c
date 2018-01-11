@@ -39,3 +39,7 @@ QCArrayRef QCRandomWeightVector(int count, int weight) {
 
     return real;
 }
+
+int QCRandomFlipCoin() {
+    return getRandomInt(0, 2);
+}

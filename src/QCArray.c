@@ -4,31 +4,9 @@
 
 #include "QCArray.h"
 #include "QCArrayPrivate.h"
-
 #include <fftw3.h>
 #include <memory.h>
 #include <math.h>
-
-static void *_QCMallocData(QCArrayDataType type, int count) {
-    size_t size = 0;
-    switch (type) {
-        case QCDTInt: {
-            size = sizeof(int) * count;
-            break;
-        }
-        case QCDTFloat: {
-            size = sizeof(float) * count;
-            break;
-        }
-        case QCDTDouble: {
-            size = sizeof(double) * count;
-            break;
-        }
-    }
-    void *data = fftw_malloc(size);
-    memset(data, 0, size);
-    return data;
-}
 
 QCArrayRef QCArrayCreate(int count) {
     return QCArrayCreateWithType(QCDTDouble, count);
@@ -36,11 +14,23 @@ QCArrayRef QCArrayCreate(int count) {
 
 QCArrayRef QCArrayCreateWithType(QCArrayDataType type, int count) {
     QCArrayRef array = fftw_malloc(sizeof(*array));
-    array->data = _QCMallocData(type, count);
+    array->data = _QCMallocData(type, count, NULL);
     array->count = count;
     array->fft = false;
     array->needfree = true;
     array->datatype = type;
+    return array;
+}
+
+QCArrayRef QCArrayCreateCopy(QCArrayRef array) {
+    QCArrayRef ref = fftw_malloc(sizeof(*array));
+    size_t size = 0;
+    ref->data = _QCMallocData((QCArrayDataType)array->datatype, array->count, &size);
+    memcpy(ref->data, array->data, size);
+    ref->count = array->count;
+    ref->fft = array->fft;
+    ref->needfree = true;
+    ref->datatype = array->datatype;
     return array;
 }
 
@@ -60,67 +50,25 @@ QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree) {
     return array;
 }
 
-void QCArraySetCount(QCArrayRef array, int newCount) {
-    if (array) {
-        array->count = newCount;
-    }
-}
-
-void QCArraySetValueAt(QCArrayRef array, int index, double value) {
-    if (array && index < array->count) {
-        double *x = array->data;
-        x[index] = value;
-    }
-}
-
-double QCArrayValueAt(QCArrayRef array, int index) {
-    if (array) {
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                return d[index];
-            }
-            default: {
-                double *d = array->data;
-                return d[index];
-            }
-        }
-    }
-    return 0;
-}
-
-int QCArrayGetNonZeroCount(QCArrayRef array) {
-    if (array) {
-        int total = 0;
-        int count = 0;
+void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx) {
+    if (array && func) {
+        int count = array->count;
         switch (array->datatype) {
             case QCDTInt: {
                 int *d = array->data;
                 for (int i = 0; i < count; ++i) {
-                    if (d[i] != 0) {
-                        ++total;
-                    }
+                    func(d[i], i, ctx);
                 }
                 break;
             }
             default: {
                 double *d = array->data;
                 for (int i = 0; i < count; ++i) {
-                    if ((int)d[i] != 0) {
-                        ++total;
-                    }
+                    func(d[i], i, ctx);
                 }
                 break;
             }
         }
-        return total;
-    }
-    return 0;
-}
-
-void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
-    if (array) {
-        array->fft = flag;
     }
 }
 
@@ -191,6 +139,29 @@ QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
     return NULL;
 }
 
+void QCArrayAddArray(QCArrayRef x, QCArrayRef y) {
+    if (x && y) {
+        int count = x->count;
+        switch (x->datatype) {
+            case QCDTInt: {
+                int *dx = x->data;
+                int *dy = y->data;
+                for (int i = 0; i < count; ++i) {
+                    dx[i] += dy[i];
+                }
+                break;
+            }
+            default: {
+                double *dx = x->data;
+                double *dy = y->data;
+                for (int i = 0; i < count; ++i) {
+                    dx[i] += dy[i];
+                }
+                break;
+            }
+        }
+    }
+}
 
 void QCArrayMultiply(QCArrayRef array, double mul) {
     if (array) {
@@ -225,6 +196,50 @@ void QCArrayRound(QCArrayRef array) {
     }
 }
 
+double QCArrayMax(QCArrayRef array) {
+    if (array) {
+        int count = array->count;
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                int value = 0;
+                for (int i = 0; i < count; ++i) {
+                    if (value < d[i]) {
+                        value = d[i];
+                    }
+                }
+                return value;
+            }
+            default: {
+                double *d = array->data;
+                double value = 0;
+                for (int i = 0; i < count; ++i) {
+                    if (value < d[i]) {
+                        value = d[i];
+                    }
+                }
+                return value;
+            }
+        }
+    }
+    return 0;
+}
+
+void QCArrayAddAt(QCArrayRef array, int index, double value) {
+    if (array && index < array->count) {
+        switch (array->datatype) {
+            case QCDTInt: {
+                int *d = array->data;
+                d[index] += (int)value;
+            }
+            default: {
+                double *d = array->data;
+                d[index] += value;
+            }
+        }
+    }
+}
+
 void QCArrayMod(QCArrayRef array, int mod) {
     if (array) {
         int count = array->count;
@@ -251,47 +266,6 @@ QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray) {
         return QCArrayCreateNoCopy(out, count, true);
     }
     return NULL;
-}
-
-QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
-    if (array) {
-        int count = array->count;
-        double *x = array->data;
-        int *indices = _QCMallocData(QCDTInt, count);
-        int idx = 0;
-        for (int i = 0; i < count; ++i) {
-            if ((int) round(x[i]) != 0) {
-                indices[idx] = i;
-                ++idx;
-            }
-        }
-
-        int *result = NULL;
-        if (idx > 0) {
-            result = _QCMallocData(QCDTInt, idx);
-            memcpy(result, indices, sizeof(int) * idx);
-        }
-
-        fftw_free(indices);
-
-        QCArrayRef ref = QCArrayCreateNoCopy((void *)result, idx, true);
-        ref->datatype = QCDTInt;
-        return ref;
-    }
-    return NULL;
-}
-
-int QCArrayFindIndex(QCArrayRef array, int value) {
-    if (array) {
-        int count = array->count;
-        int *data = array->data;
-        for (int i = 0; i < count; ++i) {
-            if (data[i] == value) {
-                return i;
-            }
-        }
-    }
-    return -1;
 }
 
 QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {

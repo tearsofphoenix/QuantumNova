@@ -6,6 +6,7 @@
 #define PQC_CRYPTO_QCKEYPRIVATE_H
 
 #include "QCArray.h"
+#include "QCKey.h"
 
 struct QCKey {
     // private key fields
@@ -21,5 +22,9 @@ struct QCKey {
     int weight;
     int error;
 };
+
+extern QCKeyRef QCKeyMalloc();
+
+extern void QCKeyFree(QCKeyRef key);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H
