@@ -80,8 +80,7 @@ static void mul_poly_test() {
     QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
     QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
 
-    QCArrayCompareRaw(result, kMulPolyOrigin);
-    QCArrayPrint(result);
+    QCArrayCompareRaw(result, kMulPoly);
 
     QCArrayFree(tempH0);
     QCArrayFree(tempC0);
@@ -97,13 +96,13 @@ static void exp_poly_test() {
 
 int main() {
 
-//    fft_test();
+    fft_test();
 
-//    complex_multiply_test();
+    complex_multiply_test();
 
-//    inverse_fft_test();
+    inverse_fft_test();
 
-//    square_sparse_test();
+    square_sparse_test();
 
     mul_poly_test();
 

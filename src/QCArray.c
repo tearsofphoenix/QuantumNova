@@ -260,16 +260,14 @@ QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
     QCArrayRef result = QCArrayInverseFFT(mul);
     QCArraySetCount(result, count);
 
-    QCArrayRef real = QCArrayGetRealParts(result);
-    QCArrayRound(real);
-//    QCArrayMod(real, 2);
+    QCArrayRound(result);
+    QCArrayMod(result, 2);
 
     QCArrayFree(fx);
     QCArrayFree(fy);
     QCArrayFree(mul);
-    QCArrayFree(result);
 
-    return real;
+    return result;
 }
 
 QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
@@ -301,52 +299,6 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
     QCArrayMod(result, 2);
 
     return result;
-}
-
-static bool _arrayCompare(const double *array, const double *expected, int count) {
-    bool equal = true;
-    if (array && expected) {
-        int total = 0;
-        for (int i = 0; i < count; ++i) {
-            if (fabs(array[i] - expected[i]) > 0.00000005) {
-                printf("not equal: %d %f %f\n", i, array[i], expected[i]);
-                equal = false;
-                ++total;
-            }
-        }
-        if (!equal) {
-            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
-        }
-    }
-    return equal;
-}
-
-bool QCArrayCompare(QCArrayRef xArray, QCArrayRef yArray) {
-    int count = xArray->count;
-    double *array = xArray->data;
-    double *expected = yArray->data;
-    return _arrayCompare(array, expected, count);
-}
-
-bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
-    int count = x->count;
-    double *array = x->data;
-    return _arrayCompare(array, expected, count);
-}
-
-void QCArrayPrint(QCArrayRef array) {
-    int count = array->count;
-    double *data = array->data;
-    int padding = 25;
-    printf("\n[ ");
-    const char* fmt = "%f, ";
-    for (int i = 0; i < count; ++i) {
-        printf(fmt, data[i]);
-        if (i % padding == 0 && i > 0) {
-            printf("\n");
-        }
-    }
-    printf(" ]\n");
 }
 
 void QCArrayFree(QCArrayRef array) {
