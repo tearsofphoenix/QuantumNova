@@ -5,39 +5,31 @@
 #include "fft-test.h"
 #include "data.h"
 #include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
 
 static void fft_test() {
     printf("-----------FFT test--------------\n");
 
     int size = sizeof(H0) / sizeof(H0[0]);
-    double *result = QCFFT(H0, size);
-    double *real = QCGetRealParts(result, size);
 
-    QCArrayRound(real, size);
-    QCCompareArray(real, kH0FFTReal, size);
-
-    fftw_free(result);
-    fftw_free(real);
+    QCArrayRef array = QCArrayCreateFrom(H0, size);
+    QCArrayFFT(array);
+    QCArrayRef real = QCArrayGetRealParts(array);
+    QCArrayRound(real);
+    QCArrayCompareRaw(real, kH0FFTReal);
 }
 
 static void complex_multiply_test() {
     printf("-----------complex multiply test--------------\n");
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    double *tempH0 = QCFFT(H0, count);
-    double *tempC0 = QCFFT(C0, count);
-    double *result = QCComplexMultiply(tempH0, tempC0, count + 2);
-    double *real = QCGetRealParts(result, count);
-
-    QCArrayRound(real, count);
-    QCCompareArray(real, kH0C0Multiply, count);
-
-    fftw_free(tempH0);
-    fftw_free(tempC0);
-    fftw_free(result);
-    fftw_free(real);
+    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    QCArrayFFT(tempH0);
+    QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
+    QCArrayFFT(tempC0);
+    QCArrayRef result = QCArrayComplexMultiply(tempH0, tempC0);
+    QCArrayRef real = QCArrayGetRealParts(result);
+    QCArrayRound(real);
+    QCArrayCompareRaw(real, kH0C0Multiply);
 }
 
 static void inverse_fft_test() {
@@ -45,37 +37,26 @@ static void inverse_fft_test() {
     printf("-----------inverse FFT test--------------\n");
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    double *tempH0 = QCFFT(H0, count);
-    double *result = QCInverseFFT(tempH0, count + 2);
-    QCArrayRound(result, count);
-    QCCompareArray(result, H0, count);
-
-    fftw_free(tempH0);
-    fftw_free(result);
+    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    QCArrayFFT(tempH0);
+    QCArrayRef result = QCArrayInverseFFT(tempH0);
+    QCArrayRound(result);
+    QCArrayCompareRaw(result, H0);
 }
 
 static void square_sparse_test() {
     printf("-----------square sparse test--------------\n");
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
-
-    double *tempH0 = QCSquareSparsePoly(H0, count, 1);
-    QCCompareArray(tempH0, kH0Sparse, count);
-
-    fftw_free(tempH0);
+    QCArrayRef array = QCArrayCreateFrom(H0, count);
+    QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
+    QCArrayCompareRaw(tempH0, kH0Sparse);
 }
 
 static void mul_poly_test() {
     printf("-----------mul_poly test--------------\n");
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
-
-    double *result = QCMulPoly(H0, C0, count);
-
-    QCCompareArray(result, kMulPoly, count);
-//    QCPrintDoubleArray(result, count);
-
-    fftw_free(result);
 }
 
 int main() {

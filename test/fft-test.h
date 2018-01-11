@@ -5,9 +5,7 @@
 #ifndef PQC_CRYPTO_FFT_TEST_H
 #define PQC_CRYPTO_FFT_TEST_H
 
-#include "src/helper.h"
-#include "src/fft.h"
-#include "src/arithmetic.h"
+#include "src/QCArray.h"
 
 
 #endif //PQC_CRYPTO_FFT_TEST_H

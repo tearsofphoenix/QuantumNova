@@ -1,3 +1,3 @@
 link_directories(/usr/local/opt/fftw/lib)
-add_library(qcrypto arithmetic.c arithmetic.h fft.c fft.h helper.c helper.h)
+add_library(qcrypto QCArray.c QCArray.h)
 target_link_libraries(qcrypto fftw3)
