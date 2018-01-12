@@ -84,7 +84,7 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
 
     bool increase = QCArrayValueAt(synd, (i + j) % kBL) == 0;
 
-    for (int _ = 0; _ < array0->count; ++i) {
+    for (int _ = 0; _ < array0->count; ++_) {
         int k = (int)QCArrayValueAt(array0, _);
         int m = (i + j - k + kBL) % kBL;
         if (increase) {
@@ -94,7 +94,7 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
         }
     }
 
-    for (int _ = 0; _ < array1->count; ++i) {
+    for (int _ = 0; _ < array1->count; ++_) {
         int k = (int)QCArrayValueAt(array1, _);
         int m = (i + j - k + kBL) % kBL;
         if (increase) {
