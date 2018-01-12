@@ -115,7 +115,7 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     QCArrayRef H1_ind = QCArrayGetNoZeroIndices(privateKey->h1);
 
     int kBL = privateKey->length;
-    QCArrayRef unsat_H0 = QCArrayCreateWithType(QCDTInt, kBL);
+    QCArrayRef unsat_H0 = QCArrayCreateWithInt(NULL, kBL, false);
 
     QCLoopContext ctx;
     ctx.synd = synd;
@@ -123,7 +123,7 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     ctx.kBL = kBL;
     QCArrayForeach(H0_ind, _h0LoopFunc, &ctx);
 
-    QCArrayRef unsat_H1 = QCArrayCreateWithType(QCDTInt, kBL);
+    QCArrayRef unsat_H1 = QCArrayCreateWithInt(NULL, kBL, false);
     ctx.array = unsat_H1;
     QCArrayForeach(H1_ind, _h0LoopFunc, &ctx);
 

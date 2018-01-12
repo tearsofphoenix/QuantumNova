@@ -15,7 +15,7 @@ static void fft_test() {
 
     int size = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef array = QCArrayCreateFrom(H0, size);
+    QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
     QCArrayRef fft = QCArrayFFT(array);
 
     QCArrayRef real = QCArrayGetRealParts(fft);
@@ -31,9 +31,9 @@ static void complex_multiply_test() {
     printf("-----------complex multiply test--------------\n");
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef x = QCArrayFFT(tempH0);
-    QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
+    QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
     QCArrayRef y = QCArrayFFT(tempC0);
     QCArrayRef result = QCArrayComplexMultiply(x, y);
     QCArraySetCount(result, count);
@@ -52,7 +52,7 @@ static void inverse_fft_test() {
     printf("-----------inverse FFT test--------------\n");
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
+    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef x = QCArrayFFT(tempH0);
     QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
@@ -67,7 +67,7 @@ static void square_sparse_test() {
     printf("-----------square sparse test--------------\n");
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
-    QCArrayRef array = QCArrayCreateFrom(H0, count);
+    QCArrayRef array = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
     QCArrayCompareRaw(tempH0, kH0Sparse);
 
@@ -80,8 +80,8 @@ static void mul_poly_test() {
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateFrom(H0, count);
-    QCArrayRef tempC0 = QCArrayCreateFrom(C0, count);
+    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
+    QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
     QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
 
     QCArrayCompareRaw(result, kMulPoly);
@@ -95,7 +95,7 @@ static void exp_poly_test() {
     printf("-----------exp_poly test--------------\n");
 
     size_t count = sizeof(kExpInput) / sizeof(kExp20[0]);
-    QCArrayRef tempH0 = QCArrayCreateFrom(kExpInput, count);
+    QCArrayRef tempH0 = QCArrayCreateWithDouble(kExpInput, count, true);
     int64_t n = pow(2, 20) - 2;
     QCArrayRef result = QCArrayExpPoly(tempH0, n);
     QCArrayCompareRaw(result, kExp20);
@@ -123,7 +123,7 @@ static void test_all(int count) {
 
 int main() {
 
-//    test_all(1);
+    test_all(1);
 
     cipher_test();
 

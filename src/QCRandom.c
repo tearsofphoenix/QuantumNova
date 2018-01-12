@@ -20,7 +20,7 @@ QCArrayRef QCRandomVector(int count) {
 }
 
 QCArrayRef QCRandomWeightVector(int count, int weight) {
-    QCArrayRef random_indices = QCArrayCreateWithType(QCDTInt, weight);
+    QCArrayRef random_indices = QCArrayCreateWithInt(NULL, weight, false);
     while (QCArrayGetNonZeroCount(random_indices) < weight) {
         int ind = QCArrayGetNonZeroCount(random_indices);
         int rnd = getRandomInt(0, count);

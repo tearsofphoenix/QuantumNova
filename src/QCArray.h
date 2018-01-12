@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 typedef enum {
     QCDTInt = 0,
@@ -24,19 +25,11 @@ typedef struct QCArray * QCArrayRef;
 extern QCArrayRef QCArrayCreate(int count);
 
 /*
- *  create an array with `count`, zero filled
+ *
  */
-extern QCArrayRef QCArrayCreateWithType(QCArrayDataType type, int count);
+extern QCArrayRef QCArrayCreateWithDouble(const double *array, size_t count, bool needCopy);
 
-/*
- * create an array with `count`, copy data from x
- */
-extern QCArrayRef QCArrayCreateFrom(const double *x, int count);
-
-/*
- * create an array with `count`, retain pointer x, no-copy data
- */
-extern QCArrayRef QCArrayCreateNoCopy(void *x, int count, bool needfree);
+extern QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool needCopy);
 
 /*
  * create copy of array
@@ -70,11 +63,6 @@ extern int QCArrayFindIndex(QCArrayRef array, int value);
 extern int QCArrayGetNonZeroCount(QCArrayRef array);
 
 /*
- * set fft flag
- */
-extern void QCArraySetFFTFlag(QCArrayRef array, bool flag);
-
-/*
  * for-each loop on array
  */
 extern void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx);
@@ -88,11 +76,6 @@ extern QCArrayRef QCArrayFFT(QCArrayRef array);
  * do inverse fft on `array`, return a new array
  */
 extern QCArrayRef QCArrayInverseFFT(QCArrayRef array);
-
-/*
- * scale each number in array (modified)
- */
-extern void QCArrayScale(QCArrayRef array, double scale);
 
 /*
  * do complex multiply : x * y, return a new array
@@ -140,19 +123,9 @@ extern QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray);
 extern QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array);
 
 /*
- * compare two array
- */
-extern bool QCArrayCompare(QCArrayRef x, QCArrayRef expected);
-
-/*
  * compare array with raw data
  */
 extern bool QCArrayCompareRaw(QCArrayRef x, const double *expected);
-
-/*
- * print an array
- */
-extern void QCArrayPrint(QCArrayRef array);
 
 /*
  * square spare poly

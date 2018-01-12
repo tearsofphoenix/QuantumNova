@@ -8,6 +8,16 @@
 #include <fftw3.h>
 #include <memory.h>
 
+static struct QCClass kQCArrayClass = {
+        .base = NULL,
+        .name = "QCClass",
+        .allocator = QCAllocator,
+        .deallocate = QCFree,
+        .copy = NULL
+};
+
+const QCClassRef kQCArrayClassRef = &kQCArrayClass;
+
 void *_QCMallocData(QCArrayDataType type, int count, size_t *outsize) {
     size_t size = 0;
     switch (type) {
@@ -45,57 +55,77 @@ void QCArraySetCount(QCArrayRef array, int newCount) {
 
 void QCArraySetValueAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        QCARRAYONE(array, d[index] = (int)value, d[index] = value);
+        array->isa->set(array, index, value);
     }
 }
 
 double QCArrayValueAt(QCArrayRef array, int index) {
     if (array) {
-        QCARRAYONE(array, return d[index], return d[index]);
+        return array->isa->get(array, index);
     }
     return 0;
 }
 
 int QCArrayGetNonZeroCount(QCArrayRef array) {
     if (array) {
-        int total = 0;
-        QCARRAYEACH(array, if (d[i] != 0) { ++total; }, if ((int)d[i] != 0) { ++total; });
-        return total;
+        return array->isa->zero(array);
     }
     return 0;
 }
 
-void QCArraySetFFTFlag(QCArrayRef array, bool flag) {
+void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx) {
+    if (array && func) {
+        array->isa->enumerator(array, func, ctx);
+    }
+}
+
+double QCArrayMax(QCArrayRef array) {
     if (array) {
-        array->fft = flag;
+        return array->isa->max(array);
+    }
+    return 0;
+}
+
+QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray) {
+    if (complexArray) {
+        return complexArray->isa->real(complexArray);
+    }
+    return NULL;
+}
+
+void QCArrayAddArray(QCArrayRef x, QCArrayRef y) {
+    if (x && y) {
+        x->isa->add(x, y);
+    }
+}
+
+void QCArrayMultiply(QCArrayRef array, double mul) {
+    if (array) {
+        array->isa->multiply(array, mul);
+    }
+}
+
+void QCArrayRound(QCArrayRef array) {
+    if (array) {
+        array->isa->round(array);
+    }
+}
+
+void QCArrayAddAt(QCArrayRef array, int index, double value) {
+    if (array && index < array->count) {
+        array->isa->addAt(array, index, value);
+    }
+}
+
+void QCArrayMod(QCArrayRef array, int mod) {
+    if (array) {
+        array->isa->mod(array, mod);
     }
 }
 
 QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
     if (array) {
-        int count = array->count;
-        double *x = array->data;
-        int *indices = _QCMallocData(QCDTInt, count, NULL);
-        int idx = 0;
-        for (int i = 0; i < count; ++i) {
-            if ((int) round(x[i]) != 0) {
-                indices[idx] = i;
-                ++idx;
-            }
-        }
-
-        int *result = NULL;
-        if (idx > 0) {
-            size_t size = 0;
-            result = _QCMallocData(QCDTInt, idx, &size);
-            memcpy(result, indices, size);
-        }
-
-        fftw_free(indices);
-
-        QCArrayRef ref = QCArrayCreateNoCopy((void *)result, idx, true);
-        ref->datatype = QCDTInt;
-        return ref;
+        return array->isa->nonzeroIndices(array);
     }
     return NULL;
 }
@@ -116,20 +146,6 @@ int QCArrayFindIndex(QCArrayRef array, int value) {
 ////////////////////////////////////////////////////////////////
 //                auxiliary functions                         //
 ////////////////////////////////////////////////////////////////
-
-void QCArrayPrint(QCArrayRef array) {
-    int count = array->count;
-    QCArrayDataType type = array->datatype;
-
-    int padding = 25;
-    printf("\n[ ");
-
-    QCARRAYEACH(array,
-                printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); },
-                printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
-
-    printf(" ]\n");
-}
 
 static bool _arrayCompareDouble(const double *array, const double *expected, int count) {
     bool equal = true;
@@ -172,7 +188,7 @@ static bool _arrayCompareInt(const int *array, const int *expected, int count) {
     if (array && expected) {
         int total = 0;
         for (int i = 0; i < count; ++i) {
-            if (fabs(array[i] - expected[i]) > 0.00000005) {
+            if (array[i] != expected[i]) {
                 printf("not equal: %d %d %d\n", i, array[i], expected[i]);
                 equal = false;
                 ++total;
@@ -183,27 +199,6 @@ static bool _arrayCompareInt(const int *array, const int *expected, int count) {
         }
     }
     return equal;
-}
-
-
-bool QCArrayCompare(QCArrayRef xArray, QCArrayRef yArray) {
-    if (xArray && yArray) {
-        int count = xArray->count;
-        if (xArray->datatype == QCDTInt) {
-            if (yArray->datatype == QCDTInt) {
-                return _arrayCompareInt(xArray->data, yArray->data, count);
-            } else {
-                return _arrayCompareMix(xArray->data, yArray->data, count);
-            }
-        } else {
-            if (yArray->datatype == QCDTInt) {
-                return _arrayCompareInt(yArray->data, xArray->data, count);
-            } else {
-                return _arrayCompareDouble(xArray->data, yArray->data, count);
-            }
-        }
-    }
-    return true;
 }
 
 bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
@@ -218,32 +213,14 @@ bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
     return true;
 }
 
-void QCArrayFixConjugateHalf(QCArrayRef array) {
+void QCArrayXORAt(QCArrayRef array, int index, int value) {
     if (array) {
-        int count = array->count;
-        int half = count / 2;
-        switch (array->datatype) {
-            case QCDTInt: {
-                int *d = array->data;
-                for (int i = 0; i < half; ++i) {
-                    printf("%d\n", count - i);
-                    d[count - i] = d[i];
-                }
-                break;
-            }
-            default: {
-                double *d = array->data;
-                for (int i = 0; i < half; ++i) {
-                    d[count - i] = d[i];
-                }
-                break;
-            }
-        }
+        array->isa->xorAt(array, index, value);
     }
 }
 
-void QCArrayXORAt(QCArrayRef array, int index, int value) {
-    if (array) {
-        QCARRAYONE(array, d[index] ^= value, d[index] = (int)d[index] ^ value);
+void QCArrayFree(QCArrayRef array) {
+    if (array && array->needfree) {
+//        fftw_free(array->data);
     }
 }

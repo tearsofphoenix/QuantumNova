@@ -13,11 +13,11 @@ static void mul_poly_test() {
     printf("-----------mul poly test--------------\n");
 
     int length = 4801;
-    QCArrayRef h0 = QCArrayCreateFrom(H0, length);
-    QCArrayRef h1 = QCArrayCreateFrom(H1, length);
+    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
+    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
 
-    QCArrayRef c0 = QCArrayCreateFrom(C0, length);
-    QCArrayRef c1 = QCArrayCreateFrom(C1, length);
+    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
+    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
 
     QCArrayRef h0c0 = QCArrayMulPoly(h0, c0);
     QCArrayCompareRaw(h0c0, kMulPoly);
@@ -42,14 +42,14 @@ static void cipher_syndrome_test() {
     int weight = 45;
     int error = 42;
 
-    QCArrayRef h0 = QCArrayCreateFrom(H0, length);
-    QCArrayRef h1 = QCArrayCreateFrom(H1, length);
-    QCArrayRef h1inv = QCArrayCreateFrom(H1_inv, length);
+    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
+    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
+    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
 
     QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, length, weight, error);
 
-    QCArrayRef c0 = QCArrayCreateFrom(C0, length);
-    QCArrayRef c1 = QCArrayCreateFrom(C1, length);
+    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
+    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
 
     QCArrayRef result = QCCipherSyndrome(privateKey, c0, c1);
     QCArrayCompareRaw(result, kSyndrome);
@@ -71,14 +71,14 @@ static void decrypt_test() {
     int weight = 45;
     int error = 42;
 
-    QCArrayRef h0 = QCArrayCreateFrom(H0, length);
-    QCArrayRef h1 = QCArrayCreateFrom(H1, length);
-    QCArrayRef h1inv = QCArrayCreateFrom(H1_inv, length);
+    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
+    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
+    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
 
     QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, length, weight, error);
 
-    QCArrayRef c0 = QCArrayCreateFrom(C0, length);
-    QCArrayRef c1 = QCArrayCreateFrom(C1, length);
+    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
+    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
     QCArrayRef result = QCCipherDecrypt(privateKey, c0, c1);
 
     QCArrayCompareRaw(result, kQCMDPCDecrypt);
