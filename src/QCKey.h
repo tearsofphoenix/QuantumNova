@@ -6,11 +6,12 @@
 #define PQC_CRYPTO_QCKEY_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct {
-    int length;
-    int weight;
-    int error;
+    size_t length;
+    size_t weight;
+    size_t error;
 } QCKeyConfig;
 
 typedef struct QCKey *QCKeyRef;

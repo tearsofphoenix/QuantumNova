@@ -13,7 +13,7 @@ typedef void (* QCTestFunc)(void);
 static void fft_test() {
     printf("-----------FFT test--------------\n");
 
-    int size = sizeof(H0) / sizeof(H0[0]);
+    size_t size = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
 
@@ -103,13 +103,13 @@ static void exp_poly_test() {
     QCArrayCompareRaw(result, kExp20);
 }
 
-static void loop_test(QCTestFunc func, int count) {
-    for (int i = 0; i < count; ++i) {
+static void loop_test(QCTestFunc func, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
         func();
     }
 }
 
-static void test_all(int count) {
+static void test_all(size_t count) {
     loop_test(fft_test, count);
 
     loop_test(complex_multiply_test, count);

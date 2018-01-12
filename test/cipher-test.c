@@ -7,13 +7,12 @@
 #include "cipher-test.h"
 #include "src/QCCipher.h"
 #include "src/QCKeyPrivate.h"
-#include "src/QCObject.h"
 #include "data.h"
 
 static void mul_poly_test() {
     printf("-----------mul poly test--------------\n");
 
-    int length = 4801;
+    size_t length = 4801;
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
 
@@ -39,9 +38,9 @@ static void mul_poly_test() {
 static void cipher_syndrome_test() {
     printf("-----------cipher syndrome test--------------\n");
 
-    int length = 4801;
-    int weight = 45;
-    int error = 42;
+    size_t length = 4801;
+    size_t weight = 45;
+    size_t error = 42;
 
     QCKeyConfig config = {
             .length = length,
@@ -77,9 +76,9 @@ static void cipher_syndrome_test() {
 static void decrypt_test() {
     printf("-----------decrypt test--------------\n");
 
-    int length = 4801;
-    int weight = 45;
-    int error = 42;
+    size_t length = 4801;
+    size_t weight = 45;
+    size_t error = 42;
 
     QCKeyConfig config = {
             .length = length,

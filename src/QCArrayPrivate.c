@@ -47,7 +47,7 @@ void *_QCMallocData(QCArrayDataType type, int count, size_t *outsize) {
 //                base collection functions                   //
 ////////////////////////////////////////////////////////////////
 
-void QCArraySetCount(QCArrayRef array, int newCount) {
+void QCArraySetCount(QCArrayRef array, size_t newCount) {
     if (array) {
         array->count = newCount;
     }

@@ -39,7 +39,7 @@ extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);
 /*
  * reset the count in array, this will not release memory
  */
-extern void QCArraySetCount(QCArrayRef array, int newCount);
+extern void QCArraySetCount(QCArrayRef array, size_t newCount);
 
 /*
  * set value at index
