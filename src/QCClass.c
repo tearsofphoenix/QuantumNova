@@ -12,15 +12,17 @@ static struct QCClass kBaseClass = {
         .retain = QCRetain,
         .release = QCRelease,
         .copy = NULL,
-        .deallocate = QCFree,
+        .deallocate = QCDeallocate,
 };
 
 const QCClassRef kQCBaseClassRef = &kBaseClass;
 
 const void *QCAllocator(size_t size) {
-    return fftw_malloc(size);
+    QCObjectRef object = fftw_malloc(size);
+    object->retainCount = 1;
+    return object;
 }
 
-void QCFree(const void *p) {
+void QCDeallocate(const void *p) {
     fftw_free(p);
 }

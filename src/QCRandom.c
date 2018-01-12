@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "QCRandom.h"
+#include "QCObject.h"
 
 static int getRandomInt(int min, int max) {
     return (int)floor(random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
@@ -35,7 +36,7 @@ QCArrayRef QCRandomWeightVector(int count, int weight) {
         QCArraySetValueAt(real, idx, 1);
     }
 
-    QCArrayFree(random_indices);
+    QCRelease(random_indices);
 
     return real;
 }

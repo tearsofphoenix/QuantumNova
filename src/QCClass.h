@@ -19,6 +19,8 @@ typedef void (* QCReleaseFunc)(const void *);
 typedef void (* QCPrintFunc)(const void *);
 typedef bool (* QCEqualFunc)(const void *, const void *);
 
+#ifndef QCCLASSFIELDS
+
 #define QCCLASSFIELDS const QCClassRef base; \
                       const char *name; \
                       QCAllocatorFunc allocator; \
@@ -29,6 +31,8 @@ typedef bool (* QCEqualFunc)(const void *, const void *);
                       QCPrintFunc print; \
                       QCEqualFunc equal;
 
+#endif
+
 struct QCClass {
     QCCLASSFIELDS
 };
@@ -38,6 +42,6 @@ extern const QCClassRef kQCBaseClassRef;
 
 extern const void *QCAllocator(size_t size);
 
-extern void QCFree(const void *p);
+extern void QCDeallocate(const void *p);
 
 #endif //PQC_CRYPTO_QCCLASS_H

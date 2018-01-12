@@ -7,6 +7,7 @@
 #include "cipher-test.h"
 #include "src/QCCipher.h"
 #include "src/QCKeyPrivate.h"
+#include "src/QCObject.h"
 #include "data.h"
 
 static void mul_poly_test() {
@@ -25,12 +26,12 @@ static void mul_poly_test() {
     QCArrayRef h1c1 = QCArrayMulPoly(h1, c1);
     QCArrayCompareRaw(h1c1, kH1C1MulPoly);
 
-    QCArrayFree(h0);
-    QCArrayFree(h1);
-    QCArrayFree(c0);
-    QCArrayFree(c1);
-    QCArrayFree(h0c0);
-    QCArrayFree(h1c1);
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(c0);
+    QCRelease(c1);
+    QCRelease(h0c0);
+    QCRelease(h1c1);
 
     printf("-----------mul poly test end--------------\n");
 }
@@ -54,13 +55,13 @@ static void cipher_syndrome_test() {
     QCArrayRef result = QCCipherSyndrome(privateKey, c0, c1);
     QCArrayCompareRaw(result, kSyndrome);
 
-    QCArrayFree(h0);
-    QCArrayFree(h1);
-    QCArrayFree(h1inv);
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
     QCKeyFree(privateKey);
-    QCArrayFree(c0);
-    QCArrayFree(c1);
-    QCArrayFree(result);
+    QCRelease(c0);
+    QCRelease(c1);
+    QCRelease(result);
     printf("-----------cipher syndrome test end--------------\n");
 }
 
@@ -83,13 +84,13 @@ static void decrypt_test() {
 
     QCArrayCompareRaw(result, kQCMDPCDecrypt);
 
-    QCArrayFree(h0);
-    QCArrayFree(h1);
-    QCArrayFree(h1inv);
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
     QCKeyFree(privateKey);
-    QCArrayFree(c0);
-    QCArrayFree(c1);
-    QCArrayFree(result);
+    QCRelease(c0);
+    QCRelease(c1);
+    QCRelease(result);
 
     printf("-----------decrypt test end--------------\n");
 }

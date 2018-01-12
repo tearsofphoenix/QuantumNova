@@ -6,6 +6,7 @@
 #include "QCArrayPrivate.h"
 #include "QCDoubleArray.h"
 #include "QCInt32Array.h"
+#include "QCObject.h"
 #include <fftw3.h>
 #include <memory.h>
 #include <math.h>
@@ -65,7 +66,7 @@ QCArrayRef QCArrayInverseFFT(QCArrayRef array) {
 
 QCArrayRef QCArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray) {
     if (xArray && yArray) {
-        return xArray->isa->complexMultiply(xArray, yArray);
+        return ((QCArrayClassRef)xArray->isa)->complexMultiply(xArray, yArray);
     }
     return NULL;
 }
@@ -90,7 +91,7 @@ QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times) {
             x[idx] = (int) x[idx] ^ 1;
         }
 
-        QCArrayFree(indices);
+        QCRelease(indices);
 
         return result;
     }
@@ -108,9 +109,9 @@ QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
     QCArrayRound(result);
     QCArrayMod(result, 2);
 
-    QCArrayFree(fx);
-    QCArrayFree(fy);
-    QCArrayFree(mul);
+    QCRelease(fx);
+    QCRelease(fy);
+    QCRelease(mul);
 
     return result;
 }

@@ -5,6 +5,7 @@
 #include "QCCipher.h"
 #include "QCKeyPrivate.h"
 #include "QCRandom.h"
+#include "QCObject.h"
 #include "QCArrayPrivate.h"
 #include <math.h>
 #include <printf.h>
@@ -34,7 +35,7 @@ QCArrayRef QCCipherSyndrome(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef
 
     QCArrayMod(temp, 2);
 
-    QCArrayFree(t2);
+    QCRelease(t2);
 
     return temp;
 }
@@ -196,15 +197,15 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
             QCArrayXORAt(c1, i, 1);
         }
 
-        QCArrayFree(round_unsat_H0);
-        QCArrayFree(round_unsat_H1);
+        QCRelease(round_unsat_H0);
+        QCRelease(round_unsat_H1);
     }
 
-    QCArrayFree(unsat_H0);
-    QCArrayFree(unsat_H1);
-    QCArrayFree(H0_ind);
-    QCArrayFree(H1_ind);
-    QCArrayFree(synd);
+    QCRelease(unsat_H0);
+    QCRelease(unsat_H1);
+    QCRelease(H0_ind);
+    QCRelease(H1_ind);
+    QCRelease(synd);
 
     return c0;
 }

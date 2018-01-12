@@ -24,9 +24,9 @@ static void fft_test() {
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0FFTReal);
 
-    QCArrayFree(array);
-    QCArrayFree(fft);
-    QCArrayFree(real);
+    QCRelease(array);
+    QCRelease(fft);
+    QCRelease(real);
 }
 
 static void complex_multiply_test() {
@@ -43,10 +43,10 @@ static void complex_multiply_test() {
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0C0Multiply);
 
-    QCArrayFree(tempH0);
-    QCArrayFree(tempC0);
-    QCArrayFree(result);
-    QCArrayFree(real);
+    QCRelease(tempH0);
+    QCRelease(tempC0);
+    QCRelease(result);
+    QCRelease(real);
 }
 
 static void inverse_fft_test() {
@@ -60,9 +60,9 @@ static void inverse_fft_test() {
     QCArrayRound(result);
     QCArrayCompareRaw(result, H0);
 
-    QCArrayFree(tempH0);
-    QCArrayFree(x);
-    QCArrayFree(result);
+    QCRelease(tempH0);
+    QCRelease(x);
+    QCRelease(result);
 }
 
 static void square_sparse_test() {
@@ -73,8 +73,8 @@ static void square_sparse_test() {
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
     QCArrayCompareRaw(tempH0, kH0Sparse);
 
-    QCArrayFree(array);
-    QCArrayFree(tempH0);
+    QCRelease(array);
+    QCRelease(tempH0);
 }
 
 static void mul_poly_test() {
@@ -88,9 +88,9 @@ static void mul_poly_test() {
 
     QCArrayCompareRaw(result, kMulPoly);
 
-    QCArrayFree(tempH0);
-    QCArrayFree(tempC0);
-    QCArrayFree(result);
+    QCRelease(tempH0);
+    QCRelease(tempC0);
+    QCRelease(result);
 }
 
 static void exp_poly_test() {

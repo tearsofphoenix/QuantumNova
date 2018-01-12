@@ -12,7 +12,7 @@ static struct QCClass kQCArrayClass = {
         .base = NULL,
         .name = "QCClass",
         .allocator = QCAllocator,
-        .deallocate = QCFree,
+        .deallocate = QCDeallocate,
         .copy = NULL
 };
 
@@ -55,77 +55,77 @@ void QCArraySetCount(QCArrayRef array, int newCount) {
 
 void QCArraySetValueAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        array->isa->set(array, index, value);
+        ((QCArrayClassRef)array->isa)->set(array, index, value);
     }
 }
 
 double QCArrayValueAt(QCArrayRef array, int index) {
     if (array) {
-        return array->isa->get(array, index);
+        return ((QCArrayClassRef)array->isa)->get(array, index);
     }
     return 0;
 }
 
 int QCArrayGetNonZeroCount(QCArrayRef array) {
     if (array) {
-        return array->isa->zero(array);
+        return ((QCArrayClassRef)array->isa)->zero(array);
     }
     return 0;
 }
 
 void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx) {
     if (array && func) {
-        array->isa->enumerator(array, func, ctx);
+        ((QCArrayClassRef)array->isa)->enumerator(array, func, ctx);
     }
 }
 
 double QCArrayMax(QCArrayRef array) {
     if (array) {
-        return array->isa->max(array);
+        return ((QCArrayClassRef)array->isa)->max(array);
     }
     return 0;
 }
 
 QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray) {
     if (complexArray) {
-        return complexArray->isa->real(complexArray);
+        return ((QCArrayClassRef)complexArray->isa)->real(complexArray);
     }
     return NULL;
 }
 
 void QCArrayAddArray(QCArrayRef x, QCArrayRef y) {
     if (x && y) {
-        x->isa->add(x, y);
+        ((QCArrayClassRef)x->isa)->add(x, y);
     }
 }
 
 void QCArrayMultiply(QCArrayRef array, double mul) {
     if (array) {
-        array->isa->multiply(array, mul);
+        ((QCArrayClassRef)array->isa)->multiply(array, mul);
     }
 }
 
 void QCArrayRound(QCArrayRef array) {
     if (array) {
-        array->isa->round(array);
+        ((QCArrayClassRef)array->isa)->round(array);
     }
 }
 
 void QCArrayAddAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        array->isa->addAt(array, index, value);
+        ((QCArrayClassRef)array->isa)->addAt(array, index, value);
     }
 }
 
 void QCArrayMod(QCArrayRef array, int mod) {
     if (array) {
-        array->isa->mod(array, mod);
+        ((QCArrayClassRef)array->isa)->mod(array, mod);
     }
 }
 
 QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array) {
     if (array) {
-        return array->isa->nonzeroIndices(array);
+        return ((QCArrayClassRef)array->isa)->nonzeroIndices(array);
     }
     return NULL;
 }
@@ -215,12 +215,12 @@ bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
 
 void QCArrayXORAt(QCArrayRef array, int index, int value) {
     if (array) {
-        array->isa->xorAt(array, index, value);
+        ((QCArrayClassRef)array->isa)->xorAt(array, index, value);
     }
 }
 
 void QCArrayFree(QCArrayRef array) {
     if (array && array->needfree) {
-//        fftw_free(array->data);
+        fftw_free(array->data);
     }
 }

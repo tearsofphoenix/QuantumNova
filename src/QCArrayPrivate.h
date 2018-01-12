@@ -8,6 +8,7 @@
 
 #include "QCArray.h"
 #include "QCClass.h"
+#include "QCObject.h"
 #include <stdbool.h>
 #include <ntsid.h>
 
@@ -47,7 +48,7 @@ struct QCArrayClass {
 typedef struct QCArrayClass *QCArrayClassRef;
 
 struct QCArray {
-    QCArrayClassRef isa;
+    QCOBJECTFIELDS
     void *data;
     size_t count; // count of number in data
     struct {

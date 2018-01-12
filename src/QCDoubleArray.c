@@ -39,7 +39,7 @@ static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
         .name = "QCDoubleArray",
         .allocator = QCAllocator,
-        .deallocate = QCFree,
+        .deallocate = QCArrayFree,
         .copy = QCDoubleArrayCopy,
         .enumerator = QCDoubleArrayEnumerator,
         .add = QCDoubleArrayAdd,
@@ -144,12 +144,14 @@ static double QCDoubleArrayGetAt(QCArrayRef x, int index) {
 
 
 static void QCDoubleArrayPrint(QCArrayRef array) {
-    int padding = 25;
-    printf("\n[ ");
+    if (array) {
+        int padding = 25;
+        printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
-    QCFOREACH(array, printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
+        QCFOREACH(array, printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
 
-    printf(" ]\n");
+        printf(" ]\n");
+    }
 }
 
 static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
