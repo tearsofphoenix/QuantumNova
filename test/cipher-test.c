@@ -43,11 +43,17 @@ static void cipher_syndrome_test() {
     int weight = 45;
     int error = 42;
 
+    QCKeyConfig config = {
+            .length = length,
+            .weight = weight,
+            .error = error
+    };
+
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
     QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
 
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, length, weight, error);
+    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
@@ -75,11 +81,17 @@ static void decrypt_test() {
     int weight = 45;
     int error = 42;
 
+    QCKeyConfig config = {
+            .length = length,
+            .weight = weight,
+            .error = error
+    };
+
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
     QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
 
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, length, weight, error);
+    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);

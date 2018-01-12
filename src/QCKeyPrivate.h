@@ -25,7 +25,6 @@ struct QCKey {
     int error;
 };
 
-extern QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g,
-                                int length, int weight, int error);
+extern QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g, QCKeyConfig config);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H

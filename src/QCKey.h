@@ -15,7 +15,7 @@ typedef struct {
 
 typedef struct QCKey *QCKeyRef;
 
-extern QCKeyRef QCKeyCreate(int length, int weight, bool privateOrPublic);
+extern QCKeyRef QCKeyCreate(QCKeyConfig config, bool privateOrPublic);
 
 extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey);
 

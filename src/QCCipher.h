@@ -9,7 +9,7 @@
 #include "QCKey.h"
 #include "QCObject.h"
 
-typedef struct QCCipher *QCCipherRef;
+typedef struct QCCipher * QCCipherRef;
 
 extern QCCipherRef QCCipherCreate(void);
 
