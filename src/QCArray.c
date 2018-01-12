@@ -172,7 +172,7 @@ double QCArrayMax(QCArrayRef array) {
 
 void QCArrayAddAt(QCArrayRef array, int index, double value) {
     if (array && index < array->count) {
-        QCARRAYEACH(array, d[index] += (int)value, d[index] += value);
+        QCARRAYONE(array, d[index] += (int)value, d[index] += value);
     }
 }
 

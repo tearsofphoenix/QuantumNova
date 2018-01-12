@@ -9,19 +9,6 @@
 #include <math.h>
 #include <printf.h>
 
-
-static double kH0ind[] = { 30,   49,  240,  250,  299,  376,  519,  602,  725,  746,  964,
-                           1011, 1045, 1078, 1101, 1142, 1321, 1333, 1365, 1576, 1604, 1619,
-                           1708, 1780, 2010, 2395, 2399, 2415, 2473, 2669, 2772, 3017, 3082,
-                           3085, 3178, 3218, 3239, 3324, 3335, 3636, 3655, 3670, 4336, 4510,
-                           4743};
-
-static double kH1ind[] = {23,   55,  115,  194,  530,  571,  584,  621,  641,  693,  694,
-                          805,  882,  910,  918,  934, 1010, 1185, 1201, 1554, 1565, 1890,
-                          1898, 2006, 2073, 2152, 2361, 2382, 2651, 2938, 3370, 3419, 3505,
-                          3571, 3878, 4033, 4160, 4228, 4283, 4511, 4560, 4651, 4657, 4683,
-                          4695};
-
 void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCArrayRef *v) {
 // non-constant weight to achieve cipertext indistinguishability
 
@@ -63,10 +50,11 @@ static void _h0LoopFunc(double num, int index, const void *ctx) {
     QCArrayRef synd = c->synd;
     int kBL = c->kBL;
     QCArrayRef array = c->array;
+    int *d = array->data;
     for (int j = 0; j < synd->count; ++ j) {
-        if (QCArrayValueAt(synd, j)) {
+        if ((int)QCArrayValueAt(synd, j) != 0) {
             int idx = (j + kBL - (int)num) % kBL;
-            QCArrayAddAt(array, idx, 1);
+            d[idx] += 1;
         }
     }
 }
@@ -127,7 +115,7 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     QCArrayRef H1_ind = QCArrayGetNoZeroIndices(privateKey->h1);
 
     int kBL = privateKey->length;
-    QCArrayRef unsat_H0 = QCArrayCreate(kBL);
+    QCArrayRef unsat_H0 = QCArrayCreateWithType(QCDTInt, kBL);
 
     QCLoopContext ctx;
     ctx.synd = synd;
@@ -135,7 +123,7 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     ctx.kBL = kBL;
     QCArrayForeach(H0_ind, _h0LoopFunc, &ctx);
 
-    QCArrayRef unsat_H1 = QCArrayCreate(kBL);
+    QCArrayRef unsat_H1 = QCArrayCreateWithType(QCDTInt, kBL);
     ctx.array = unsat_H1;
     QCArrayForeach(H1_ind, _h0LoopFunc, &ctx);
 
@@ -143,9 +131,6 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     int delta = 5;
     int threshold = 100;
     int r = 0;
-
-    QCArrayCompareRaw(H0_ind, kH0ind);
-    QCArrayCompareRaw(H1_ind, kH1ind);
 
     printf("--------index ok---------\n");
 
