@@ -11,10 +11,20 @@
 
 typedef struct QCCipher *QCCipherRef;
 
-extern void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCArrayRef *v);
+extern QCCipherRef QCCipherCreate(void);
 
-extern QCArrayRef QCCipherSyndrome(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef c1);
+extern QCKeyRef QCCipherGetPrivateKey(QCCipherRef cipher);
 
-extern QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef c1);
+extern QCKeyRef QCCipherGetPublicKey(QCCipherRef cipher);
+
+extern void QCCipherSetPrivateKey(QCCipherRef cipher, QCCipherRef privateKey);
+
+extern void QCCipherSetPublicKey(QCCipherRef cipher, QCCipherRef publicKey);
+
+extern void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCArrayRef *v);
+
+extern QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
+
+extern QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
 
 #endif //PQC_CRYPTO_QCCIPHER_H

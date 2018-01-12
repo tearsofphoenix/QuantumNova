@@ -7,12 +7,46 @@
 #include "QCRandom.h"
 #include "QCObject.h"
 #include "QCArrayPrivate.h"
+#include "QCCipherPrivate.h"
 #include <math.h>
 #include <printf.h>
 
-void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCArrayRef *v) {
-// non-constant weight to achieve cipertext indistinguishability
+static void QCCipherDeallocate(QCObjectRef object);
 
+static struct QCClass kQCCipherClass = {
+        .name = "QCCipher",
+        .size = sizeof(struct QCCipher),
+        .allocator = QCAllocator,
+        .deallocate = QCCipherDeallocate
+};
+
+QCCipherRef QCCipherCreate(void) {
+    QCCipherRef cipher = QCAllocate(&kQCCipherClass);
+    return cipher;
+}
+
+QCKeyRef QCCipherGetPrivateKey(QCCipherRef cipher) {
+    return cipher->privateKey;
+}
+
+QCKeyRef QCCipherGetPublicKey(QCCipherRef cipher) {
+    return cipher->publicKey;
+}
+
+void QCCipherSetPrivateKey(QCCipherRef cipher, QCCipherRef privateKey) {
+    QCRelease(cipher->privateKey);
+    cipher->privateKey = QCRetain(privateKey);
+}
+
+void QCCipherSetPublicKey(QCCipherRef cipher, QCCipherRef publicKey) {
+    QCRelease(cipher->publicKey);
+    cipher->publicKey = QCRetain(publicKey);
+}
+
+
+void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCArrayRef *v) {
+// non-constant weight to achieve cipertext indistinguishability
+    QCKeyRef publicKey = cipher->publicKey;
     QCArrayRef temp = QCArrayMulPoly(publicKey->g, message);
     QCArrayRef t = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
     QCArrayAddArray(temp, t);
@@ -27,7 +61,8 @@ void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCAr
     *v = copy;
 }
 
-QCArrayRef QCCipherSyndrome(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef c1) {
+QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
+    QCKeyRef privateKey = cipher->privateKey;
     QCArrayRef temp = QCArrayMulPoly(privateKey->h0, c0);
     QCArrayRef t2 = QCArrayMulPoly(privateKey->h1, c1);
 
@@ -108,9 +143,9 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
     QCArrayXORAt(synd, idx, 1);
 }
 
-QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef c1) {
-
-    QCArrayRef synd = QCCipherSyndrome(privateKey, c0, c1);
+QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
+    QCKeyRef privateKey = cipher->privateKey;
+    QCArrayRef synd = QCCipherSyndrome(cipher, c0, c1);
     // compute correlations with syndrome
     QCArrayRef H0_ind = QCArrayGetNoZeroIndices(privateKey->h0);
     QCArrayRef H1_ind = QCArrayGetNoZeroIndices(privateKey->h1);
@@ -208,4 +243,13 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     QCRelease(synd);
 
     return c0;
+}
+
+//
+static void QCCipherDeallocate(QCObjectRef object) {
+    QCCipherRef cipher = (QCCipherRef)object;
+    if (object) {
+        QCRelease(cipher->privateKey);
+        QCRelease(cipher->publicKey);
+    }
 }

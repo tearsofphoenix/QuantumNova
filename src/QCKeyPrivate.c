@@ -24,10 +24,10 @@ static struct QCClass kQCKeyClass = {
 QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g,
                          int length, int weight, int error) {
     QCKeyRef key = QCAllocate(&kQCKeyClass);
-    key->h0 = h0;
-    key->h1 = h1;
-    key->h1inv = h1inv;
-    key->g = g;
+    key->h0 = QCRetain(h0);
+    key->h1 = QCRetain(h1);
+    key->h1inv = QCRetain(h1inv);
+    key->g = QCRetain(g);
     key->length = length;
     key->weight = weight;
     key->error = error;

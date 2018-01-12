@@ -52,7 +52,10 @@ static void cipher_syndrome_test() {
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
 
-    QCArrayRef result = QCCipherSyndrome(privateKey, c0, c1);
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privateKey);
+
+    QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
     QCArrayCompareRaw(result, kSyndrome);
 
     QCRelease(h0);
@@ -80,7 +83,11 @@ static void decrypt_test() {
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
-    QCArrayRef result = QCCipherDecrypt(privateKey, c0, c1);
+
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privateKey);
+
+    QCArrayRef result = QCCipherDecrypt(cipher, c0, c1);
 
     QCArrayCompareRaw(result, kQCMDPCDecrypt);
 
