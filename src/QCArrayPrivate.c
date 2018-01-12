@@ -73,7 +73,7 @@ int QCArrayGetNonZeroCount(QCArrayRef array) {
     return 0;
 }
 
-void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx) {
+void QCArrayForeach(QCArrayRef array, const void* func, const void *ctx) {
     if (array && func) {
         ((QCArrayClassRef)array->isa)->enumerator(array, func, ctx);
     }

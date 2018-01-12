@@ -65,7 +65,7 @@ extern int QCArrayGetNonZeroCount(QCArrayRef array);
 /*
  * for-each loop on array
  */
-extern void QCArrayForeach(QCArrayRef array, QCArrayEnumerator func, const void *ctx);
+extern void QCArrayForeach(QCArrayRef array, const void *func, const void *ctx);
 
 /*
  * do fft on `array`, return a new array

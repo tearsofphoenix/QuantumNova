@@ -17,9 +17,9 @@ extern QCKeyRef QCCipherGetPrivateKey(QCCipherRef cipher);
 
 extern QCKeyRef QCCipherGetPublicKey(QCCipherRef cipher);
 
-extern void QCCipherSetPrivateKey(QCCipherRef cipher, QCCipherRef privateKey);
+extern void QCCipherSetPrivateKey(QCCipherRef cipher, QCKeyRef privateKey);
 
-extern void QCCipherSetPublicKey(QCCipherRef cipher, QCCipherRef publicKey);
+extern void QCCipherSetPublicKey(QCCipherRef cipher, QCKeyRef publicKey);
 
 extern void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCArrayRef *v);
 

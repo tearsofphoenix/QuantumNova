@@ -5,7 +5,6 @@
 #include "QCCipher.h"
 #include "QCKeyPrivate.h"
 #include "QCRandom.h"
-#include "QCObject.h"
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include <math.h>
@@ -33,12 +32,12 @@ QCKeyRef QCCipherGetPublicKey(QCCipherRef cipher) {
     return cipher->publicKey;
 }
 
-void QCCipherSetPrivateKey(QCCipherRef cipher, QCCipherRef privateKey) {
+void QCCipherSetPrivateKey(QCCipherRef cipher, QCKeyRef privateKey) {
     QCRelease(cipher->privateKey);
     cipher->privateKey = QCRetain(privateKey);
 }
 
-void QCCipherSetPublicKey(QCCipherRef cipher, QCCipherRef publicKey) {
+void QCCipherSetPublicKey(QCCipherRef cipher, QCKeyRef publicKey) {
     QCRelease(cipher->publicKey);
     cipher->publicKey = QCRetain(publicKey);
 }
@@ -78,18 +77,18 @@ QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
 typedef struct {
     QCArrayRef synd;
     QCArrayRef array;
-    int kBL;
+    size_t kBL;
 } QCLoopContext;
 
 static void _h0LoopFunc(int num, int index, const void *ctx) {
     QCLoopContext *c = ctx;
     QCArrayRef synd = c->synd;
-    int kBL = c->kBL;
+    size_t kBL = c->kBL;
     QCArrayRef array = c->array;
     int *d = array->data;
     for (int j = 0; j < synd->count; ++ j) {
         if ((int)QCArrayValueAt(synd, j) != 0) {
-            int idx = (j + kBL - num) % kBL;
+            size_t idx = (j + kBL - num) % kBL;
             d[idx] += 1;
         }
     }
@@ -102,11 +101,11 @@ typedef struct {
     QCArrayRef un0;
     QCArrayRef un1;
     int i;
-    int kBL;
+    size_t kBL;
 } QCBlockLoopContext;
 
 static void _blockLoopFunc(int dj, int index, const void *ctx) {
-    int j = (int)dj;
+    int j = dj;
     QCBlockLoopContext *c = ctx;
 
     QCArrayRef synd = c->synd;
@@ -115,13 +114,13 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
     QCArrayRef un0 = c->un0;
     QCArrayRef un1 = c->un1;
     int i = c->i;
-    int kBL = c->kBL;
+    size_t kBL = c->kBL;
 
     bool increase = QCArrayValueAt(synd, (i + j) % kBL) == 0;
 
     for (int _ = 0; _ < array0->count; ++_) {
         int k = (int)QCArrayValueAt(array0, _);
-        int m = (i + j - k + kBL) % kBL;
+        size_t m = (i + j - k + kBL) % kBL;
         if (increase) {
             QCArrayAddAt(un0, m, 1);
         } else {
@@ -131,7 +130,7 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
 
     for (int _ = 0; _ < array1->count; ++_) {
         int k = (int)QCArrayValueAt(array1, _);
-        int m = (i + j - k + kBL) % kBL;
+        size_t m = (i + j - k + kBL) % kBL;
         if (increase) {
             QCArrayAddAt(un1, m, 1);
         } else {
@@ -139,7 +138,7 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
         }
     }
 
-    int idx = (i + j) % kBL;
+    size_t idx = (i + j) % kBL;
     QCArrayXORAt(synd, idx, 1);
 }
 
@@ -150,7 +149,7 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     QCArrayRef H0_ind = QCArrayGetNoZeroIndices(privateKey->h0);
     QCArrayRef H1_ind = QCArrayGetNoZeroIndices(privateKey->h1);
 
-    int kBL = privateKey->length;
+    size_t kBL = privateKey->length;
     QCArrayRef unsat_H0 = QCArrayCreateWithInt(NULL, kBL, false);
 
     QCLoopContext ctx;

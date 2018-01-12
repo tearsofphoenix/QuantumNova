@@ -19,7 +19,7 @@ static struct QCClass kBaseClass = {
 const QCClassRef kQCBaseClassRef = &kBaseClass;
 
 const void *QCAllocator(size_t size) {
-    const void *mem = fftw_malloc(size);
+    void *mem = fftw_malloc(size);
     memset(mem, 0, size);
     return mem;
 }
