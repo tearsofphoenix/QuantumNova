@@ -131,7 +131,7 @@ void QCArrayPrint(QCArrayRef array) {
     printf(" ]\n");
 }
 
-static bool _arrayCompare(const double *array, const double *expected, int count) {
+static bool _arrayCompareDouble(const double *array, const double *expected, int count) {
     bool equal = true;
     if (array && expected) {
         int total = 0;
@@ -149,17 +149,73 @@ static bool _arrayCompare(const double *array, const double *expected, int count
     return equal;
 }
 
+static bool _arrayCompareMix(const int *array, const double *expected, int count) {
+    bool equal = true;
+    if (array && expected) {
+        int total = 0;
+        for (int i = 0; i < count; ++i) {
+            if (fabs(array[i] - expected[i]) > 0.00000005) {
+                printf("not equal: %d %d %f\n", i, array[i], expected[i]);
+                equal = false;
+                ++total;
+            }
+        }
+        if (!equal) {
+            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
+        }
+    }
+    return equal;
+}
+
+static bool _arrayCompareInt(const int *array, const int *expected, int count) {
+    bool equal = true;
+    if (array && expected) {
+        int total = 0;
+        for (int i = 0; i < count; ++i) {
+            if (fabs(array[i] - expected[i]) > 0.00000005) {
+                printf("not equal: %d %d %d\n", i, array[i], expected[i]);
+                equal = false;
+                ++total;
+            }
+        }
+        if (!equal) {
+            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
+        }
+    }
+    return equal;
+}
+
+
 bool QCArrayCompare(QCArrayRef xArray, QCArrayRef yArray) {
-    int count = xArray->count;
-    double *array = xArray->data;
-    double *expected = yArray->data;
-    return _arrayCompare(array, expected, count);
+    if (xArray && yArray) {
+        int count = xArray->count;
+        if (xArray->datatype == QCDTInt) {
+            if (yArray->datatype == QCDTInt) {
+                return _arrayCompareInt(xArray->data, yArray->data, count);
+            } else {
+                return _arrayCompareMix(xArray->data, yArray->data, count);
+            }
+        } else {
+            if (yArray->datatype == QCDTInt) {
+                return _arrayCompareInt(yArray->data, xArray->data, count);
+            } else {
+                return _arrayCompareDouble(xArray->data, yArray->data, count);
+            }
+        }
+    }
+    return true;
 }
 
 bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
-    int count = x->count;
-    double *array = x->data;
-    return _arrayCompare(array, expected, count);
+    if (x && expected) {
+        int count = x->count;
+        if (x->datatype == QCDTInt) {
+            return _arrayCompareMix(x->data, expected, count);
+        } else {
+            return _arrayCompareDouble(x->data, expected, count);
+        }
+    }
+    return true;
 }
 
 void QCArrayFixConjugateHalf(QCArrayRef array) {
@@ -183,5 +239,11 @@ void QCArrayFixConjugateHalf(QCArrayRef array) {
                 break;
             }
         }
+    }
+}
+
+void QCArrayXORAt(QCArrayRef array, int index, int value) {
+    if (array) {
+        QCARRAYONE(array, d[index] ^= value, d[index] = (int)d[index] ^ value);
     }
 }

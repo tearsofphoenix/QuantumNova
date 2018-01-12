@@ -31,6 +31,8 @@ static void mul_poly_test() {
     QCArrayFree(c1);
     QCArrayFree(h0c0);
     QCArrayFree(h1c1);
+
+    printf("-----------mul poly test end--------------\n");
 }
 
 static void cipher_syndrome_test() {
@@ -59,10 +61,43 @@ static void cipher_syndrome_test() {
     QCArrayFree(c0);
     QCArrayFree(c1);
     QCArrayFree(result);
+    printf("-----------cipher syndrome test end--------------\n");
+}
+
+static void decrypt_test() {
+    printf("-----------decrypt test--------------\n");
+
+    int length = 4801;
+    int weight = 45;
+    int error = 42;
+
+    QCArrayRef h0 = QCArrayCreateFrom(H0, length);
+    QCArrayRef h1 = QCArrayCreateFrom(H1, length);
+    QCArrayRef h1inv = QCArrayCreateFrom(H1_inv, length);
+
+    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, length, weight, error);
+
+    QCArrayRef c0 = QCArrayCreateFrom(C0, length);
+    QCArrayRef c1 = QCArrayCreateFrom(C1, length);
+    QCArrayRef result = QCCipherDecrypt(privateKey, c0, c1);
+
+    QCArrayCompareRaw(result, kQCMDPCDecrypt);
+
+    QCArrayFree(h0);
+    QCArrayFree(h1);
+    QCArrayFree(h1inv);
+    QCKeyFree(privateKey);
+    QCArrayFree(c0);
+    QCArrayFree(c1);
+    QCArrayFree(result);
+
+    printf("-----------decrypt test end--------------\n");
 }
 
 void cipher_test() {
     mul_poly_test();
 
     cipher_syndrome_test();
+
+    decrypt_test();
 }

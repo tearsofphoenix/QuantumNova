@@ -9,6 +9,19 @@
 #include <math.h>
 #include <printf.h>
 
+
+static double kH0ind[] = { 30,   49,  240,  250,  299,  376,  519,  602,  725,  746,  964,
+                           1011, 1045, 1078, 1101, 1142, 1321, 1333, 1365, 1576, 1604, 1619,
+                           1708, 1780, 2010, 2395, 2399, 2415, 2473, 2669, 2772, 3017, 3082,
+                           3085, 3178, 3218, 3239, 3324, 3335, 3636, 3655, 3670, 4336, 4510,
+                           4743};
+
+static double kH1ind[] = {23,   55,  115,  194,  530,  571,  584,  621,  641,  693,  694,
+                          805,  882,  910,  918,  934, 1010, 1185, 1201, 1554, 1565, 1890,
+                          1898, 2006, 2073, 2152, 2361, 2382, 2651, 2938, 3370, 3419, 3505,
+                          3571, 3878, 4033, 4160, 4228, 4283, 4511, 4560, 4651, 4657, 4683,
+                          4695};
+
 void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCArrayRef *v) {
 // non-constant weight to achieve cipertext indistinguishability
 
@@ -103,7 +116,7 @@ static void _blockLoopFunc(double dj, int index, const void *ctx) {
     }
 
     int idx = (i + j) % kBL;
-    QCArraySetValueAt(synd, idx, (int)QCArrayValueAt(synd, idx) ^ 1);
+    QCArrayXORAt(synd, idx, 1);
 }
 
 QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef c1) {
@@ -131,8 +144,13 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
     int threshold = 100;
     int r = 0;
 
+    QCArrayCompareRaw(H0_ind, kH0ind);
+    QCArrayCompareRaw(H1_ind, kH1ind);
+
+    printf("--------index ok---------\n");
+
     while (true) {
-        double max_unsat = fmax(QCArrayMax(unsat_H0), QCArrayMax(unsat_H1));
+        int max_unsat = (int)fmax(QCArrayMax(unsat_H0), QCArrayMax(unsat_H1));
 
         // if so, we are done decoding
         if (max_unsat == 0) {
@@ -170,7 +188,7 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
 
             QCArrayForeach(H0_ind, _blockLoopFunc, &ctx);
 
-            QCArraySetValueAt(c0, i, (int)QCArrayValueAt(c0, i) ^ 1);
+            QCArrayXORAt(c0, i, 1);
         }
 
         // second block sweep
@@ -190,8 +208,18 @@ QCArrayRef QCCipherDecrypt(const QCKeyRef privateKey, QCArrayRef c0, QCArrayRef 
 
             QCArrayForeach(H1_ind, _blockLoopFunc, &ctx);
 
-            QCArraySetValueAt(c1, i, (int)QCArrayValueAt(c1, i) ^ 1);
+            QCArrayXORAt(c1, i, 1);
         }
+
+        QCArrayFree(round_unsat_H0);
+        QCArrayFree(round_unsat_H1);
     }
+
+    QCArrayFree(unsat_H0);
+    QCArrayFree(unsat_H1);
+    QCArrayFree(H0_ind);
+    QCArrayFree(H1_ind);
+    QCArrayFree(synd);
+
     return c0;
 }
