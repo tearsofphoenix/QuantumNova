@@ -8,6 +8,7 @@
 #include "QCArrayPrivate.h"
 #include "QCClass.h"
 #include <printf.h>
+#include <fftw3.h>
 
 #define QCFOREACH(array, exp) do { \
                         for (size_t i = 0; i < array->count; ++i) { \
@@ -32,6 +33,7 @@ static double QCDoubleArrayMax(QCArrayRef x);
 static QCArrayRef QCDoubleArrayRealParts(QCArrayRef x);
 static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
 static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array);
+static void QCDoubleArrayPrint(QCArrayRef array);
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -52,7 +54,8 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .max = QCDoubleArrayMax,
         .real = QCDoubleArrayRealParts,
         .complexMultiply = QCDoubleArrayComplexMultiply,
-        .nonzeroIndices = QCDoubleArrayGetNoZeroIndices
+        .nonzeroIndices = QCDoubleArrayGetNoZeroIndices,
+        .print = QCDoubleArrayPrint,
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
@@ -65,8 +68,9 @@ const void *QCDoubleArrayCreate(const void *initData, size_t count, bool needCop
 
         if (initData) {
             if (needCopy) {
-                array->data = _QCMallocData(type, count, NULL);
-                memcpy(array->data, initData, count);
+                size_t size = 0;
+                array->data = _QCMallocData(type, count, &size);
+                memcpy(array->data, initData, size);
             } else {
                 array->data = initData;
             }
@@ -139,7 +143,7 @@ static double QCDoubleArrayGetAt(QCArrayRef x, int index) {
 }
 
 
-static void QCInt32ArrayPrint(QCArrayRef array) {
+static void QCDoubleArrayPrint(QCArrayRef array) {
     int padding = 25;
     printf("\n[ ");
 
@@ -237,7 +241,7 @@ static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array) {
         }
 
         QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        QCArrayFree(indices);
+        fftw_free(indices);
         return ref;
     }
     return NULL;

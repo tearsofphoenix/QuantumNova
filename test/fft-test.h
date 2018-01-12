@@ -6,6 +6,6 @@
 #define PQC_CRYPTO_FFT_TEST_H
 
 #include "src/QCArray.h"
-
+#include "src/QCObject.h"
 
 #endif //PQC_CRYPTO_FFT_TEST_H

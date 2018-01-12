@@ -7,6 +7,7 @@
 #include <memory.h>
 #include <math.h>
 #include <printf.h>
+#include <fftw3.h>
 
 #define QCFOREACH(array, exp) do { \
                         for (size_t i = 0; i < array->count; ++i) { \
@@ -67,8 +68,9 @@ const void *QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy
 
         if (initData) {
             if (needCopy) {
-                array->data = _QCMallocData(type, count, NULL);
-                memcpy(array->data, initData, count);
+                size_t size = 0;
+                array->data = _QCMallocData(type, count, &size);
+                memcpy(array->data, initData, size);
             } else {
                 array->data = initData;
             }
@@ -93,7 +95,8 @@ static const void *QCInt32ArrayCopy(QCArrayRef array) {
 
 
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx) {
-    QCFOREACH(array, ((QCInt32LoopFunc)func)(d[i], i, ctx));
+    QCInt32LoopFunc f = func;
+    QCFOREACH(array, f(d[i], i, ctx));
 }
 
 static QCArrayRef QCInt32ArrayAdd (QCArrayRef array, QCArrayRef y) {
@@ -243,7 +246,7 @@ static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array) {
         }
 
         QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        QCArrayFree(indices);
+        fftw_free(indices);
         return ref;
     }
     return NULL;

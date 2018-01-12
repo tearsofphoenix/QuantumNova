@@ -16,9 +16,11 @@ static void fft_test() {
     int size = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
+
     QCArrayRef fft = QCArrayFFT(array);
 
     QCArrayRef real = QCArrayGetRealParts(fft);
+
     QCArrayRound(real);
     QCArrayCompareRaw(real, kH0FFTReal);
 
@@ -123,7 +125,7 @@ static void test_all(int count) {
 
 int main() {
 
-    test_all(1);
+//    test_all(1);
 
     cipher_test();
 

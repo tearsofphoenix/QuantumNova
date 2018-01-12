@@ -45,7 +45,7 @@ typedef struct {
     int kBL;
 } QCLoopContext;
 
-static void _h0LoopFunc(double num, int index, const void *ctx) {
+static void _h0LoopFunc(int num, int index, const void *ctx) {
     QCLoopContext *c = ctx;
     QCArrayRef synd = c->synd;
     int kBL = c->kBL;
@@ -53,7 +53,7 @@ static void _h0LoopFunc(double num, int index, const void *ctx) {
     int *d = array->data;
     for (int j = 0; j < synd->count; ++ j) {
         if ((int)QCArrayValueAt(synd, j) != 0) {
-            int idx = (j + kBL - (int)num) % kBL;
+            int idx = (j + kBL - num) % kBL;
             d[idx] += 1;
         }
     }
@@ -69,7 +69,7 @@ typedef struct {
     int kBL;
 } QCBlockLoopContext;
 
-static void _blockLoopFunc(double dj, int index, const void *ctx) {
+static void _blockLoopFunc(int dj, int index, const void *ctx) {
     int j = (int)dj;
     QCBlockLoopContext *c = ctx;
 
