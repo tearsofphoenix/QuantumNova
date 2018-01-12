@@ -39,7 +39,8 @@ static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
         .name = "QCDoubleArray",
         .allocator = QCAllocator,
-        .deallocate = QCArrayFree,
+        .size = sizeof(struct QCArray),
+        .deallocate = QCArrayDeallocate,
         .copy = QCDoubleArrayCopy,
         .enumerator = QCDoubleArrayEnumerator,
         .add = QCDoubleArrayAdd,
@@ -63,7 +64,7 @@ const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
 const void *QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy) {
     if (count > 0) {
         QCArrayDataType type = QCDTDouble;
-        QCArrayRef array = kQCDoubleArrayClass.allocator(sizeof(*array));
+        QCArrayRef array = QCAllocate(&kQCDoubleArrayClass);
         array->isa = kQCDoubleArrayClassRef;
 
         if (initData) {

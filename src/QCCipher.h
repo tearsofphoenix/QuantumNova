@@ -7,6 +7,9 @@
 
 #include "QCArray.h"
 #include "QCKey.h"
+#include "QCObject.h"
+
+typedef struct QCCipher *QCCipherRef;
 
 extern void QCCipherEncrypt(QCKeyRef publicKey, QCArrayRef message, QCArrayRef *u, QCArrayRef *v);
 

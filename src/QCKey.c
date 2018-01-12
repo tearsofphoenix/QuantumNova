@@ -13,7 +13,7 @@ QCKeyRef QCKeyCreate(int length, int weight, bool privateOrPublic) {
 }
 
 void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey) {
-    QCKeyRef privKey = QCKeyMalloc();
+    QCKeyRef privKey = QCKeyCreate(config.length, config.weight, false);
     privKey->length = config.length;
     privKey->weight = config.weight;
     privKey->error = config.error;
@@ -23,7 +23,7 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
 
     *privateKey = privKey;
 
-    QCKeyRef pubKey = QCKeyMalloc();
+    QCKeyRef pubKey = QCKeyCreate(config.length, config.weight, true);
     pubKey->g = QCArrayMulPoly(privKey->h0, privKey->h1inv);
     pubKey->length = config.length;
     pubKey->weight = config.weight;

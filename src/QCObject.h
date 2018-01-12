@@ -14,11 +14,13 @@
 
 #endif
 
-struct QCObject {
+struct _QCObject {
     QCOBJECTFIELDS
 };
 
-typedef struct QCObject * QCObjectRef;
+typedef const void * QCObjectRef;
+
+extern QCObjectRef QCAllocate(QCClassRef classRef);
 
 extern QCObjectRef QCRetain(QCObjectRef object);
 

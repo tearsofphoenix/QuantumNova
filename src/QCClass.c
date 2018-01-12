@@ -3,7 +3,7 @@
 //
 
 #include "QCClass.h"
-#include "QCObject.h"
+#include "QCObjectPrivate.h"
 #include <fftw3.h>
 
 static struct QCClass kBaseClass = {
@@ -18,9 +18,7 @@ static struct QCClass kBaseClass = {
 const QCClassRef kQCBaseClassRef = &kBaseClass;
 
 const void *QCAllocator(size_t size) {
-    QCObjectRef object = fftw_malloc(size);
-    object->retainCount = 1;
-    return object;
+    return fftw_malloc(size);
 }
 
 void QCDeallocate(const void *p) {

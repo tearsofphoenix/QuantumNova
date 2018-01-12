@@ -145,7 +145,7 @@ extern QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n);
 /*
  * free array's data
  */
-extern void QCArrayFree(QCArrayRef array);
+extern void QCArrayDeallocate(QCArrayRef array);
 
 
 #endif //PQC_CRYPTO_QCARRAY_H

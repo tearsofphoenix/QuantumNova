@@ -7,6 +7,8 @@
 
 #include "QCObject.h"
 
+typedef struct _QCObject *QCObject;
+
 extern QCObjectRef _QCRetain(QCObjectRef object);
 
 extern void _QCRelease(QCObjectRef object);

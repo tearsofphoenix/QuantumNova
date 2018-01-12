@@ -38,7 +38,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
         .name = "QCInt32Array",
         .allocator = QCAllocator,
-        .deallocate = QCArrayFree,
+        .size = sizeof(struct QCArray),
+        .deallocate = QCArrayDeallocate,
         .copy = QCInt32ArrayCopy,
         .enumerator = QCInt32ArrayEnumerator,
         .add = QCInt32ArrayAdd,
@@ -63,7 +64,7 @@ const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;
 const void *QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy) {
     if (count > 0) {
         QCArrayDataType type = QCDTInt;
-        QCArrayRef array = kQCInt32ArrayClass.allocator(sizeof(*array));
+        QCArrayRef array = QCAllocate(&kQCInt32ArrayClass);
         array->isa = kQCInt32ArrayClassRef;
 
         if (initData) {

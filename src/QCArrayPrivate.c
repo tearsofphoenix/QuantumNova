@@ -219,7 +219,7 @@ void QCArrayXORAt(QCArrayRef array, int index, int value) {
     }
 }
 
-void QCArrayFree(QCArrayRef array) {
+void QCArrayDeallocate(QCArrayRef array) {
     if (array && array->needfree) {
         fftw_free(array->data);
     }

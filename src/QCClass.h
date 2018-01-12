@@ -23,6 +23,7 @@ typedef bool (* QCEqualFunc)(const void *, const void *);
 
 #define QCCLASSFIELDS const QCClassRef base; \
                       const char *name; \
+                      size_t size; \
                       QCAllocatorFunc allocator; \
                       QCFreeFunc deallocate; \
                       QCCopyFunc copy; \

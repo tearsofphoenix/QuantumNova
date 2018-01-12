@@ -58,7 +58,7 @@ static void cipher_syndrome_test() {
     QCRelease(h0);
     QCRelease(h1);
     QCRelease(h1inv);
-    QCKeyFree(privateKey);
+    QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
@@ -87,7 +87,7 @@ static void decrypt_test() {
     QCRelease(h0);
     QCRelease(h1);
     QCRelease(h1inv);
-    QCKeyFree(privateKey);
+    QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
