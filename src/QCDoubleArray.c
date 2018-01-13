@@ -10,13 +10,6 @@
 #include <printf.h>
 #include <fftw3.h>
 
-#define QCFOREACH(array, exp) do { \
-                        for (size_t i = 0; i < array->count; ++i) { \
-                             double *d = array->data; \
-                             exp; \
-                         } \
-                    } while(0)
-
 static const void *QCDoubleArrayCopy(QCArrayRef array);
 
 static void QCDoubleArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
@@ -95,61 +88,45 @@ static const void *QCDoubleArrayCopy(QCArrayRef array) {
 }
 
 static void QCDoubleArrayEnumerator(QCArrayRef array, const void *func, const void *ctx) {
-    QCFOREACH(array, ((QCDoubleLoopFunc)func)(d[i], i, ctx));
+    QCFOREACH(array, ((QCDoubleLoopFunc)func)(d[i], i, ctx), double);
 }
 
 static QCArrayRef QCDoubleArrayAdd (QCArrayRef array, QCArrayRef y) {
     if (y->isa == kQCDoubleArrayClassRef) {
         // both double
         double *dy = y->data;
-        QCFOREACH(array, d[i] += dy[i]);
+        QCFOREACH(array, d[i] += dy[i], double);
     } else {
         int *dy = y->data;
-        QCFOREACH(array, d[i] += dy[i]);
+        QCFOREACH(array, d[i] += dy[i], double);
     }
     return array;
 }
 
 static QCArrayRef QCDoubleArrayMultiply (QCArrayRef array, double mul) {
-    QCFOREACH(array, d[i] *= mul);
+    QCFOREACH(array, d[i] *= mul, double);
 }
 static QCArrayRef QCDoubleArrayRound (QCArrayRef array) {
-    QCFOREACH(array, d[i] = round(d[i]));
+    QCFOREACH(array, d[i] = round(d[i]), double);
 }
 static QCArrayRef QCDoubleArrayMod (QCArrayRef array, int mod) {
-    QCFOREACH(array, d[i] = (int)d[i] % mod);
+    QCFOREACH(array, d[i] = (int)d[i] % mod, double);
 }
 
 static size_t QCDoubleArrayZeroCount (QCArrayRef array) {
     size_t total = 0;
-    QCFOREACH(array, if (d[i] == 0){ ++total; });
+    QCFOREACH(array, if (d[i] == 0){ ++total; }, double);
     return total;
 }
 
-static void QCDoubleArrayAddAt(QCArrayRef x, int index, double value) {
-    double *d = x->data;
-    d[index] += value;
-}
-static void QCDoubleArrayXORAt(QCArrayRef x, int index, int value) {
-    double *d = x->data;
-    d[index] = (int)d[index] ^ value;
-}
-static void QCDoubleArraySetAt(QCArrayRef x, int index, double value) {
-    double *d = x->data;
-    d[index] = value;
-}
-static double QCDoubleArrayGetAt(QCArrayRef x, int index) {
-    double *d = x->data;
-    return d[index];
-}
-
+QCARRAYIMP(QCDoubleArray, double)
 
 static void QCDoubleArrayPrint(QCArrayRef array) {
     if (array) {
         int padding = 25;
         printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
-        QCFOREACH(array, printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
+        QCFOREACH(array, printf("%f, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, double);
 
         printf(" ]\n");
     }
@@ -158,7 +135,7 @@ static void QCDoubleArrayPrint(QCArrayRef array) {
 static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
     if (y->datatype == QCDTInt) {
         int *dy = y->data;
-        QCFOREACH(array, if ((int)d[i] != dy[i]) { return false; });
+        QCFOREACH(array, if ((int)d[i] != dy[i]) { return false; }, double);
         return true;
     } else {
         return memcmp(array->data, y->data, array->count * sizeof(size_t)) == 0;
@@ -169,7 +146,7 @@ static double QCDoubleArrayMax(QCArrayRef array) {
     double max = 0;
     QCFOREACH(array, if (max < d[i]) {
         max = d[i];
-    });
+    }, double);
     return max;
 }
 

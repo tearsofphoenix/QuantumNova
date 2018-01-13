@@ -113,6 +113,47 @@ static void decrypt_test() {
     printf("-----------decrypt test end--------------\n");
 }
 
+static void encrypt_test() {
+    printf("-----------encrypt test start--------------\n");
+
+    size_t length = 4801;
+    size_t weight = 45;
+    size_t error = 42;
+
+    QCKeyConfig config = {
+            .length = length,
+            .weight = weight,
+            .error = error
+    };
+
+    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
+    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
+    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
+
+    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+
+    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
+    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
+
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privateKey);
+
+    QCArrayRef g = QCArrayCreateWithDouble(G, length, true);
+    QCKeyRef publicKey = QCKeyCreateWith(NULL, NULL, NULL, g, config);
+    QCCipherSetPublicKey(cipher, publicKey);
+
+    QCCipherEncrypt(cipher, NULL, NULL, NULL);
+
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
+    QCRelease(privateKey);
+    QCRelease(c0);
+    QCRelease(c1);
+
+    printf("-----------encrypt test end--------------\n");
+}
+
 void cipher_test() {
     mul_poly_test();
 

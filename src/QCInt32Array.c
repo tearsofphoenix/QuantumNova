@@ -9,13 +9,6 @@
 #include <printf.h>
 #include <fftw3.h>
 
-#define QCFOREACH(array, exp) do { \
-                        for (size_t i = 0; i < array->count; ++i) { \
-                             int *d = array->data; \
-                             exp; \
-                         } \
-                    } while(0)
-
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCInt32ArrayCopy(QCArrayRef array);
 static QCArrayRef QCInt32ArrayAdd (QCArrayRef x, QCArrayRef y);
@@ -33,6 +26,7 @@ static double QCInt32ArrayMax(QCArrayRef array);
 static QCArrayRef QCInt32ArrayRealParts(QCArrayRef x);
 static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray);
 static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array);
+static QCArrayRef QCInt32ArraySHA256(QCArrayRef array);
 
 static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -56,7 +50,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .max = QCInt32ArrayMax,
         .real = QCInt32ArrayRealParts,
         .complexMultiply = QCInt32ArrayComplexMultiply,
-        .nonzeroIndices = QCInt32ArrayGetNoZeroIndices
+        .nonzeroIndices = QCInt32ArrayGetNoZeroIndices,
+        .sha256 = QCInt32ArraySHA256
 };
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;
@@ -97,55 +92,40 @@ static const void *QCInt32ArrayCopy(QCArrayRef array) {
 
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx) {
     QCInt32LoopFunc f = func;
-    QCFOREACH(array, f(d[i], i, ctx));
+    QCFOREACH(array, f(d[i], i, ctx), int);
 }
 
 static QCArrayRef QCInt32ArrayAdd (QCArrayRef array, QCArrayRef y) {
     if (y->isa == kQCInt32ArrayClassRef) {
         // both int
         int *dy = y->data;
-        QCFOREACH(array, d[i] += dy[i]);
+        QCFOREACH(array, d[i] += dy[i], int);
     } else {
         double *dy = y->data;
-        QCFOREACH(array, d[i] += dy[i]);
+        QCFOREACH(array, d[i] += dy[i], int);
     }
     return array;
 }
 
 static QCArrayRef QCInt32ArrayMultiply (QCArrayRef array, double mul) {
     int m = (int)mul;
-    QCFOREACH(array, d[i] *= m);
+    QCFOREACH(array, d[i] *= m, int);
 }
 static QCArrayRef QCInt32ArrayRound (QCArrayRef array) {
     // no need to round
     return array;
 }
 static QCArrayRef QCInt32ArrayMod (QCArrayRef array, int mod) {
-    QCFOREACH(array, d[i] = d[i] % mod);
+    QCFOREACH(array, d[i] = d[i] % mod, int);
 }
 
 static size_t QCInt32ArrayZeroCount (QCArrayRef array) {
     size_t total = 0;
-    QCFOREACH(array, if (d[i] == 0){ ++total; });
+    QCFOREACH(array, if (d[i] == 0){ ++total; }, int);
     return total;
 }
 
-static void QCInt32ArrayAddAt(QCArrayRef x, int index, double value) {
-    int *d = x->data;
-    d[index] += (int)value;
-}
-static void QCInt32ArrayXORAt(QCArrayRef x, int index, int value) {
-    int *d = x->data;
-    d[index] ^= value;
-}
-static void QCInt32ArraySetAt(QCArrayRef x, int index, double value) {
-    int *d = x->data;
-    d[index] = (int)value;
-}
-static double QCInt32ArrayGetAt(QCArrayRef x, int index) {
-    int *d = x->data;
-    return d[index];
-}
+QCARRAYIMP(QCInt32Array, int)
 
 static void QCInt32ArrayPrint(QCArrayRef array) {
     if (array) {
@@ -153,7 +133,7 @@ static void QCInt32ArrayPrint(QCArrayRef array) {
         printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
         array->isa->print(array);
-        QCFOREACH(array, printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); });
+        QCFOREACH(array, printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, int);
 
         printf(" ]\n");
     }
@@ -164,7 +144,7 @@ static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
         return memcmp(array->data, y->data, array->count * sizeof(size_t)) == 0;
     } else {
         double *dy = y->data;
-        QCFOREACH(array, if (d[i] != (int)dy[i]) { return false; });
+        QCFOREACH(array, if (d[i] != (int)dy[i]) { return false; }, int);
         return true;
     }
 }
@@ -173,7 +153,7 @@ static double QCInt32ArrayMax(QCArrayRef array) {
     int max = 0;
     QCFOREACH(array, if (max < d[i]) {
         max = d[i];
-    });
+    }, int);
     return max;
 }
 
@@ -251,6 +231,17 @@ static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array) {
         QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
         fftw_free(indices);
         return ref;
+    }
+    return NULL;
+}
+
+static QCByte *_int32ArrayToCharArray(int *array, size_t count) {
+
+}
+
+static QCArrayRef QCInt32ArraySHA256(QCArrayRef array) {
+    if (array) {
+
     }
     return NULL;
 }

@@ -7,6 +7,7 @@
 #include "QCRandom.h"
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
+#include "vendor/sha256.h"
 #include <math.h>
 #include <printf.h>
 
@@ -242,6 +243,11 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     QCRelease(synd);
 
     return c0;
+}
+
+//
+QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
+
 }
 
 //

@@ -25,8 +25,8 @@ void *_QCMallocData(QCArrayDataType type, int count, size_t *outsize) {
             size = sizeof(int) * count;
             break;
         }
-        case QCDTFloat: {
-            size = sizeof(float) * count;
+        case QCDTByte: {
+            size = sizeof(QCByte) * count;
             break;
         }
         case QCDTDouble: {

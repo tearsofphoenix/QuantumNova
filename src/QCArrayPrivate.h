@@ -26,6 +26,7 @@ typedef double (* QCArrayMaxFunc)(QCArrayRef x);
 typedef QCArrayRef (* QCArrayRealPartsFunc)(QCArrayRef x);
 typedef QCArrayRef (* QCArrayComplexMultiplyFunc)(QCArrayRef x, QCArrayRef y);
 typedef QCArrayRef (* QCArrayNonZeroIndicesFunc)(QCArrayRef array);
+typedef QCArrayRef (* QCArraySHA256Func)(QCArrayRef array);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -43,6 +44,7 @@ struct QCArrayClass {
     QCArrayRealPartsFunc real;
     QCArrayComplexMultiplyFunc complexMultiply;
     QCArrayNonZeroIndicesFunc nonzeroIndices;
+    QCArraySHA256Func sha256;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -64,5 +66,37 @@ extern const QCClassRef kQCArrayClassRef;
 extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
 
 extern void QCArrayXORAt(QCArrayRef array, int index, int value);
+
+#ifndef QCARRAYIMP
+
+#define QCARRAYIMP(CLASS, TYPE) static void CLASS##AddAt(QCArrayRef x, int index, double value) { \
+    TYPE *d = x->data; \
+    d[index] += (TYPE)value; \
+} \
+static void CLASS ## XORAt(QCArrayRef x, int index, int value) { \
+    TYPE *d = x->data; \
+    d[index] = (int)d[index] ^ value; \
+} \
+static void CLASS ## SetAt(QCArrayRef x, int index, double value) { \
+    TYPE *d = x->data; \
+    d[index] = (TYPE)value; \
+} \
+static double CLASS ## GetAt(QCArrayRef x, int index) { \
+    TYPE *d = x->data; \
+    return d[index]; \
+} \
+
+#endif
+
+#ifndef QCFOREACH
+
+#define QCFOREACH(array, exp, TYPE) do { \
+                        for (size_t i = 0; i < array->count; ++i) { \
+                             TYPE *d = array->data; \
+                             exp; \
+                         } \
+                    } while(0)
+
+#endif
 
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H

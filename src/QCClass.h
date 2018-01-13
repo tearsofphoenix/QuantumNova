@@ -8,6 +8,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+typedef unsigned char QCByte;
+typedef unsigned int QCWord;
+
 typedef struct QCClass QCClass;
 typedef QCClass *QCClassRef;
 

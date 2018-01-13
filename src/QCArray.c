@@ -6,9 +6,8 @@
 #include "QCArrayPrivate.h"
 #include "QCDoubleArray.h"
 #include "QCInt32Array.h"
-#include "QCObject.h"
+#include "QCByteArray.h"
 #include <fftw3.h>
-#include <memory.h>
 #include <math.h>
 
 QCArrayRef QCArrayCreate(int count) {
@@ -30,6 +29,16 @@ QCArrayRef QCArrayCreateCopy(QCArrayRef array) {
     return NULL;
 }
 
+QCArrayRef QCArraySHA256(QCArrayRef array) {
+    if (array) {
+        return ((QCArrayClassRef)array->isa)->sha256(array);
+    }
+    return NULL;
+}
+
+QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy) {
+    return QCByteArrayCreate(array, count, needCopy);
+}
 
 QCArrayRef QCArrayFFT(QCArrayRef array) {
     if (array) {

@@ -13,4 +13,6 @@ struct QCCipher {
     QCKeyRef publicKey;
 };
 
+extern QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key);
+
 #endif //PQC_CRYPTO_QCCIPHERPRIVATE_H

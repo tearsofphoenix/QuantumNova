@@ -8,14 +8,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "QCClass.h"
 
 typedef enum {
     QCDTInt = 0,
-    QCDTFloat,
+    QCDTByte,
     QCDTDouble,
 } QCArrayDataType;
-
-typedef void (QCArrayEnumerator)(double num, int index, const void *ctx);
 
 typedef struct QCArray * QCArrayRef;
 
@@ -25,11 +24,19 @@ typedef struct QCArray * QCArrayRef;
 extern QCArrayRef QCArrayCreate(int count);
 
 /*
- *
+ * create QCArray from double array
  */
 extern QCArrayRef QCArrayCreateWithDouble(const double *array, size_t count, bool needCopy);
 
+/*
+ * create QCArray from int32 array
+ */
 extern QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool needCopy);
+
+/*
+ * create QCArray from byte array
+ */
+extern QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy);
 
 /*
  * create copy of array
@@ -40,6 +47,11 @@ extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);
  * reset the count in array, this will not release memory
  */
 extern void QCArraySetCount(QCArrayRef array, size_t newCount);
+
+/*
+ *
+ */
+extern QCArrayRef QCArraySHA256(QCArrayRef array);
 
 /*
  * set value at index
