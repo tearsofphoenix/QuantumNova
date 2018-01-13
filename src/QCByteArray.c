@@ -4,6 +4,7 @@
 
 #include "QCByteArray.h"
 #include "vendor/sha256.h"
+#include <math.h>
 #include <memory.h>
 #include <printf.h>
 #include <fftw3.h>
@@ -25,6 +26,7 @@ static double QCByteArrayMax(QCArrayRef array);
 
 static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCByteArraySHA256(QCArrayRef array);
+static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 
 static struct QCArrayClass kQCByteArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -47,7 +49,8 @@ static struct QCArrayClass kQCByteArrayClass = {
         .equal = QCByteArrayEqual,
         .max = QCByteArrayMax,
         .nonzeroIndices = QCByteArrayGetNoZeroIndices,
-        .sha256 = QCByteArraySHA256
+        .sha256 = QCByteArraySHA256,
+        .compareRaw = QCByteArrayCompareRaw
 };
 
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;
@@ -128,8 +131,7 @@ static void QCByteArrayPrint(QCArrayRef array) {
         int padding = 25;
         printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
-        array->isa->print(array);
-        QCFOREACH(array, printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, QCByte);
+        QCFOREACH(array, printf("0x%x, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, QCByte);
 
         printf(" ]\n");
     }
@@ -189,4 +191,25 @@ static QCArrayRef QCByteArraySHA256(QCArrayRef array) {
         return QCByteArrayCreate(buf, SHA256_BLOCK_SIZE, false);
     }
     return NULL;
+}
+
+
+QCARRAYCOMPARE(_arrayCompareInt, QCByte, int, "not equal: %d %d %d\n")
+
+QCARRAYCOMPARE(_arrayCompareDouble, QCByte, double, "not equal: %d %d %f\n")
+
+static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType) {
+    switch (dataType) {
+        case QCDTInt: {
+            return _arrayCompareInt(array->data, expected, array->count);
+        }
+        case QCDTDouble: {
+            return _arrayCompareDouble(array->data, expected, array->count);
+        }
+        default: {
+            return memcmp(array->data, expected, sizeof(QCByte) * array->count) == 0;
+        }
+
+    }
+    return false;
 }

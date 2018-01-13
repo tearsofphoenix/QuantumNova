@@ -5,6 +5,7 @@
 #include "fft-test.h"
 #include "data.h"
 #include "cipher-test.h"
+#include "array-test.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -22,7 +23,7 @@ static void fft_test() {
     QCArrayRef real = QCArrayGetRealParts(fft);
 
     QCArrayRound(real);
-    QCArrayCompareRaw(real, kH0FFTReal);
+    QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble);
 
     QCRelease(array);
     QCRelease(fft);
@@ -41,7 +42,7 @@ static void complex_multiply_test() {
     QCArraySetCount(result, count);
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
-    QCArrayCompareRaw(real, kH0C0Multiply);
+    QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(tempC0);
@@ -58,7 +59,7 @@ static void inverse_fft_test() {
     QCArrayRef x = QCArrayFFT(tempH0);
     QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
-    QCArrayCompareRaw(result, H0);
+    QCArrayCompareRaw(result, H0, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(x);
@@ -71,7 +72,7 @@ static void square_sparse_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
     QCArrayRef array = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
-    QCArrayCompareRaw(tempH0, kH0Sparse);
+    QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble);
 
     QCRelease(array);
     QCRelease(tempH0);
@@ -86,7 +87,7 @@ static void mul_poly_test() {
     QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
     QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
 
-    QCArrayCompareRaw(result, kMulPoly);
+    QCArrayCompareRaw(result, kMulPoly, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(tempC0);
@@ -100,7 +101,7 @@ static void exp_poly_test() {
     QCArrayRef tempH0 = QCArrayCreateWithDouble(kExpInput, count, true);
     int64_t n = pow(2, 20) - 2;
     QCArrayRef result = QCArrayExpPoly(tempH0, n);
-    QCArrayCompareRaw(result, kExp20);
+    QCArrayCompareRaw(result, kExp20, QCDTDouble);
 }
 
 static void loop_test(QCTestFunc func, size_t count) {
@@ -127,7 +128,8 @@ int main() {
 
 //    test_all(1);
 
-    cipher_test();
+//    cipher_test();
+    array_test();
 
     return 0;
 }

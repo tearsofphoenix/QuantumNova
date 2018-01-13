@@ -2,7 +2,6 @@
 // Created by Isaac on 2018/1/11.
 //
 #include "QCArrayPrivate.h"
-#include "QCArray.h"
 #include <printf.h>
 #include <math.h>
 #include <fftw3.h>
@@ -147,68 +146,9 @@ int QCArrayFindIndex(QCArrayRef array, int value) {
 //                auxiliary functions                         //
 ////////////////////////////////////////////////////////////////
 
-static bool _arrayCompareDouble(const double *array, const double *expected, int count) {
-    bool equal = true;
-    if (array && expected) {
-        int total = 0;
-        for (int i = 0; i < count; ++i) {
-            if (fabs(array[i] - expected[i]) > 0.00000005) {
-                printf("not equal: %d %f %f\n", i, array[i], expected[i]);
-                equal = false;
-                ++total;
-            }
-        }
-        if (!equal) {
-            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
-        }
-    }
-    return equal;
-}
-
-static bool _arrayCompareMix(const int *array, const double *expected, int count) {
-    bool equal = true;
-    if (array && expected) {
-        int total = 0;
-        for (int i = 0; i < count; ++i) {
-            if (fabs(array[i] - expected[i]) > 0.00000005) {
-                printf("not equal: %d %d %f\n", i, array[i], expected[i]);
-                equal = false;
-                ++total;
-            }
-        }
-        if (!equal) {
-            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
-        }
-    }
-    return equal;
-}
-
-static bool _arrayCompareInt(const int *array, const int *expected, int count) {
-    bool equal = true;
-    if (array && expected) {
-        int total = 0;
-        for (int i = 0; i < count; ++i) {
-            if (array[i] != expected[i]) {
-                printf("not equal: %d %d %d\n", i, array[i], expected[i]);
-                equal = false;
-                ++total;
-            }
-        }
-        if (!equal) {
-            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count);
-        }
-    }
-    return equal;
-}
-
-bool QCArrayCompareRaw(QCArrayRef x, const double *expected) {
+bool QCArrayCompareRaw(QCArrayRef x, const void *expected, QCArrayDataType dataType) {
     if (x && expected) {
-        int count = x->count;
-        if (x->datatype == QCDTInt) {
-            return _arrayCompareMix(x->data, expected, count);
-        } else {
-            return _arrayCompareDouble(x->data, expected, count);
-        }
+        return ((QCArrayClassRef)x->isa)->compareRaw(x, expected, dataType);
     }
     return true;
 }

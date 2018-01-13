@@ -27,6 +27,7 @@ static QCArrayRef QCDoubleArrayRealParts(QCArrayRef x);
 static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
 static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array);
 static void QCDoubleArrayPrint(QCArrayRef array);
+static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -50,6 +51,7 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .complexMultiply = QCDoubleArrayComplexMultiply,
         .nonzeroIndices = QCDoubleArrayGetNoZeroIndices,
         .print = QCDoubleArrayPrint,
+        .compareRaw = QCDoubleArrayCompareRaw,
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
@@ -225,4 +227,24 @@ static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array) {
         return ref;
     }
     return NULL;
+}
+
+QCARRAYCOMPARE(_arrayCompareInt, double, int, "not equal: %d %f %d\n")
+
+QCARRAYCOMPARE(_arrayCompareByte, double , QCByte, "not equal: %d %f %d\n")
+
+static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType) {
+    switch (dataType) {
+        case QCDTInt: {
+            return _arrayCompareInt(array->data, expected, array->count);
+        }
+        case QCDTByte: {
+            return _arrayCompareByte(array->data, expected, array->count);
+        }
+        default: {
+            return memcmp(array->data, expected, sizeof(double) * array->count) == 0;
+        }
+
+    }
+    return false;
 }

@@ -137,7 +137,7 @@ extern QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array);
 /*
  * compare array with raw data
  */
-extern bool QCArrayCompareRaw(QCArrayRef x, const double *expected);
+extern bool QCArrayCompareRaw(QCArrayRef x, const void *expected, QCArrayDataType dataType);
 
 /*
  * square spare poly

@@ -20,10 +20,10 @@ static void mul_poly_test() {
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
 
     QCArrayRef h0c0 = QCArrayMulPoly(h0, c0);
-    QCArrayCompareRaw(h0c0, kMulPoly);
+    QCArrayCompareRaw(h0c0, kMulPoly, QCDTDouble);
 
     QCArrayRef h1c1 = QCArrayMulPoly(h1, c1);
-    QCArrayCompareRaw(h1c1, kH1C1MulPoly);
+    QCArrayCompareRaw(h1c1, kH1C1MulPoly, QCDTDouble);
 
     QCRelease(h0);
     QCRelease(h1);
@@ -61,7 +61,7 @@ static void cipher_syndrome_test() {
     QCCipherSetPrivateKey(cipher, privateKey);
 
     QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
-    QCArrayCompareRaw(result, kSyndrome);
+    QCArrayCompareRaw(result, kSyndrome, QCDTDouble);
 
     QCRelease(h0);
     QCRelease(h1);
@@ -100,7 +100,7 @@ static void decrypt_test() {
 
     QCArrayRef result = QCCipherDecrypt(cipher, c0, c1);
 
-    QCArrayCompareRaw(result, kQCMDPCDecrypt);
+    QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
 
     QCRelease(h0);
     QCRelease(h1);

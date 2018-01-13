@@ -27,6 +27,7 @@ typedef QCArrayRef (* QCArrayRealPartsFunc)(QCArrayRef x);
 typedef QCArrayRef (* QCArrayComplexMultiplyFunc)(QCArrayRef x, QCArrayRef y);
 typedef QCArrayRef (* QCArrayNonZeroIndicesFunc)(QCArrayRef array);
 typedef QCArrayRef (* QCArraySHA256Func)(QCArrayRef array);
+typedef bool (* QCArrayCompareRawFunc)(QCArrayRef array, const void *, QCArrayDataType);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -45,6 +46,7 @@ struct QCArrayClass {
     QCArrayComplexMultiplyFunc complexMultiply;
     QCArrayNonZeroIndicesFunc nonzeroIndices;
     QCArraySHA256Func sha256;
+    QCArrayCompareRawFunc compareRaw;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -96,6 +98,28 @@ static double CLASS ## GetAt(QCArrayRef x, int index) { \
                              exp; \
                          } \
                     } while(0)
+
+#endif
+
+#ifndef QCARRAYCOMPARE
+
+#define QCARRAYCOMPARE(NAME, T1, T2, FMT) static bool NAME(const T1 *array, const T2 *expected, size_t count) { \
+    bool equal = true; \
+    if (array && expected) { \
+        int total = 0; \
+        for (size_t i = 0; i < count; ++i) { \
+            if (fabs(array[i] - expected[i]) > 0.00000005) { \
+                printf(FMT, i, array[i], expected[i]); \
+                equal = false; \
+                ++total; \
+            } \
+        } \
+        if (!equal) { \
+            printf("total not equal: %d rate: %.2f%%", total, total * 100.0 / count); \
+        } \
+    } \
+    return equal; \
+}
 
 #endif
 

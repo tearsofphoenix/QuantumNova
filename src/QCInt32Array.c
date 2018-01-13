@@ -27,6 +27,7 @@ static QCArrayRef QCInt32ArrayRealParts(QCArrayRef x);
 static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray);
 static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCInt32ArraySHA256(QCArrayRef array);
+static bool QCInt32ArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 
 static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -51,7 +52,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .real = QCInt32ArrayRealParts,
         .complexMultiply = QCInt32ArrayComplexMultiply,
         .nonzeroIndices = QCInt32ArrayGetNoZeroIndices,
-        .sha256 = QCInt32ArraySHA256
+        .sha256 = QCInt32ArraySHA256,
+        .compareRaw = QCInt32ArrayCompareRaw
 };
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;
@@ -132,7 +134,6 @@ static void QCInt32ArrayPrint(QCArrayRef array) {
         int padding = 25;
         printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
-        array->isa->print(array);
         QCFOREACH(array, printf("%d, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, int);
 
         printf(" ]\n");
@@ -233,6 +234,27 @@ static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array) {
         return ref;
     }
     return NULL;
+}
+
+
+QCARRAYCOMPARE(_arrayCompareDouble, int, double, "not equal: %d %d %f\n")
+
+QCARRAYCOMPARE(_arrayCompareByte, int, QCByte, "not equal: %d %d %d\n")
+
+static bool QCInt32ArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType) {
+    switch (dataType) {
+        case QCDTDouble: {
+            return _arrayCompareDouble(array->data, expected, array->count);
+        }
+        case QCDTByte: {
+            return _arrayCompareByte(array->data, expected, array->count);
+        }
+        default: {
+            return memcmp(array->data, expected, sizeof(int) * array->count) == 0;
+        }
+
+    }
+    return false;
 }
 
 static QCByte *_int32ArrayToCharArray(int *array, size_t count) {
