@@ -26,11 +26,12 @@ typedef double (* QCArrayMaxFunc)(QCArrayRef x);
 typedef QCArrayRef (* QCArrayRealPartsFunc)(QCArrayRef x);
 typedef QCArrayRef (* QCArrayComplexMultiplyFunc)(QCArrayRef x, QCArrayRef y);
 typedef QCArrayRef (* QCArrayNonZeroIndicesFunc)(QCArrayRef array);
-typedef QCArrayRef (* QCArraySHA256Func)(QCArrayRef array);
+typedef QCArrayRef (* QCArrayHashFunc)(QCArrayRef array);
 typedef bool (* QCArrayCompareRawFunc)(QCArrayRef array, const void *, QCArrayDataType);
 typedef void (* QCArrayAppendFunc)(QCArrayRef array, QCArrayRef other);
 typedef QCArrayRef (* QCArraySliceFunc)(QCArrayRef array, size_t start, size_t end);
 typedef QCArrayRef (* QCArrayConvertFunc)(QCArrayRef array, QCArrayDataType type);
+typedef QCArrayRef (* QCArrayPackFunc)(QCArrayRef array);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -48,11 +49,13 @@ struct QCArrayClass {
     QCArrayRealPartsFunc real;
     QCArrayComplexMultiplyFunc complexMultiply;
     QCArrayNonZeroIndicesFunc nonzeroIndices;
-    QCArraySHA256Func sha256;
+    QCArrayHashFunc sha256;
+    QCArrayHashFunc sha512;
     QCArrayCompareRawFunc compareRaw;
     QCArrayAppendFunc append;
     QCArrayConvertFunc convert;
     QCArraySliceFunc slice;
+    QCArrayPackFunc pack;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -68,8 +71,6 @@ struct QCArray {
         unsigned int unused: 27;
     };
 };
-
-extern const QCClassRef kQCArrayClassRef;
 
 extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
 
@@ -118,6 +119,15 @@ static QCArrayRef CLASS ## Slice(QCArrayRef array, size_t start, size_t end) { \
     } \
     return NULL; \
 } \
+static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
+    size_t count = array->count; \
+    char *str = array->isa->allocator(count * sizeof(char)); \
+    TYPE *data = array->data; \
+    for (size_t i = 0; i < count; ++i) { \
+        sprintf(str + i, "%d", (int)data[i]); \
+    } \
+    return NULL; \
+}
 
 #endif
 

@@ -4,6 +4,7 @@
 
 #include "QCByteArray.h"
 #include "vendor/sha256.h"
+#include "vendor/sha512.h"
 #include <math.h>
 #include <memory.h>
 #include <printf.h>
@@ -26,11 +27,13 @@ static double QCByteArrayMax(QCArrayRef array);
 
 static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCByteArraySHA256(QCArrayRef array);
+static QCArrayRef QCByteArraySHA512(QCArrayRef array);
 static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 
 static void QCByteArrayAppend(QCArrayRef array, QCArrayRef other);
 static QCArrayRef QCByteArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type);
+static QCArrayRef QCByteArrayPack(QCArrayRef array);
 
 static struct QCArrayClass kQCByteArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -54,10 +57,12 @@ static struct QCArrayClass kQCByteArrayClass = {
         .max = QCByteArrayMax,
         .nonzeroIndices = QCByteArrayGetNoZeroIndices,
         .sha256 = QCByteArraySHA256,
+        .sha512 = QCByteArraySHA512,
         .compareRaw = QCByteArrayCompareRaw,
         .append = QCByteArrayAppend,
         .convert = QCByteArrayConvert,
         .slice = QCByteArraySlice,
+        .pack = QCByteArrayPack
 };
 
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;
@@ -193,13 +198,24 @@ static void QCSHA256(const void *data, size_t size, BYTE *buf) {
 
 static QCArrayRef QCByteArraySHA256(QCArrayRef array) {
     if (array) {
-        QCByte *buf = array->isa->allocator(sizeof(QCByte) * SHA256_BLOCK_SIZE);
+        QCByte buf[SHA256_BLOCK_SIZE];
         QCSHA256(array->data, sizeof(QCByte) * array->count, buf);
-        return QCByteArrayCreate(buf, SHA256_BLOCK_SIZE, false);
+        return QCByteArrayCreate(buf, SHA256_BLOCK_SIZE, true);
     }
     return NULL;
 }
 
+static QCArrayRef QCByteArraySHA512(QCArrayRef array) {
+    Sha512Context context;
+    SHA512_HASH hash;
+
+    Sha512Initialise(&context);
+    size_t len = array->count;
+    Sha512Update(&context, array->data, len);
+    Sha512Finalise(&context, &hash);
+
+    return QCByteArrayCreate(&hash, SHA512_HASH_SIZE, true);
+}
 
 QCARRAYCOMPARE(_arrayCompareInt, QCByte, int, "not equal: %d %d %d\n")
 

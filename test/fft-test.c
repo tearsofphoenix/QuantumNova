@@ -6,6 +6,7 @@
 #include "data.h"
 #include "cipher-test.h"
 #include "array-test.h"
+#include <fftw3.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -124,6 +125,16 @@ static void test_all(size_t count) {
     loop_test(exp_poly_test, count);
 }
 
+static void test() {
+    size_t count = 32;
+    char *str = fftw_malloc(sizeof(char) * count);
+    str[count - 1] = '\0';
+    for (size_t i = 0; i < count; ++i) {
+        sprintf(str + i, "%d", i % 2);
+    }
+    printf(str);
+}
+
 int main() {
 
 //    test_all(1);
@@ -131,6 +142,8 @@ int main() {
     cipher_test();
 
     array_test();
+
+    test();
 
     return 0;
 }

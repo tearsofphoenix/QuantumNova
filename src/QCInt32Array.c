@@ -28,6 +28,7 @@ static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArr
 static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCInt32ArraySHA256(QCArrayRef array);
 static bool QCInt32ArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
+static QCArrayRef QCInt32ArrayPack(QCArrayRef array);
 
 static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -53,7 +54,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .complexMultiply = QCInt32ArrayComplexMultiply,
         .nonzeroIndices = QCInt32ArrayGetNoZeroIndices,
         .sha256 = QCInt32ArraySHA256,
-        .compareRaw = QCInt32ArrayCompareRaw
+        .compareRaw = QCInt32ArrayCompareRaw,
+        .pack = QCInt32ArrayPack
 };
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;

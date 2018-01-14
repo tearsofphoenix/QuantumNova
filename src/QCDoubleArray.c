@@ -31,6 +31,8 @@ static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCAr
 static void QCDoubleArrayAppend(QCArrayRef array, QCArrayRef other);
 static QCArrayRef QCDoubleArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCDoubleArrayConvert(QCArrayRef array, QCArrayDataType type);
+static QCArrayRef QCDoubleArrayPack(QCArrayRef array);
+static bool QCDoubleArrayEqual(QCArrayRef array, QCArrayRef y);
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -57,7 +59,9 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .compareRaw = QCDoubleArrayCompareRaw,
         .append = QCDoubleArrayAppend,
         .slice = QCDoubleArraySlice,
-        .convert = QCDoubleArrayConvert
+        .convert = QCDoubleArrayConvert,
+        .pack = QCDoubleArrayPack,
+        .equal = QCDoubleArrayEqual
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
@@ -140,7 +144,7 @@ static void QCDoubleArrayPrint(QCArrayRef array) {
     }
 }
 
-static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
+static bool QCDoubleArrayEqual(QCArrayRef array, QCArrayRef y) {
     if (y->datatype == QCDTInt) {
         int *dy = y->data;
         QCFOREACH(array, if ((int)d[i] != dy[i]) { return false; }, double);

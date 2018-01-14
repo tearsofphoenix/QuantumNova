@@ -36,6 +36,20 @@ QCArrayRef QCArraySHA256(QCArrayRef array) {
     return NULL;
 }
 
+QCArrayRef QCArraySHA512(QCArrayRef array) {
+    if (array) {
+        return ((QCArrayClassRef)array->isa)->sha512(array);
+    }
+    return NULL;
+}
+
+QCArrayRef QCArrayPack(QCArrayRef array) {
+    if (array) {
+        return ((QCArrayClassRef)array->isa)->pack(array);
+    }
+    return NULL;
+}
+
 void QCArrayAppend(QCArrayRef array, QCArrayRef other) {
     if (array) {
         ((QCArrayClassRef)array->isa)->append(array, other);

@@ -54,6 +54,16 @@ extern void QCArraySetCount(QCArrayRef array, size_t newCount);
 extern QCArrayRef QCArraySHA256(QCArrayRef byteArray);
 
 /*
+ * do sha512 on byte array
+ */
+extern QCArrayRef QCArraySHA512(QCArrayRef byteArray);
+
+/*
+ * do sha512 on byte array
+ */
+extern QCArrayRef QCArrayPack(QCArrayRef byteArray);
+
+/*
  * append array
  */
 extern void QCArrayAppend(QCArrayRef array, QCArrayRef other);

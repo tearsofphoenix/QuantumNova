@@ -12,6 +12,10 @@
 #include <math.h>
 #include <printf.h>
 
+static QCByte kSaltA[] = {"this is just a salt"};
+static QCByte kSaltB[] = {"this is another a salt"};
+static QCByte kIVSalt[] = {"third salt"};
+
 static void QCCipherDeallocate(QCObjectRef object);
 
 static struct QCClass kQCCipherClass = {
@@ -23,6 +27,9 @@ static struct QCClass kQCCipherClass = {
 
 QCCipherRef QCCipherCreate(void) {
     QCCipherRef cipher = QCAllocate(&kQCCipherClass);
+    cipher->saltA = kSaltA;
+    cipher->saltB = kSaltB;
+    cipher->ivSalt = kIVSalt;
     return cipher;
 }
 
@@ -269,10 +276,10 @@ QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCAr
     size_t messageSize = message->count;
     BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
     WORD key_schedule[60];
-    size_t keysize = 256;
+    int keysize = 256;
     aes_key_setup(key->data, key_schedule, keysize);
 
-    int error = aes_encrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    aes_encrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
     return array;
@@ -282,11 +289,37 @@ QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCAr
     size_t messageSize = message->count;
     BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
     WORD key_schedule[60];
-    size_t keysize = 256;
+    int keysize = 256;
     aes_key_setup(key->data, key_schedule, keysize);
 
-    int error = aes_decrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    aes_decrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
     return array;
+}
+
+QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey) {
+    QCArrayRef randomized = QCRandomVector(publicKey->length);
+
+//    token = pack(randomized)
+//
+//# derive keys
+//    keyA = sha256(str(token) + self.saltA).digest() # just some conversion
+//    keyB = sha256(str(token) + self.saltB).digest()
+//
+//# derive iv
+//    iv = sha512(str(token) + self.ivSalt).digest()[0:16]
+//
+//# generate mac
+//    mac = self.generate_mac(message, token, keyB)
+//
+//    c_0, c_1 = self.asymmetric_cipher.encrypt(recv_pub_key, randomized)
+//
+//# generate ciphertext
+//    return self.io.get_der_ciphertext(c_0, c_1, \
+//               self.symmetric_cipher_enc(message, mac, keyA, iv))
+}
+
+QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef privateKey) {
+
 }
