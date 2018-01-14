@@ -142,7 +142,7 @@ static void QCInt32ArrayPrint(QCArrayRef array) {
 
 static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
     if (y->datatype == QCDTInt) {
-        return memcmp(array->data, y->data, array->count * sizeof(size_t)) == 0;
+        return memcmp(array->data, y->data, array->count * sizeof(int)) == 0;
     } else {
         double *dy = y->data;
         QCFOREACH(array, if (d[i] != (int)dy[i]) { return false; }, int);

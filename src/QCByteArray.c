@@ -146,7 +146,7 @@ static void QCByteArrayPrint(QCArrayRef array) {
 
 static bool QCByteArrayEqual(QCArrayRef array, QCArrayRef y) {
     if (y->datatype == QCDTByte) {
-        return memcmp(array->data, y->data, array->count * sizeof(size_t)) == 0;
+        return memcmp(array->data, y->data, array->count * sizeof(QCByte)) == 0;
     } else {
         double *dy = y->data;
         QCFOREACH(array, if (d[i] != (int)dy[i]) { return false; }, QCByte);

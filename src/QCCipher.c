@@ -267,13 +267,13 @@ static void QCCipherDeallocate(QCObjectRef object) {
 
 QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     size_t messageSize = message->count;
-    BYTE *out = cipher->isa->allocator(messageSize * 4 * sizeof(QCByte));
+    BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
     WORD key_schedule[60];
     size_t keysize = 256;
     aes_key_setup(key->data, key_schedule, keysize);
 
     int error = aes_encrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
-    QCArrayRef array = QCArrayCreateWithByte(out, messageSize * 4, false);
+    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
     return array;
 }

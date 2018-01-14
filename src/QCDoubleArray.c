@@ -146,7 +146,7 @@ static bool QCInt32ArrayEqual(QCArrayRef array, QCArrayRef y) {
         QCFOREACH(array, if ((int)d[i] != dy[i]) { return false; }, double);
         return true;
     } else {
-        return memcmp(array->data, y->data, array->count * sizeof(size_t)) == 0;
+        return memcmp(array->data, y->data, array->count * sizeof(double)) == 0;
     }
 }
 
