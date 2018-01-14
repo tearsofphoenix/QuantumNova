@@ -125,25 +125,13 @@ static void test_all(size_t count) {
     loop_test(exp_poly_test, count);
 }
 
-static void test() {
-    size_t count = 32;
-    char *str = fftw_malloc(sizeof(char) * count);
-    str[count - 1] = '\0';
-    for (size_t i = 0; i < count; ++i) {
-        sprintf(str + i, "%d", i % 2);
-    }
-    printf(str);
-}
-
 int main() {
 
 //    test_all(1);
 
     cipher_test();
 
-    array_test();
-
-    test();
+//    array_test();
 
     return 0;
 }

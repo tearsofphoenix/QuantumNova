@@ -58,10 +58,6 @@ typedef struct
     SHA512_HASH     Sha512Hash;
 } TestVector;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  GLOBALS
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 static TestVector gTestVectors [] =
         {
                 {
@@ -145,21 +141,15 @@ static TestVector gTestVectors [] =
 #define NUM_TEST_VECTORS ( sizeof(gTestVectors) / sizeof(gTestVectors[0]) )
 
 static void sha512_test() {
-    uint32_t        i;
-    uint32_t        len;
     bool            success = true;
 
-    for( i=0; i<NUM_TEST_VECTORS; i++ )
+    for(size_t i=0; i<NUM_TEST_VECTORS; i++ )
     {
-        len = (uint32_t) gTestVectors[i].PlainTextSize ? gTestVectors[i].PlainTextSize : (uint32_t)strlen( gTestVectors[i].PlainText );
+        size_t len = (uint32_t) gTestVectors[i].PlainTextSize ? gTestVectors[i].PlainTextSize : (uint32_t)strlen( gTestVectors[i].PlainText );
         QCArrayRef array = QCArrayCreateWithByte(gTestVectors[i].PlainText, len, false);
         QCArrayRef s1 = QCArraySHA512(array);
 
-        if( QCArrayCompareRaw(s1, &gTestVectors[i].Sha512Hash, QCDTByte) )
-        {
-            // Test vector passed
-        } else
-        {
+        if( !QCArrayCompareRaw(s1, &gTestVectors[i].Sha512Hash, QCDTByte) ) {
             printf( "TestSha512 - Test vector %u failed\n", i );
             success = false;
         }

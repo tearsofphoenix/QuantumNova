@@ -121,12 +121,16 @@ static QCArrayRef CLASS ## Slice(QCArrayRef array, size_t start, size_t end) { \
 } \
 static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
     size_t count = array->count; \
-    char *str = array->isa->allocator(count * sizeof(char)); \
+    QCByte *str = array->isa->allocator(count * sizeof(QCByte)); \
     TYPE *data = array->data; \
     for (size_t i = 0; i < count; ++i) { \
         sprintf(str + i, "%d", (int)data[i]); \
     } \
-    return NULL; \
+    QCArrayRef a1 = QCArrayCreateWithByte(str, count, false); \
+    a1->needfree = true; \
+    QCArrayRef result = QCArraySHA512(a1); \
+    QCRelease(a1); \
+    return result; \
 }
 
 #endif
