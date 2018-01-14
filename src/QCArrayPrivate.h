@@ -28,6 +28,9 @@ typedef QCArrayRef (* QCArrayComplexMultiplyFunc)(QCArrayRef x, QCArrayRef y);
 typedef QCArrayRef (* QCArrayNonZeroIndicesFunc)(QCArrayRef array);
 typedef QCArrayRef (* QCArraySHA256Func)(QCArrayRef array);
 typedef bool (* QCArrayCompareRawFunc)(QCArrayRef array, const void *, QCArrayDataType);
+typedef void (* QCArrayAppendFunc)(QCArrayRef array, QCArrayRef other);
+typedef QCArrayRef (* QCArraySliceFunc)(QCArrayRef array, size_t start, size_t end);
+typedef QCArrayRef (* QCArrayConvertFunc)(QCArrayRef array, QCArrayDataType type);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -47,6 +50,9 @@ struct QCArrayClass {
     QCArrayNonZeroIndicesFunc nonzeroIndices;
     QCArraySHA256Func sha256;
     QCArrayCompareRawFunc compareRaw;
+    QCArrayAppendFunc append;
+    QCArrayConvertFunc convert;
+    QCArraySliceFunc slice;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -86,6 +92,31 @@ static void CLASS ## SetAt(QCArrayRef x, int index, double value) { \
 static double CLASS ## GetAt(QCArrayRef x, int index) { \
     TYPE *d = x->data; \
     return d[index]; \
+} \
+static void CLASS ## Append(QCArrayRef array, QCArrayRef other) { \
+    if (array && other) { \
+        QCArrayRef co = QCArrayConvert(other, array->datatype); \
+        if (co) { \
+            size_t size = sizeof(TYPE) * array->count; \
+            size_t otherSize = sizeof(TYPE) * co->count; \
+            TYPE * p = array->isa->allocator(size + otherSize); \
+            memcpy(p, array->count, size); \
+            memcpy(p + size, array->count, otherSize); \
+            if (array->needfree) { \
+                fftw_free(array->data); \
+            } \
+            array->data = p; \
+            array->count += co->count; \
+        } \
+    } \
+} \
+static QCArrayRef CLASS ## Slice(QCArrayRef array, size_t start, size_t end) { \
+    const size_t count = array->count; \
+    TYPE *data = array->data; \
+    if (start >= 0 && end >= 0 && start < count && end < count && start < end) { \
+        return CLASS ## Create(data + start, end - start, true); \
+    } \
+    return NULL; \
 } \
 
 #endif

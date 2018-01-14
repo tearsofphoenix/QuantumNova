@@ -263,7 +263,30 @@ static QCByte *_int32ArrayToCharArray(int *array, size_t count) {
 
 static QCArrayRef QCInt32ArraySHA256(QCArrayRef array) {
     if (array) {
+        QCArrayRef ba = QCArrayConvert(array, QCDTByte);
+        QCArrayRef result = QCArraySHA256(ba);
+        QCRelease(ba);
+        return result;
+    }
+    return NULL;
+}
 
+// TODO
+static QCArrayRef QCInt32ArrayConvert(QCArrayRef array, QCArrayDataType type) {
+    if (array) {
+        switch (type) {
+            case QCDTInt: {
+            }
+            case QCDTDouble: {
+                return QCInt32ArrayCreate(array->data, array->count, true);
+            }
+            case QCDTByte: {
+
+            }
+            default: {
+                return NULL;
+            }
+        }
     }
     return NULL;
 }

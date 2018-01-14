@@ -28,6 +28,9 @@ static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
 static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array);
 static void QCDoubleArrayPrint(QCArrayRef array);
 static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
+static void QCDoubleArrayAppend(QCArrayRef array, QCArrayRef other);
+static QCArrayRef QCDoubleArraySlice(QCArrayRef array, size_t start, size_t end);
+static QCArrayRef QCDoubleArrayConvert(QCArrayRef array, QCArrayDataType type);
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -52,6 +55,9 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .nonzeroIndices = QCDoubleArrayGetNoZeroIndices,
         .print = QCDoubleArrayPrint,
         .compareRaw = QCDoubleArrayCompareRaw,
+        .append = QCDoubleArrayAppend,
+        .slice = QCDoubleArraySlice,
+        .convert = QCDoubleArrayConvert
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
@@ -247,4 +253,24 @@ static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCAr
 
     }
     return false;
+}
+
+// TODO
+static QCArrayRef QCDoubleArrayConvert(QCArrayRef array, QCArrayDataType type) {
+    if (array) {
+        switch (type) {
+            case QCDTInt: {
+            }
+            case QCDTDouble: {
+                return QCDoubleArrayCreate(array->data, array->count, true);
+            }
+            case QCDTByte: {
+
+            }
+            default: {
+                return NULL;
+            }
+        }
+    }
+    return NULL;
 }

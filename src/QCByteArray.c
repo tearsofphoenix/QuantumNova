@@ -28,6 +28,10 @@ static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCByteArraySHA256(QCArrayRef array);
 static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 
+static void QCByteArrayAppend(QCArrayRef array, QCArrayRef other);
+static QCArrayRef QCByteArraySlice(QCArrayRef array, size_t start, size_t end);
+static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type);
+
 static struct QCArrayClass kQCByteArrayClass = {
 //        .base = kQCArrayClassRef,
         .name = "QCByteArray",
@@ -50,7 +54,10 @@ static struct QCArrayClass kQCByteArrayClass = {
         .max = QCByteArrayMax,
         .nonzeroIndices = QCByteArrayGetNoZeroIndices,
         .sha256 = QCByteArraySHA256,
-        .compareRaw = QCByteArrayCompareRaw
+        .compareRaw = QCByteArrayCompareRaw,
+        .append = QCByteArrayAppend,
+        .convert = QCByteArrayConvert,
+        .slice = QCByteArraySlice,
 };
 
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;
@@ -212,4 +219,24 @@ static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArra
 
     }
     return false;
+}
+
+// TODO
+static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type) {
+    if (array) {
+        switch (type) {
+            case QCDTInt: {
+            }
+            case QCDTDouble: {
+
+            }
+            case QCDTByte: {
+                return QCByteArrayCreate(array->data, array->count, true);
+            }
+            default: {
+                return NULL;
+            }
+        }
+    }
+    return NULL;
 }

@@ -49,9 +49,24 @@ extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);
 extern void QCArraySetCount(QCArrayRef array, size_t newCount);
 
 /*
- *
+ * do sha256 on byte array
  */
-extern QCArrayRef QCArraySHA256(QCArrayRef array);
+extern QCArrayRef QCArraySHA256(QCArrayRef byteArray);
+
+/*
+ * append array
+ */
+extern void QCArrayAppend(QCArrayRef array, QCArrayRef other);
+
+/*
+ * slice an array
+ */
+extern QCArrayRef QCArraySlice(QCArrayRef array, size_t start, size_t end);
+
+/*
+ * convert array to another typed array
+ */
+extern QCArrayRef QCArrayConvert(QCArrayRef array, QCArrayDataType type);
 
 /*
  * set value at index

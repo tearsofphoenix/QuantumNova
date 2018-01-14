@@ -36,6 +36,27 @@ QCArrayRef QCArraySHA256(QCArrayRef array) {
     return NULL;
 }
 
+void QCArrayAppend(QCArrayRef array, QCArrayRef other) {
+    if (array) {
+        ((QCArrayClassRef)array->isa)->append(array, other);
+    }
+}
+
+QCArrayRef QCArraySlice(QCArrayRef array, size_t start, size_t end) {
+    if (array) {
+        return ((QCArrayClassRef)array->isa)->slice(array, start, end);
+    }
+    return NULL;
+}
+
+QCArrayRef QCArrayConvert(QCArrayRef array, QCArrayDataType type) {
+    if (array) {
+        return ((QCArrayClassRef)array->isa)->convert(array, type);
+    }
+    return NULL;
+}
+
+
 QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy) {
     return QCByteArrayCreate(array, count, needCopy);
 }
