@@ -163,8 +163,23 @@ static void sha512_test() {
     }
 }
 
+static void array_slice_test() {
+    int d[] = {1, 2, 3, 4, 5, 6};
+    QCArrayRef array = QCArrayCreateWithInt(d, sizeof(d) / sizeof(d[0]), false);
+
+    QCArrayRef s1 = QCArraySlice(array, 0, 3);
+    QCObjectPrint(s1);
+    int expected[] = {1, 2, 3};
+    QCArrayCompareRaw(s1, expected, QCDTInt);
+
+    QCRelease(array);
+    QCRelease(s1);
+}
+
 void array_test() {
     sha256_test();
 
     sha512_test();
+
+    array_slice_test();
 }

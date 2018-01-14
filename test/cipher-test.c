@@ -211,13 +211,11 @@ static void mac_test() {
     QCArrayRef m = QCArrayCreateWithByte(message, sizeof(message), true);
     QCArrayRef t = QCArrayCreateWithByte(token, sizeof(token), false);
     QCArrayRef k = QCArrayCreateWithByte(keyB, sizeof(keyB), false);
-    QCObjectPrint(m);
     QCArrayAppend(m, t);
-    QCObjectPrint(m);
     QCArrayAppend(m, k);
-    QCObjectPrint(m);
+
     QCArrayRef h = QCArraySHA256(m);
-    QCObjectPrint(h);
+
     if (QCArrayCompareRaw(h, mac, QCDTByte)) {
         printf("mac test passed");
     }

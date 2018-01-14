@@ -23,6 +23,7 @@ static double QCInt32ArrayGetAt(QCArrayRef x, int index);
 static void QCInt32ArrayPrint(QCArrayRef x);
 static bool QCInt32ArrayEqual(QCArrayRef x, QCArrayRef y);
 static double QCInt32ArrayMax(QCArrayRef array);
+static QCArrayRef QCInt32ArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCInt32ArrayRealParts(QCArrayRef x);
 static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArray);
 static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array);
@@ -53,6 +54,7 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .real = QCInt32ArrayRealParts,
         .complexMultiply = QCInt32ArrayComplexMultiply,
         .nonzeroIndices = QCInt32ArrayGetNoZeroIndices,
+        .slice = QCInt32ArraySlice,
         .sha256 = QCInt32ArraySHA256,
         .compareRaw = QCInt32ArrayCompareRaw,
         .pack = QCInt32ArrayPack

@@ -11,6 +11,7 @@
 #include "vendor/aes.h"
 #include <math.h>
 #include <printf.h>
+#include <memory.h>
 
 static QCByte kSaltA[] = {"this is just a salt"};
 static QCByte kSaltB[] = {"this is another a salt"};
@@ -27,9 +28,9 @@ static struct QCClass kQCCipherClass = {
 
 QCCipherRef QCCipherCreate(void) {
     QCCipherRef cipher = QCAllocate(&kQCCipherClass);
-    cipher->saltA = kSaltA;
-    cipher->saltB = kSaltB;
-    cipher->ivSalt = kIVSalt;
+    cipher->saltA = QCArrayCreateWithByte(kSaltA, strlen(kSaltA), false);
+    cipher->saltB = QCArrayCreateWithByte(kSaltA, strlen(kSaltB), false);
+    cipher->ivSalt = QCArrayCreateWithByte(kSaltA, strlen(kIVSalt), false);
     return cipher;
 }
 
@@ -300,26 +301,88 @@ QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCAr
 
 QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey) {
     QCArrayRef randomized = QCRandomVector(publicKey->length);
+    QCArrayRef token = QCArrayPack(randomized);
 
-//    token = pack(randomized)
-//
-//# derive keys
-//    keyA = sha256(str(token) + self.saltA).digest() # just some conversion
-//    keyB = sha256(str(token) + self.saltB).digest()
-//
-//# derive iv
-//    iv = sha512(str(token) + self.ivSalt).digest()[0:16]
-//
-//# generate mac
-//    mac = self.generate_mac(message, token, keyB)
-//
-//    c_0, c_1 = self.asymmetric_cipher.encrypt(recv_pub_key, randomized)
-//
-//# generate ciphertext
-//    return self.io.get_der_ciphertext(c_0, c_1, \
-//               self.symmetric_cipher_enc(message, mac, keyA, iv))
+    // derive keys
+    QCArrayRef temp = QCArrayCreateCopy(token);
+    QCArrayAppend(temp, cipher->saltA);
+    QCArrayRef keyA = QCArraySHA256(temp);
+    QCRelease(temp);
+
+    temp = QCArrayCreateCopy(token);
+    QCArrayAppend(temp, cipher->saltB);
+    QCArrayRef keyB = QCArraySHA256(temp);
+    QCRelease(temp);
+
+    // derive iv
+    temp = QCArrayCreateCopy(token);
+    QCArrayAppend(temp, cipher->ivSalt);
+    QCArrayRef tem = QCArraySHA512(temp);
+    QCArrayRef iv = QCArraySlice(tem, 0, 16);
+    QCRelease(temp);
+    QCRelease(tem);
+
+    // generate mac
+    QCArrayRef mac = QCCipherGenerateMAC(message, token, keyB);
+
+    QCArrayRef c0;
+    QCArrayRef c1;
+    QCCipherEncrypt(cipher, randomized, &c0, &c1);
+
+    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, message, keyA, iv);
+    QCRelease(c0);
+    QCRelease(c1);
+    QCRelease(mac);
+    QCRelease(randomized);
+
+    return ciphered;
 }
 
 QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef privateKey) {
 
+//    rc_0, rc_1, symmetric_stream = self.io.extract_der_ciphertext(ciphertext)
+    QCArrayRef rc_0;
+    QCArrayRef rc_1;
+    QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
+    QCArrayRef decrypted_token = QCArrayPack(temp);
+
+    QCRelease(temp);
+
+    // derive keys from data
+    QCArrayRef dt_copy = QCArrayCreateCopy(decrypted_token);
+    QCArrayAppend(dt_copy, cipher->saltA);
+    QCArrayRef decrypted_keyA = QCArraySHA256(dt_copy);
+    QCRelease(dt_copy);
+
+    dt_copy = QCArrayCreateCopy(decrypted_token);
+    QCArrayAppend(dt_copy, cipher->saltB);
+    QCArrayRef decrypted_keyB = QCArraySHA256(dt_copy);
+    QCRelease(dt_copy);
+
+    // derive iv
+    dt_copy = QCArrayCreateCopy(decrypted_token);
+    QCArrayAppend(dt_copy, cipher->ivSalt);
+    QCArrayRef tem = QCArraySHA512(dt_copy);
+    QCRelease(dt_copy);
+    QCArrayRef decrypted_iv = QCArraySlice(tem, 0, 16);
+    QCRelease(tem);
+
+    // decrypt ciphertext and derive mac
+    QCArrayRef sem = QCCipherSymmetricDecrypt(cipher, message, decrypted_keyA, decrypted_iv);
+    size_t count = sem->count;
+    QCArrayRef decrypted_message = QCArraySlice(sem, 0, count - 32);
+    QCArrayRef decrypted_mac = QCArraySlice(sem, count - 32, count);
+
+    QCArrayRef receiver_mac = QCCipherGenerateMAC(decrypted_message, decrypted_token, decrypted_keyB);
+
+    QCRelease(decrypted_keyA);
+    QCRelease(decrypted_iv);
+    QCRelease(decrypted_keyB);
+    QCRelease(receiver_mac);
+    QCRelease(decrypted_mac);
+
+    if (QCObjectEqual(receiver_mac, decrypted_mac)) {
+        return decrypted_message;
+    }
+    return NULL;
 }

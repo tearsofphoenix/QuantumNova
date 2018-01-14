@@ -11,9 +11,9 @@ struct QCCipher {
     QCOBJECTFIELDS
     QCKeyRef privateKey;
     QCKeyRef publicKey;
-    QCByte *saltA;
-    QCByte *saltB;
-    QCByte *ivSalt;
+    QCArrayRef saltA;
+    QCArrayRef saltB;
+    QCArrayRef ivSalt;
 };
 
 extern QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key);
