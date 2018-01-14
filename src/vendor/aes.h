@@ -111,4 +111,6 @@ int aes_decrypt_ccm(const BYTE ciphertext[],             // IN  - Ciphertext, th
                     const BYTE key[],                    // IN  - The AES key for decryption.
                     int keysize);                        // IN  - The length of the key in BITS. Valid values are 128, 192, 256.
 
+int aes_decrypt_cbc(const BYTE in[], size_t in_len, BYTE out[], const WORD key[], int keysize, const BYTE iv[]);
+
 #endif   // AES_H

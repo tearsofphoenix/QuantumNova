@@ -138,7 +138,7 @@ static void QCByteArrayPrint(QCArrayRef array) {
         int padding = 25;
         printf("\n<%s 0x%x>[ ", array->isa->name, array);
 
-        QCFOREACH(array, printf("0x%x, ", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, QCByte);
+        QCFOREACH(array, printf("%02x", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, QCByte);
 
         printf(" ]\n");
     }
@@ -221,14 +221,35 @@ static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArra
     return false;
 }
 
-// TODO
+static int byteArrayToInt(QCByte *b) {
+    return (b[0] << 24)
+           + ((b[1] & 0xFF) << 16)
+           + ((b[2] & 0xFF) << 8)
+           + (b[3] & 0xFF);
+}
+
 static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type) {
     if (array) {
         switch (type) {
             case QCDTInt: {
+                size_t count = (size_t)ceilf(array->count / 4);
+                int *data = array->isa->allocator(count * sizeof(int));
+                for (size_t i = 0; i < array->count; i = i + 4) {
+                    data[i / 4] = byteArrayToInt(array->data + i);
+                }
+                QCArrayRef result = QCArrayCreateWithInt(data, count, false);
+                result->needfree = true;
+                return result;
             }
             case QCDTDouble: {
-
+                size_t count = (size_t)ceilf(array->count / 4);
+                double *data = array->isa->allocator(count * sizeof(int));
+                for (size_t i = 0; i < array->count; i = i + 4) {
+                    data[i / 4] = (double)byteArrayToInt(array->data + i);
+                }
+                QCArrayRef result = QCArrayCreateWithDouble(data, count, false);
+                result->needfree = true;
+                return result;
             }
             case QCDTByte: {
                 return QCByteArrayCreate(array->data, array->count, true);

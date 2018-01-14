@@ -8,6 +8,7 @@
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "vendor/sha256.h"
+#include "vendor/aes.h"
 #include <math.h>
 #include <printf.h>
 
@@ -247,7 +248,12 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
 
 //
 QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
-
+    QCArrayRef data = QCArrayCreateCopy(message);
+    QCArrayAppend(data, token);
+    QCArrayAppend(data, key);
+    QCArrayRef result = QCArraySHA256(data);
+    QCRelease(data);
+    return result;
 }
 
 //
@@ -257,4 +263,30 @@ static void QCCipherDeallocate(QCObjectRef object) {
         QCRelease(cipher->privateKey);
         QCRelease(cipher->publicKey);
     }
+}
+
+QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+    size_t messageSize = message->count;
+    BYTE *out = cipher->isa->allocator(messageSize * 4 * sizeof(QCByte));
+    WORD key_schedule[60];
+    size_t keysize = 256;
+    aes_key_setup(key->data, key_schedule, keysize);
+
+    int error = aes_encrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    QCArrayRef array = QCArrayCreateWithByte(out, messageSize * 4, false);
+    array->needfree = true;
+    return array;
+}
+
+QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+    size_t messageSize = message->count;
+    BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
+    WORD key_schedule[60];
+    size_t keysize = 256;
+    aes_key_setup(key->data, key_schedule, keysize);
+
+    int error = aes_decrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
+    array->needfree = true;
+    return array;
 }

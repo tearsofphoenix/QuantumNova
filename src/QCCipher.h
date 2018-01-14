@@ -27,4 +27,14 @@ extern QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef
 
 extern QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
 
+/*
+ * symmetric encrypt
+ */
+extern QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv);
+
+/*
+ * symmetric decrypt
+ */
+extern QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv);
+
 #endif //PQC_CRYPTO_QCCIPHER_H

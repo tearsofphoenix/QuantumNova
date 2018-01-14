@@ -128,7 +128,8 @@ int main() {
 
 //    test_all(1);
 
-//    cipher_test();
+    cipher_test();
+
     array_test();
 
     return 0;

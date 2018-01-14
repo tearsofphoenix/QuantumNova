@@ -3,7 +3,6 @@
 //
 #include "QCArrayPrivate.h"
 #include <printf.h>
-#include <math.h>
 #include <fftw3.h>
 #include <memory.h>
 

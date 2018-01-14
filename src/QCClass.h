@@ -14,7 +14,7 @@ typedef unsigned int QCWord;
 typedef struct QCClass QCClass;
 typedef QCClass *QCClassRef;
 
-typedef const void * (* QCAllocatorFunc)(size_t);
+typedef void * (* QCAllocatorFunc)(size_t);
 typedef void (* QCFreeFunc)(const void *);
 typedef const void *(* QCCopyFunc)(const void *);
 typedef const void *(* QCRetainFunc)(const void *);
@@ -44,7 +44,7 @@ struct QCClass {
 
 extern const QCClassRef kQCBaseClassRef;
 
-extern const void *QCAllocator(size_t size);
+extern void *QCAllocator(size_t size);
 
 extern void QCDeallocate(const void *p);
 

@@ -271,17 +271,32 @@ static QCArrayRef QCInt32ArraySHA256(QCArrayRef array) {
     return NULL;
 }
 
-// TODO
+static void intToByteArray(int value, QCByte out[4]) {
+    out[0] = (QCByte)((value >> 24) & 0xFF);
+    out[0] = (QCByte)((value >> 16) & 0xFF);
+    out[0] = (QCByte)((value >> 8) & 0xFF);
+    out[0] = (QCByte)(value & 0xFF);
+}
+
 static QCArrayRef QCInt32ArrayConvert(QCArrayRef array, QCArrayDataType type) {
     if (array) {
         switch (type) {
             case QCDTInt: {
-            }
-            case QCDTDouble: {
                 return QCInt32ArrayCreate(array->data, array->count, true);
             }
-            case QCDTByte: {
+            case QCDTDouble: {
 
+            }
+            case QCDTByte: {
+                size_t count = array->count;
+                int *data = array->data;
+                QCByte *d = array->isa->allocator(sizeof(QCByte) * 4 * count);
+                for (size_t i = 0; i < count; ++i) {
+                    intToByteArray(data[i], d + i * 4);
+                }
+                QCArrayRef result = QCArrayCreateWithByte(d, count * 4, false);
+                result->needfree = true;
+                return result;
             }
             default: {
                 return NULL;

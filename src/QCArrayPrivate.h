@@ -100,8 +100,8 @@ static void CLASS ## Append(QCArrayRef array, QCArrayRef other) { \
             size_t size = sizeof(TYPE) * array->count; \
             size_t otherSize = sizeof(TYPE) * co->count; \
             TYPE * p = array->isa->allocator(size + otherSize); \
-            memcpy(p, array->count, size); \
-            memcpy(p + size, array->count, otherSize); \
+            memcpy(p, array->data, size); \
+            memcpy(p + size, other->data, otherSize); \
             if (array->needfree) { \
                 fftw_free(array->data); \
             } \
