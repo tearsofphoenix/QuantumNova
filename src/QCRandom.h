@@ -7,9 +7,9 @@
 
 #include "QCArray.h"
 
-extern QCArrayRef QCRandomVector(int count);
+extern QCArrayRef QCRandomVector(size_t count);
 
-extern QCArrayRef QCRandomWeightVector(int count, int weight);
+extern QCArrayRef QCRandomWeightVector(size_t count, size_t weight);
 
 extern int QCRandomFlipCoin();
 

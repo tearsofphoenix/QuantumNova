@@ -25,6 +25,8 @@ struct QCKey {
     size_t error;
 };
 
-extern QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g, QCKeyConfig config);
+extern QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
+
+extern QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H

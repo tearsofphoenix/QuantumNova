@@ -27,7 +27,7 @@ static QCKeyRef _getPrivateKey() {
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
     QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
 
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+    QCKeyRef privateKey = QCKeyCreatePrivate(h0, h1, h1inv, config);
 
     QCRelease(h0);
     QCRelease(h1);
@@ -148,9 +148,9 @@ static void encrypt_test() {
     QCCipherSetPrivateKey(cipher, privateKey);
 
     QCArrayRef g = QCArrayCreateWithDouble(G, length, true);
-    QCKeyRef publicKey = QCKeyCreateWith(NULL, NULL, NULL, g, config);
+    QCKeyRef publicKey = QCKeyCreatePublic(g, config);
     QCCipherSetPublicKey(cipher, publicKey);
-    
+
     QCArrayRef message = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
     QCArrayRef enc = QCCipherEncryptMessage(cipher, message, cipher->publicKey);
 

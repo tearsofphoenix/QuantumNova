@@ -12,7 +12,7 @@ static int getRandomInt(int min, int max) {
     return (int)random() % delta + min; //The maximum is exclusive and the minimum is inclusive
 }
 
-QCArrayRef QCRandomVector(int count) {
+QCArrayRef QCRandomVector(size_t count) {
     QCArrayRef vector = QCArrayCreate(count);
     for (int i = 0; i < count; ++i) {
         QCArraySetValueAt(vector, i, getRandomInt(0, 2));
@@ -20,7 +20,7 @@ QCArrayRef QCRandomVector(int count) {
     return vector;
 }
 
-QCArrayRef QCRandomWeightVector(int count, int weight) {
+QCArrayRef QCRandomWeightVector(size_t count, size_t weight) {
     QCArrayRef random_indices = QCArrayCreateWithInt(NULL, weight, false);
     while (QCArrayGetNonZeroCount(random_indices) < weight) {
         int ind = QCArrayGetNonZeroCount(random_indices);
@@ -31,8 +31,8 @@ QCArrayRef QCRandomWeightVector(int count, int weight) {
     }
 
     QCArrayRef real = QCArrayCreate(count);
-    for(int i = 0; i < weight; ++i) {
-        int idx = QCArrayValueAt(random_indices, i);
+    for(size_t i = 0; i < weight; ++i) {
+        size_t idx = QCArrayValueAt(random_indices, i);
         QCArraySetValueAt(real, idx, 1);
     }
 

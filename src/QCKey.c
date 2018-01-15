@@ -23,11 +23,19 @@ static struct QCClass kQCKeyClass = {
         .equal = QCKeyEqual
 };
 
-QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g, QCKeyConfig config) {
+QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config) {
     QCKeyRef key = QCAllocate(&kQCKeyClass);
     key->h0 = QCRetain(h0);
     key->h1 = QCRetain(h1);
     key->h1inv = QCRetain(h1inv);
+    key->length = config.length;
+    key->weight = config.weight;
+    key->error = config.error;
+    return key;
+}
+
+QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config) {
+    QCKeyRef key = QCAllocate(&kQCKeyClass);
     key->g = QCRetain(g);
     key->length = config.length;
     key->weight = config.weight;
@@ -82,22 +90,22 @@ static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2) {
     return false;
 }
 
-QCKeyRef QCKeyCreate(QCKeyConfig config, bool privateOrPublic) {
-    QCKeyRef key = QCKeyCreateWith(NULL, NULL, NULL, NULL, config);
-    return key;
-}
-
 void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey) {
-    QCKeyRef privKey = QCKeyCreate(config, false);
+    QCArrayRef h0 = QCRandomWeightVector(config.length, config.weight);
+    QCArrayRef h1 = QCRandomWeightVector(config.length, config.weight);
+    QCArrayRef h1inv = QCArrayExpPoly(h1, (int64_t)pow(2, 1200) - 2);
+    QCKeyRef privKey = QCKeyCreatePrivate(h0, h1, h1inv, config);
 
-    privKey->h0 = QCRandomWeightVector(config.length, config.weight);
-    privKey->h1 = QCRandomWeightVector(config.length, config.weight);
-    privKey->h1inv = QCArrayExpPoly(privKey->h1, (int64_t)pow(2, 1200) - 2);
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
 
     *privateKey = privKey;
 
-    QCKeyRef pubKey = QCKeyCreate(config, true);
-    pubKey->g = QCArrayMulPoly(privKey->h0, privKey->h1inv);
+    QCArrayRef g = QCArrayMulPoly(h0, h1inv);
+    QCKeyRef pubKey = QCKeyCreatePublic(g, config);
+
+    QCRelease(g);
 
     *publicKey = pubKey;
 }
