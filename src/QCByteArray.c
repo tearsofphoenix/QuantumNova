@@ -5,7 +5,6 @@
 #include "QCByteArray.h"
 #include "vendor/sha256.h"
 #include "vendor/sha512.h"
-#include "vendor/base64.h"
 #include <math.h>
 #include <memory.h>
 #include <printf.h>
