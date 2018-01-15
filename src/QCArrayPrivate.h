@@ -9,6 +9,7 @@
 #include "QCArray.h"
 #include "QCClass.h"
 #include "QCObject.h"
+#include <openssl/bn.h>
 #include <stdbool.h>
 #include <ntsid.h>
 
@@ -75,6 +76,11 @@ struct QCArray {
 extern void *_QCMallocData(QCArrayDataType type, int count, size_t  *size);
 
 extern void QCArrayXORAt(QCArrayRef array, int index, int value);
+
+/*
+ * exp poly
+ */
+extern QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n);
 
 #ifndef QCARRAYIMP
 

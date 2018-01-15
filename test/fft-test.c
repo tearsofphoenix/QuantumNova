@@ -5,7 +5,9 @@
 #include "fft-test.h"
 #include "data.h"
 #include "cipher-test.h"
+#include "src/QCArrayPrivate.h"
 #include "array-test.h"
+#include <openssl/bn.h>
 #include <fftw3.h>
 #include <stdio.h>
 #include <math.h>
@@ -100,9 +102,26 @@ static void exp_poly_test() {
 
     size_t count = sizeof(kExpInput) / sizeof(kExp20[0]);
     QCArrayRef tempH0 = QCArrayCreateWithDouble(kExpInput, count, true);
-    int64_t n = pow(2, 20) - 2;
+
+    BN_CTX *bnCTX = BN_CTX_new();
+    BIGNUM *base = NULL;
+    BIGNUM *exp = NULL;
+    BIGNUM *n = BN_new();
+
+    BN_dec2bn(&base, "2");
+    BN_dec2bn(&exp, "20");
+    BN_exp(n, base, exp, bnCTX);
+    BN_sub(n, n, base);
+
     QCArrayRef result = QCArrayExpPoly(tempH0, n);
-    QCArrayCompareRaw(result, kExp20, QCDTDouble);
+    if(QCArrayCompareRaw(result, kExp20, QCDTDouble)) {
+        printf("exp_poly test passed\n");
+    }
+
+    BN_free(base);
+    BN_free(exp);
+    BN_free(n);
+    BN_CTX_free(bnCTX);
 }
 
 static void loop_test(QCTestFunc func, size_t count) {

@@ -5,7 +5,9 @@
 #include "QCKey.h"
 #include "QCKeyPrivate.h"
 #include "QCRandom.h"
+#include "QCArrayPrivate.h"
 #include <math.h>
+#include <openssl/bn.h>
 #include <libtasn1.h>
 
 static void QCKeyDeallocate(QCKeyRef key);
@@ -93,7 +95,26 @@ static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2) {
 void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey) {
     QCArrayRef h0 = QCRandomWeightVector(config.length, config.weight);
     QCArrayRef h1 = QCRandomWeightVector(config.length, config.weight);
-    QCArrayRef h1inv = QCArrayExpPoly(h1, (int64_t)pow(2, 1200) - 2);
+
+    BN_CTX *bnCTX = BN_CTX_new();
+    BIGNUM *base = NULL;
+    BIGNUM *exp = NULL;
+    BIGNUM *n = BN_new();
+
+    BN_dec2bn(&base, "2");
+    BN_dec2bn(&exp, "1200");
+    BN_exp(n, base, exp, bnCTX);
+    BN_sub(n, n, base);
+
+    printf("%s", BN_bn2dec(n));
+
+    QCArrayRef h1inv = QCArrayExpPoly(h1, n);
+
+    BN_free(base);
+    BN_free(exp);
+    BN_free(n);
+    BN_CTX_free(bnCTX);
+
     QCKeyRef privKey = QCKeyCreatePrivate(h0, h1, h1inv, config);
 
     QCRelease(h0);

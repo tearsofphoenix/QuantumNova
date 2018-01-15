@@ -189,11 +189,6 @@ extern QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times);
 extern QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
 
 /*
- * exp poly
- */
-extern QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n);
-
-/*
  * free array's data
  */
 extern void QCArrayDeallocate(QCArrayRef array);

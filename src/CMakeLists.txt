@@ -3,4 +3,4 @@ add_library(qcrypto QCArray.c QCArray.h QCArrayPrivate.h QCArrayPrivate.c QCRand
         QCCipher.c QCCipher.h QCPrivate.c QCPrivate.h QCInt32Array.c QCInt32Array.h QCDoubleArray.c QCDoubleArray.h QCClass.c QCClass.h
         QCObject.c QCObject.h QCObjectPrivate.h QCCipherPrivate.h QCByteArray.c QCByteArray.h)
 add_subdirectory(vendor)
-target_link_libraries(qcrypto fftw3 ext-crypto tasn1)
+target_link_libraries(qcrypto fftw3 ext-crypto tasn1 crypto)

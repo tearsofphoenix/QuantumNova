@@ -173,15 +173,24 @@ QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y) {
     return result;
 }
 
-QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
+QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n) {
     size_t length = array->count;
     QCArrayRef y = QCArrayCreate(length);
     QCArraySetValueAt(y, 0, 1);
     QCArrayRef x = array;
-    while (n > 1) {
-        if (n % 2 == 0) {
+
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *one = NULL;
+    BIGNUM *two = NULL;
+    BIGNUM *mod = BN_new();
+    BN_dec2bn(&one, "1");
+    BN_dec2bn(&two, "2");
+
+    while (BN_cmp(n, one) == 1) {
+        BN_mod(mod, n, two, ctx);
+        if (BN_is_zero(mod)) {
             x = QCArraySquareSparsePoly(x, 1);
-            n = n / 2;
+            BN_div(n, NULL, n, two, ctx);
         } else {
             // precision does not allow us to stay in FFT domain
             // hence, interchanging ifft(fft).
@@ -194,9 +203,16 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, int64_t n) {
             QCArrayMod(temp, 2);
             y = temp;
             x = QCArraySquareSparsePoly(x, 1);
-            n = (n - 1) / 2;
+            BN_sub(n, n, one);
+            BN_div(n, NULL, n, two, ctx);
         }
     }
+
+    BN_free(one);
+    BN_free(two);
+    BN_free(mod);
+    BN_CTX_free(ctx);
+
     QCArrayRef result = QCArrayMulPoly(x, y);
     QCArrayRound(result);
     QCArrayMod(result, 2);
