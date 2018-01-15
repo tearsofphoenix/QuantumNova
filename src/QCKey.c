@@ -6,8 +6,9 @@
 #include "QCKeyPrivate.h"
 #include "QCRandom.h"
 #include "QCArrayPrivate.h"
+#include "asinine/asn1.h"
+#include "asinine/dsl.h"
 #include <math.h>
-#include <openssl/bn.h>
 #include <libtasn1.h>
 
 static void QCKeyDeallocate(QCKeyRef key);
@@ -131,6 +132,60 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     *publicKey = pubKey;
 }
 
-QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
+static asinine_err_t _parsePrivateKeyFile(QCByte *data, size_t length) {
+    asn1_parser_t parser;
+    asn1_init(&parser, data, length);
 
+    NEXT_TOKEN(&parser);
+
+    // "token" now contains the next token
+    if (!asn1_is_sequence(&parser.token)) {
+        return ERROR(ASININE_ERR_INVALID, "expected sequence");
+    }
+
+    // Iterate over unknown number of children
+    RETURN_ON_ERROR(asn1_push_seq(&parser));
+
+    while (!asn1_eof(&parser)) {
+        // Call NEXT_TOKEN and process it
+    }
+
+    // Undo the push from before
+    RETURN_ON_ERROR(asn1_pop(&parser));
+
+    // Do some more parsing
+
+    // Make sure there the buffer has been fully parsed
+    if (!asn1_end(&parser)) {
+        return ERROR(ASININE_ERR_MALFORMED, "trailing data");
+    }
+
+    // Yay!
+    return ERROR(ASININE_OK, NULL);
+}
+
+static QCByte *_readFile(const char *path, size_t *outLength) {
+    FILE *fileptr;
+    QCByte *buffer;
+    size_t filelen;
+
+    fileptr = fopen(path, "rb");  // Open the file in binary mode
+    fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+    filelen = ftell(fileptr);             // Get the current byte offset in the file
+    rewind(fileptr);                      // Jump back to the beginning of the file
+
+    buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
+    fread(buffer, filelen, 1, fileptr); // Read in the entire file
+    fclose(fileptr); // Close the file
+
+    if (outLength) {
+        *outLength = filelen;
+    }
+    return buffer;
+}
+
+QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
+    size_t length = 0;
+    QCByte *data = _readFile(filePath, &length);
+    _parsePrivateKeyFile(data, length);
 }

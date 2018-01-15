@@ -83,9 +83,12 @@ QCArrayRef QCArrayConvert(QCArrayRef array, QCArrayDataType type) {
     return NULL;
 }
 
-
 QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy) {
     return QCByteArrayCreate(array, count, needCopy);
+}
+
+QCArrayRef QCArrayCreateWithBase64(const char *base64String, size_t length) {
+    return QCByteArrayCreateWithBase64(base64String, length);
 }
 
 QCArrayRef QCArrayFFT(QCArrayRef array) {

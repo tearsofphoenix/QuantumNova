@@ -5,6 +5,7 @@
 #include "QCByteArray.h"
 #include "vendor/sha256.h"
 #include "vendor/sha512.h"
+#include "vendor/base64.h"
 #include <math.h>
 #include <memory.h>
 #include <printf.h>
@@ -114,6 +115,22 @@ QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
     array->count = length / 2;
     array->needfree = true;
     array->fft = false;
+    return array;
+}
+
+QCArrayRef QCByteArrayCreateWithBase64(const char *base64String, size_t length) {
+    QCArrayRef array = QCAllocate(&kQCByteArrayClass);
+    array->isa = kQCByteArrayClassRef;
+
+    size_t count = length;
+    QCByte *data = _QCMallocData(QCDTByte, count, NULL);
+    count = base64_decode(base64String, data, length);
+
+    array->data = data;
+    array->count = count;
+    array->needfree = true;
+    array->fft = false;
+    array->datatype = QCDTByte;
     return array;
 }
 

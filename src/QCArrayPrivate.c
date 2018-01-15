@@ -16,7 +16,7 @@ static struct QCClass kQCArrayClass = {
 
 const QCClassRef kQCArrayClassRef = &kQCArrayClass;
 
-void *_QCMallocData(QCArrayDataType type, int count, size_t *outsize) {
+void *_QCMallocData(QCArrayDataType type, size_t count, size_t *outsize) {
     size_t size = 0;
     switch (type) {
         case QCDTInt: {

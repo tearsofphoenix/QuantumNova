@@ -130,7 +130,7 @@ static void loop_test(QCTestFunc func, size_t count) {
     }
 }
 
-static void test_all(size_t count) {
+void fft_test_all(size_t count) {
     loop_test(fft_test, count);
 
     loop_test(complex_multiply_test, count);
@@ -142,15 +142,4 @@ static void test_all(size_t count) {
     loop_test(mul_poly_test, count);
 
     loop_test(exp_poly_test, count);
-}
-
-int main() {
-
-    test_all(1);
-
-    cipher_test();
-
-//    array_test();
-
-    return 0;
 }
