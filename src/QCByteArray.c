@@ -9,6 +9,7 @@
 #include <memory.h>
 #include <printf.h>
 #include <fftw3.h>
+#include <stdlib.h>
 
 static void QCByteArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCByteArrayCopy(QCArrayRef array);
@@ -93,6 +94,29 @@ const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy)
     return NULL;
 }
 
+QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
+    QCArrayDataType type = QCDTByte;
+    QCArrayRef array = QCAllocate(&kQCByteArrayClass);
+    array->isa = kQCByteArrayClassRef;
+    QCByte *data = _QCMallocData(type, length / 2, NULL);
+    char temp[] = {'0', 'x', '0', '0', '\0'};
+    size_t j = 0;
+    while(j < length) {
+        temp[2] = hexString[j];
+        temp[3] = hexString[j + 1];
+        QCByte byte = strtoul(temp, NULL, 16);
+
+        data[j / 2] = byte;
+        j = j + 2;
+    }
+
+    array->data = data;
+    array->count = length / 2;
+    array->needfree = true;
+    array->fft = false;
+    return array;
+}
+
 static const void *QCByteArrayCopy(QCArrayRef array) {
     if (array) {
         return QCByteArrayCreate(array->data, array->count, true);
@@ -121,6 +145,7 @@ static QCArrayRef QCByteArrayAdd (QCArrayRef array, QCArrayRef y) {
 static QCArrayRef QCByteArrayMultiply (QCArrayRef array, double mul) {
     QCByte m = (QCByte)mul;
     QCFOREACH(array, d[i] *= m, QCByte);
+    return array;
 }
 static QCArrayRef QCByteArrayRound (QCArrayRef array) {
     // no need to round
@@ -128,6 +153,7 @@ static QCArrayRef QCByteArrayRound (QCArrayRef array) {
 }
 static QCArrayRef QCByteArrayMod (QCArrayRef array, int mod) {
     QCFOREACH(array, d[i] = (QCByte)(d[i] % mod), QCByte);
+    return array;
 }
 
 static size_t QCByteArrayZeroCount (QCArrayRef array) {

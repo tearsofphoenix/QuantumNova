@@ -22,6 +22,10 @@ QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool needCopy) {
     return QCInt32ArrayCreate(array, count, needCopy);
 }
 
+QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length) {
+    return QCByteArrayCreateWithHex(hexString, length);
+}
+
 QCArrayRef QCArrayCreateCopy(QCArrayRef array) {
     if (array) {
         return array->isa->copy(array);

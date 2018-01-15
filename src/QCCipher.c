@@ -338,11 +338,8 @@ QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyR
     return ciphered;
 }
 
-QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef privateKey) {
+QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArrayRef rc_0, QCArrayRef rc_1) {
 
-//    rc_0, rc_1, symmetric_stream = self.io.extract_der_ciphertext(ciphertext)
-    QCArrayRef rc_0;
-    QCArrayRef rc_1;
     QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
     QCArrayRef decrypted_token = QCArrayPack(temp);
 

@@ -114,7 +114,7 @@ static void CLASS ## Append(QCArrayRef array, QCArrayRef other) { \
 static QCArrayRef CLASS ## Slice(QCArrayRef array, size_t start, size_t end) { \
     const size_t count = array->count; \
     TYPE *data = array->data; \
-    if (start >= 0 && end >= 0 && start < count && end < count && start < end) { \
+    if (start >= 0 && end >= 0 && start < count && end <= count && start < end) { \
         return CLASS ## Create(data + start, end - start, true); \
     } \
     return NULL; \

@@ -176,10 +176,28 @@ static void array_slice_test() {
     QCRelease(s1);
 }
 
+static void array_hex_test() {
+    QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
+                       0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
+                       0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
+    const char *hexString = "5eca494f5ab1f3d48e1a37cd3277c6922f476e507ccca2680868944a7331701f91d84e0a628b5192e79db1182899736d";
+
+    QCArrayRef a1 = QCArrayCreateWithByte(stream, sizeof(stream) / sizeof(stream[0]), false);
+    QCArrayRef a2 = QCArrayCreateWithHex(hexString, strlen(hexString));
+
+    if(QCObjectEqual(a1, a2)) {
+        printf("array hex test passed");
+    }
+    QCRelease(a1);
+    QCRelease(a2);
+}
+
 void array_test() {
     sha256_test();
 
     sha512_test();
 
     array_slice_test();
+
+    array_hex_test();
 }

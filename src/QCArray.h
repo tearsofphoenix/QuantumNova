@@ -39,6 +39,11 @@ extern QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool need
 extern QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy);
 
 /*
+ * create QCArray from hex string
+ */
+extern QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length);
+
+/*
  * create copy of array
  */
 extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);

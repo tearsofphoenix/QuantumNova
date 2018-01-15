@@ -29,7 +29,7 @@ extern QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef 
 
 extern QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey);
 
-extern QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef privateKey);
+extern QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArrayRef rc_0, QCArrayRef rc_1);
 
 /*
  * symmetric encrypt

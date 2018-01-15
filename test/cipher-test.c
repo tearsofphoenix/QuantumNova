@@ -5,11 +5,34 @@
 #include <stddef.h>
 #include <printf.h>
 #include <memory.h>
+#include <src/QCKey.h>
 #include "cipher-test.h"
 #include "src/QCCipher.h"
 #include "src/QCKeyPrivate.h"
 #include "src/vendor/aes.h"
 #include "data.h"
+
+
+QCKeyConfig config = {
+        .length = 4801,
+        .weight = 45,
+        .error = 42
+};
+
+static QCKeyRef _getPrivateKey() {
+    size_t length = config.length;
+    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
+    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
+    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
+
+    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
+
+    return privateKey;
+}
 
 static void mul_poly_test() {
     printf("-----------mul poly test--------------\n");
@@ -40,21 +63,9 @@ static void mul_poly_test() {
 static void cipher_syndrome_test() {
     printf("-----------cipher syndrome test--------------\n");
 
-    size_t length = 4801;
-    size_t weight = 45;
-    size_t error = 42;
+    size_t length = config.length;
 
-    QCKeyConfig config = {
-            .length = length,
-            .weight = weight,
-            .error = error
-    };
-
-    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
-    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
-    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
-
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+    QCKeyRef privateKey = _getPrivateKey();
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
@@ -65,9 +76,6 @@ static void cipher_syndrome_test() {
     QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
     QCArrayCompareRaw(result, kSyndrome, QCDTDouble);
 
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(h1inv);
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
@@ -77,22 +85,9 @@ static void cipher_syndrome_test() {
 
 static void decrypt_test() {
     printf("-----------decrypt test--------------\n");
+    size_t length = config.length;
 
-    size_t length = 4801;
-    size_t weight = 45;
-    size_t error = 42;
-
-    QCKeyConfig config = {
-            .length = length,
-            .weight = weight,
-            .error = error
-    };
-
-    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
-    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
-    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
-
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+    QCKeyRef privateKey = _getPrivateKey();
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
@@ -104,9 +99,6 @@ static void decrypt_test() {
 
     QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
 
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(h1inv);
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
@@ -115,24 +107,32 @@ static void decrypt_test() {
     printf("-----------decrypt test end--------------\n");
 }
 
+static void decrypt_message_test() {
+    QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
+                       0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
+                       0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
+    QCArrayRef streamArray = QCArrayCreateWithByte(stream, sizeof(stream) / sizeof(QCByte), true);
+
+    size_t length = config.length;
+
+    QCKeyRef privateKey = _getPrivateKey();
+
+    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
+    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
+
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privateKey);
+
+    QCArrayRef array = QCCipherDecryptMessage(cipher, streamArray, c0, c1);
+    QCObjectPrint(array);
+}
+
 static void encrypt_test() {
     printf("-----------encrypt test start--------------\n");
 
-    size_t length = 4801;
-    size_t weight = 45;
-    size_t error = 42;
+    size_t length = config.length;
 
-    QCKeyConfig config = {
-            .length = length,
-            .weight = weight,
-            .error = error
-    };
-
-    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
-    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
-    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
-
-    QCKeyRef privateKey = QCKeyCreateWith(h0, h1, h1inv, NULL, config);
+    QCKeyRef privateKey = _getPrivateKey();
 
     QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
     QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
@@ -146,9 +146,6 @@ static void encrypt_test() {
 
     QCCipherEncrypt(cipher, NULL, NULL, NULL);
 
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(h1inv);
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
@@ -235,5 +232,7 @@ void cipher_test() {
 //
 //    aes_cbc_test();
 
-    mac_test();
+//    mac_test();
+
+    decrypt_message_test();
 }
