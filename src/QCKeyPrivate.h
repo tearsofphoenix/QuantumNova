@@ -20,9 +20,9 @@ struct QCKey {
     QCArrayRef g;
 
     // shared fields
-    int length;
-    int weight;
-    int error;
+    size_t length;
+    size_t weight;
+    size_t error;
 };
 
 extern QCKeyRef QCKeyCreateWith(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCArrayRef g, QCKeyConfig config);

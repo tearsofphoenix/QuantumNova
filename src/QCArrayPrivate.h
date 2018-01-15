@@ -138,10 +138,8 @@ static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
 #ifndef QCFOREACH
 
 #define QCFOREACH(array, exp, TYPE) do { \
-                        for (size_t i = 0; i < array->count; ++i) { \
-                             TYPE *d = array->data; \
-                             exp; \
-                         } \
+                        TYPE *d = array->data; \
+                        for (size_t i = 0; i < array->count; ++i) { exp; } \
                     } while(0)
 
 #endif

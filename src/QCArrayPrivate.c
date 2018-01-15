@@ -66,7 +66,7 @@ double QCArrayValueAt(QCArrayRef array, int index) {
 
 int QCArrayGetNonZeroCount(QCArrayRef array) {
     if (array) {
-        return ((QCArrayClassRef)array->isa)->zero(array);
+        return array->count - ((QCArrayClassRef)array->isa)->zero(array);
     }
     return 0;
 }

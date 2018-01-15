@@ -8,9 +8,9 @@
 #include "QCObject.h"
 
 static int getRandomInt(int min, int max) {
-    return (int)floor(random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    int delta = max - min;
+    return (int)random() % delta + min; //The maximum is exclusive and the minimum is inclusive
 }
-
 
 QCArrayRef QCRandomVector(int count) {
     QCArrayRef vector = QCArrayCreate(count);

@@ -57,6 +57,7 @@ void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCAr
 // non-constant weight to achieve cipertext indistinguishability
     QCKeyRef publicKey = cipher->publicKey;
     QCArrayRef temp = QCArrayMulPoly(publicKey->g, message);
+
     QCArrayRef t = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
     QCArrayAddArray(temp, t);
     QCArrayMod(temp, 2);
@@ -176,8 +177,6 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     int delta = 5;
     int threshold = 100;
     int r = 0;
-
-    printf("--------index ok---------\n");
 
     while (true) {
         int max_unsat = (int)fmax(QCArrayMax(unsat_H0), QCArrayMax(unsat_H1));

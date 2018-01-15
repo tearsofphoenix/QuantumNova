@@ -6,8 +6,10 @@
 #include <printf.h>
 #include <memory.h>
 #include <src/QCKey.h>
+#include <src/QCCipherPrivate.h>
 #include "cipher-test.h"
 #include "src/QCCipher.h"
+#include "src/QCRandom.h"
 #include "src/QCKeyPrivate.h"
 #include "src/vendor/aes.h"
 #include "data.h"
@@ -135,6 +137,7 @@ static void encrypt_test() {
     printf("-----------encrypt test start--------------\n");
 
     size_t length = config.length;
+    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
     QCKeyRef privateKey = _getPrivateKey();
 
@@ -147,8 +150,14 @@ static void encrypt_test() {
     QCArrayRef g = QCArrayCreateWithDouble(G, length, true);
     QCKeyRef publicKey = QCKeyCreateWith(NULL, NULL, NULL, g, config);
     QCCipherSetPublicKey(cipher, publicKey);
+    
+    QCArrayRef message = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QCArrayRef enc = QCCipherEncryptMessage(cipher, message, cipher->publicKey);
 
-    QCCipherEncrypt(cipher, NULL, NULL, NULL);
+    QCArrayRef array = QCCipherDecryptMessage(cipher, enc, c0, c1);
+    if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
+        printf("cipher encrypt test passed\n");
+    }
 
     QCRelease(privateKey);
     QCRelease(c0);
@@ -237,6 +246,8 @@ void cipher_test() {
 //    aes_cbc_test();
 
 //    mac_test();
+
+    encrypt_test();
 
     decrypt_message_test();
 }
