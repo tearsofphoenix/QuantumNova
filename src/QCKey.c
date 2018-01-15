@@ -10,6 +10,7 @@
 #include "asinine/dsl.h"
 #include <math.h>
 #include <libtasn1.h>
+#include <memory.h>
 
 static void QCKeyDeallocate(QCKeyRef key);
 static QCKeyRef QCKeyCopy(QCKeyRef key);
@@ -164,7 +165,15 @@ static asinine_err_t _parsePrivateKeyFile(QCByte *data, size_t length) {
     return ERROR(ASININE_OK, NULL);
 }
 
-static QCByte *_readFile(const char *path, size_t *outLength) {
+#define kBeginTemplate "-----BEGIN %s-----\n"
+#define kEndTemplate "-----END %s-----"
+
+static QCByte *_readFile(const char *path, size_t *outLength, const char *label) {
+    char begin[1024] = {'\0'};
+    sprintf(begin, kBeginTemplate, label);
+    char end[1024] = {'\0'};
+    sprintf(end, kEndTemplate, label);
+
     FILE *fileptr;
     QCByte *buffer;
     size_t filelen;
@@ -175,17 +184,35 @@ static QCByte *_readFile(const char *path, size_t *outLength) {
     rewind(fileptr);                      // Jump back to the beginning of the file
 
     buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
+
     fread(buffer, filelen, 1, fileptr); // Read in the entire file
+
     fclose(fileptr); // Close the file
 
+    const char *sch = strstr(buffer, begin);
+    const char *ech = strstr(buffer, end);
+
+    size_t bufferSize = (filelen - strlen(begin) - strlen(end));
+    QCByte *result = malloc(sizeof(QCByte) * bufferSize);
+    memcpy(result, buffer + strlen(begin), bufferSize);
+
+    free(buffer);
+
     if (outLength) {
-        *outLength = filelen;
+        *outLength = bufferSize;
     }
-    return buffer;
+
+    return result;
 }
 
 QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
     size_t length = 0;
-    QCByte *data = _readFile(filePath, &length);
-    _parsePrivateKeyFile(data, length);
+    QCByte *data = _readFile(filePath, &length, "PQP PRIVATE KEY");
+
+    QCArrayRef array = QCArrayCreateWithBase64(data, length);
+
+    free(data);
+
+    asinine_err_t error = _parsePrivateKeyFile(array->data, array->count);
+    printf("%d %s", error.errno, error.reason);
 }
