@@ -26,6 +26,15 @@ QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length) {
     return QCByteArrayCreateWithHex(hexString, length);
 }
 
+QCArrayRef QCArrayPKCS7Encode(QCArrayRef array) {
+    return QCByteArrayPKCS7Encode(array);
+}
+
+QCArrayRef QCArrayPKCS7Decode(QCArrayRef array) {
+    return QCByteArrayPKCS7Decode(array);
+}
+
+
 QCArrayRef QCArrayCreateCopy(QCArrayRef array) {
     if (array) {
         return array->isa->copy(array);

@@ -44,6 +44,15 @@ extern QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool 
 extern QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length);
 
 /*
+ * do PKCS7 encode on array
+ */
+extern QCArrayRef QCArrayPKCS7Encode(QCArrayRef array);
+/*
+ * do PKCS7 decode on array
+ */
+extern QCArrayRef QCArrayPKCS7Decode(QCArrayRef array);
+
+/*
  * create copy of array
  */
 extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);

@@ -168,7 +168,6 @@ static void array_slice_test() {
     QCArrayRef array = QCArrayCreateWithInt(d, sizeof(d) / sizeof(d[0]), false);
 
     QCArrayRef s1 = QCArraySlice(array, 0, 3);
-    QCObjectPrint(s1);
     int expected[] = {1, 2, 3};
     QCArrayCompareRaw(s1, expected, QCDTInt);
 

@@ -29,8 +29,8 @@ static struct QCClass kQCCipherClass = {
 QCCipherRef QCCipherCreate(void) {
     QCCipherRef cipher = QCAllocate(&kQCCipherClass);
     cipher->saltA = QCArrayCreateWithByte(kSaltA, strlen(kSaltA), false);
-    cipher->saltB = QCArrayCreateWithByte(kSaltA, strlen(kSaltB), false);
-    cipher->ivSalt = QCArrayCreateWithByte(kSaltA, strlen(kIVSalt), false);
+    cipher->saltB = QCArrayCreateWithByte(kSaltB, strlen(kSaltB), false);
+    cipher->ivSalt = QCArrayCreateWithByte(kIVSalt, strlen(kIVSalt), false);
     return cipher;
 }
 
@@ -296,7 +296,9 @@ QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCAr
     aes_decrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
-    return array;
+    QCArrayRef ref = QCArrayPKCS7Decode(array);
+    QCRelease(array);
+    return ref;
 }
 
 QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey) {
@@ -375,11 +377,16 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArra
     QCRelease(decrypted_keyA);
     QCRelease(decrypted_iv);
     QCRelease(decrypted_keyB);
-    QCRelease(receiver_mac);
-    QCRelease(decrypted_mac);
 
     if (QCObjectEqual(receiver_mac, decrypted_mac)) {
+
+        QCRelease(receiver_mac);
+        QCRelease(decrypted_mac);
+
         return decrypted_message;
+    } else {
+        QCRelease(receiver_mac);
+        QCRelease(decrypted_mac);
     }
     return NULL;
 }

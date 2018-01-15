@@ -117,6 +117,23 @@ QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
     return array;
 }
 
+QCArrayRef QCByteArrayPKCS7Encode(QCArrayRef array) {
+    // TODO
+}
+
+// Remove the PKCS#7 padding from a text string
+QCArrayRef QCByteArrayPKCS7Decode(QCArrayRef array) {
+    size_t count = array->count;
+    QCByte *data = array->data;
+    int val = data[count - 1];
+    if (val > 16) {
+        printf("Input is not padded or padding is corrupt");
+        return NULL;
+    } else {
+        return QCArraySlice(array, 0, count - val);
+    }
+}
+
 static const void *QCByteArrayCopy(QCArrayRef array) {
     if (array) {
         return QCByteArrayCreate(array->data, array->count, true);
@@ -167,7 +184,7 @@ QCARRAYIMP(QCByteArray, QCByte)
 static void QCByteArrayPrint(QCArrayRef array) {
     if (array) {
         int padding = 25;
-        printf("\n<%s 0x%x>[ ", array->isa->name, array);
+        printf("\n<%s 0x%x count: %d>[ ", array->isa->name, array, array->count);
 
         QCFOREACH(array, printf("%02x", d[i]); if (i % padding == 0 && i > 0) { printf("\n"); }, QCByte);
 

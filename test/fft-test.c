@@ -127,11 +127,11 @@ static void test_all(size_t count) {
 
 int main() {
 
-//    test_all(1);
+    test_all(1);
 
-//    cipher_test();
+    cipher_test();
 
-    array_test();
+//    array_test();
 
     return 0;
 }
