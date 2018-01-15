@@ -11,6 +11,8 @@
 #include <printf.h>
 #include <fftw3.h>
 #include <stdlib.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 
 static void QCByteArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCByteArrayCopy(QCArrayRef array);
@@ -118,13 +120,44 @@ QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
     return array;
 }
 
+
+static size_t calcDecodeLength(const char* b64input) { //Calculates the length of a decoded string
+    size_t len = strlen(b64input),
+            padding = 0;
+
+    if (b64input[len-1] == '=' && b64input[len-2] == '=') //last two chars are =
+        padding = 2;
+    else if (b64input[len-1] == '=') //last char is =
+        padding = 1;
+
+    return (len * 3) / 4 - padding;
+}
+
+static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //Decodes a base64 encoded string
+    BIO *bio, *b64;
+
+    int decodeLen = calcDecodeLength(b64message);
+    *buffer = (unsigned char*)malloc(decodeLen + 1);
+    (*buffer)[decodeLen] = '\0';
+
+    bio = BIO_new_mem_buf(b64message, -1);
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_push(b64, bio);
+
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
+    *length = BIO_read(bio, *buffer, strlen(b64message));
+    BIO_free_all(bio);
+
+    return (0); //success
+}
+
 QCArrayRef QCByteArrayCreateWithBase64(const char *base64String, size_t length) {
     QCArrayRef array = QCAllocate(&kQCByteArrayClass);
     array->isa = kQCByteArrayClassRef;
 
     size_t count = length;
-    QCByte *data = _QCMallocData(QCDTByte, count, NULL);
-    count = base64_decode(base64String, data, length);
+    QCByte *data = NULL;
+    Base64Decode(base64String, &data, &count);
 
     array->data = data;
     array->count = count;

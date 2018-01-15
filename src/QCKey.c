@@ -139,22 +139,20 @@ static asinine_err_t _parsePrivateKeyFile(QCByte *data, size_t length) {
 
     NEXT_TOKEN(&parser);
 
-    // "token" now contains the next token
-    if (!asn1_is_sequence(&parser.token)) {
-        return ERROR(ASININE_ERR_INVALID, "expected sequence");
-    }
-
-    // Iterate over unknown number of children
-    RETURN_ON_ERROR(asn1_push_seq(&parser));
-
-    while (!asn1_eof(&parser)) {
-        // Call NEXT_TOKEN and process it
+    if (asn1_is_sequence(&parser.token)) {
+//        RETURN_ON_ERROR(asn1_push_seq(&parser));
+#define kBufferLength 4801
+        QCByte buffer[kBufferLength];
+        asn1_bitstring(&parser.token, buffer, kBufferLength);
+        NEXT_TOKEN(&parser);
+        asn1_bitstring(&parser.token, buffer, kBufferLength);
+        NEXT_TOKEN(&parser);
+        asn1_bitstring(&parser.token, buffer, kBufferLength);
+        NEXT_TOKEN(&parser);
     }
 
     // Undo the push from before
     RETURN_ON_ERROR(asn1_pop(&parser));
-
-    // Do some more parsing
 
     // Make sure there the buffer has been fully parsed
     if (!asn1_end(&parser)) {
@@ -165,7 +163,7 @@ static asinine_err_t _parsePrivateKeyFile(QCByte *data, size_t length) {
     return ERROR(ASININE_OK, NULL);
 }
 
-#define kBeginTemplate "-----BEGIN %s-----\n"
+#define kBeginTemplate "-----BEGIN %s-----"
 #define kEndTemplate "-----END %s-----"
 
 static QCByte *_readFile(const char *path, size_t *outLength, const char *label) {
@@ -174,25 +172,34 @@ static QCByte *_readFile(const char *path, size_t *outLength, const char *label)
     char end[1024] = {'\0'};
     sprintf(end, kEndTemplate, label);
 
-    FILE *fileptr;
-    QCByte *buffer;
-    size_t filelen;
-
-    fileptr = fopen(path, "rb");  // Open the file in binary mode
+    FILE *fileptr = fopen(path, "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-    filelen = ftell(fileptr);             // Get the current byte offset in the file
+    size_t filelen = ftell(fileptr);             // Get the current byte offset in the file
     rewind(fileptr);                      // Jump back to the beginning of the file
 
-    buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
+    QCByte *buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
 
-    fread(buffer, filelen, 1, fileptr); // Read in the entire file
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    ssize_t total = 0;
+    while ((read = getline(&line, &len, fileptr)) != -1) {
+        printf("Retrieved line of length %zu :\n", read);
+        printf("%s", line);
+        // ignore '\n'
+        memcpy(buffer + total, line, read - 1);
+        total += read - 1;
+    }
+    if (line) {
+        free(line);
+    }
 
     fclose(fileptr); // Close the file
 
     const char *sch = strstr(buffer, begin);
     const char *ech = strstr(buffer, end);
 
-    size_t bufferSize = (filelen - strlen(begin) - strlen(end));
+    size_t bufferSize = (total - strlen(begin) - strlen(end));
     QCByte *result = malloc(sizeof(QCByte) * bufferSize);
     memcpy(result, buffer + strlen(begin), bufferSize);
 
@@ -212,6 +219,8 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
     QCArrayRef array = QCArrayCreateWithBase64(data, length);
 
     free(data);
+
+    QCObjectPrint(array);
 
     asinine_err_t error = _parsePrivateKeyFile(array->data, array->count);
     printf("%d %s", error.errno, error.reason);
