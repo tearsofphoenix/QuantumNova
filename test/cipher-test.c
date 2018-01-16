@@ -10,6 +10,7 @@
 #include "cipher-test.h"
 #include "src/QCCipher.h"
 #include "src/QCRandom.h"
+#include "src/QCMessagePrivate.h"
 #include "src/QCKeyPrivate.h"
 #include "src/vendor/aes.h"
 #include "data.h"
@@ -126,11 +127,19 @@ static void decrypt_message_test() {
 
     QCCipherRef cipher = QCCipherCreate();
     QCCipherSetPrivateKey(cipher, privateKey);
+    QCMessageRef message = QCMessageCreate(c0, c1, streamArray);
+    QCArrayRef array = QCCipherDecryptMessage(cipher, message);
 
-    QCArrayRef array = QCCipherDecryptMessage(cipher, streamArray, c0, c1);
     if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
-        printf("cipher decrypt test passed");
+        printf("cipher decrypt test passed\n");
     }
+
+    QCRelease(c0);
+    QCRelease(c1);
+    QCRelease(cipher);
+    QCRelease(message);
+    QCRelease(array);
+    QCRelease(privateKey);
 }
 
 static void encrypt_test() {
@@ -151,10 +160,9 @@ static void encrypt_test() {
     QCKeyRef publicKey = QCKeyCreatePublic(g, config);
     QCCipherSetPublicKey(cipher, publicKey);
 
-    QCArrayRef message = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
-    QCArrayRef enc = QCCipherEncryptMessage(cipher, message, cipher->publicKey);
-
-    QCArrayRef array = QCCipherDecryptMessage(cipher, enc, c0, c1);
+    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
     if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
         printf("cipher encrypt test passed\n");
     }
@@ -191,13 +199,13 @@ static void aes_cbc_test()
     QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, message, keyArray, ivArray);
 
     if(QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte)) {
-        printf("passed aes encrypt");
+        printf("passed aes encrypt\n");
     }
 
     QCArrayRef plain = QCCipherSymmetricDecrypt(cipher, ciphered, keyArray, ivArray);
 
     if (QCObjectEqual(plain, message)) {
-        printf("passed aes decrypt");
+        printf("passed aes decrypt\n");
     }
 
     QCRelease(cipher);
@@ -227,7 +235,7 @@ static void mac_test() {
     QCArrayRef h = QCArraySHA256(m);
 
     if (QCArrayCompareRaw(h, mac, QCDTByte)) {
-        printf("mac test passed");
+        printf("mac test passed\n");
     }
 
     QCRelease(m);
@@ -237,15 +245,15 @@ static void mac_test() {
 }
 
 void cipher_test() {
-//    mul_poly_test();
-//
-//    cipher_syndrome_test();
-//
-//    decrypt_test();
-//
-//    aes_cbc_test();
+    mul_poly_test();
 
-//    mac_test();
+    cipher_syndrome_test();
+
+    decrypt_test();
+
+    aes_cbc_test();
+
+    mac_test();
 
     encrypt_test();
 

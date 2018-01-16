@@ -176,8 +176,8 @@ QCArrayRef QCByteArrayPKCS7Decode(QCArrayRef array) {
     QCByte *data = array->data;
     int val = data[count - 1];
     if (val > 16) {
-        printf("Input is not padded or padding is corrupt");
-        return NULL;
+        printf("Input is not padded or padding is corrupt!\n");
+        return array;
     } else {
         return QCArraySlice(array, 0, count - val);
     }

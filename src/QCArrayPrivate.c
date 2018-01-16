@@ -8,7 +8,7 @@
 
 static struct QCClass kQCArrayClass = {
         .base = NULL,
-        .name = "QCClass",
+        .name = "QCArray",
         .allocator = QCAllocator,
         .deallocate = QCDeallocate,
         .copy = NULL

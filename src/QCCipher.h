@@ -8,6 +8,7 @@
 #include "QCArray.h"
 #include "QCKey.h"
 #include "QCObject.h"
+#include "QCMessage.h"
 
 typedef struct QCCipher * QCCipherRef;
 
@@ -54,12 +55,12 @@ extern QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef 
 /*
  * encrypt message with publicKey
  */
-extern QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey);
+extern QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData);
 
 /*
  * decrypt message with privateKey
  */
-extern QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArrayRef rc_0, QCArrayRef rc_1);
+extern QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message);
 
 /*
  * symmetric encrypt (current AES-CBC)

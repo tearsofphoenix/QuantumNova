@@ -7,6 +7,7 @@
 #include "QCRandom.h"
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
+#include "QCMessagePrivate.h"
 #include "vendor/sha256.h"
 #include "vendor/aes.h"
 #include <math.h>
@@ -300,7 +301,8 @@ QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCAr
     return ref;
 }
 
-QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyRef publicKey) {
+QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
+    QCKeyRef publicKey = cipher->publicKey;
     QCArrayRef randomized = QCRandomVector(publicKey->length);
     QCArrayRef token = QCArrayPack(randomized);
 
@@ -324,22 +326,29 @@ QCArrayRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef message, QCKeyR
     QCRelease(tem);
 
     // generate mac
-    QCArrayRef mac = QCCipherGenerateMAC(message, token, keyB);
+    QCArrayRef mac = QCCipherGenerateMAC(plainData, token, keyB);
 
     QCArrayRef c0;
     QCArrayRef c1;
     QCCipherEncrypt(cipher, randomized, &c0, &c1);
 
-    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, message, keyA, iv);
+    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, plainData, keyA, iv);
+
+    QCMessageRef message = QCMessageCreate(c0, c1, ciphered);
+
+    QCRelease(ciphered);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(mac);
     QCRelease(randomized);
 
-    return ciphered;
+    return message;
 }
 
-QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArrayRef rc_0, QCArrayRef rc_1) {
+QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
+
+    QCArrayRef rc_0 = message->c0;
+    QCArrayRef rc_1 = message->c1;
 
     QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
     QCArrayRef decrypted_token = QCArrayPack(temp);
@@ -366,7 +375,7 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCArrayRef message, QCArra
     QCRelease(tem);
 
     // decrypt ciphertext and derive mac
-    QCArrayRef sem = QCCipherSymmetricDecrypt(cipher, message, decrypted_keyA, decrypted_iv);
+    QCArrayRef sem = QCCipherSymmetricDecrypt(cipher, message->sym, decrypted_keyA, decrypted_iv);
     size_t count = sem->count;
     QCArrayRef decrypted_message = QCArraySlice(sem, 0, count - 32);
     QCArrayRef decrypted_mac = QCArraySlice(sem, count - 32, count);
