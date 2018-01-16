@@ -1,5 +1,5 @@
 if (APPLE)
-    link_directories(/usr/local/opt/fftw/lib /usr/local/opt/libtasn1/lib)
+    link_directories(/usr/local/opt/fftw/lib)
 elseif(UNIX)
     link_directories(/usr/lib)
 endif (APPLE)
@@ -11,7 +11,7 @@ add_library(qcrypto QCArray.c QCArray.h QCArrayPrivate.h QCArrayPrivate.c QCRand
 add_subdirectory(vendor)
 
 if (APPLE)
-    target_link_libraries(qcrypto fftw3 ext-crypto tasn1 crypto tomcrypt)
+    target_link_libraries(qcrypto fftw3 ext-crypto crypto tomcrypt)
 elseif(UNIX)
-    target_link_libraries(qcrypto fftw3 ext-crypto tasn1 crypto tomcrypt m)
+    target_link_libraries(qcrypto fftw3 ext-crypto crypto tomcrypt m)
 endif (APPLE)

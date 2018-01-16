@@ -16,6 +16,8 @@ typedef struct {
 
 typedef struct QCKey *QCKeyRef;
 
+extern QCKeyConfig kQCDefaultKeyConfig;
+
 extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey);
 
 extern QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);

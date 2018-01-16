@@ -8,8 +8,13 @@
 #include "QCArrayPrivate.h"
 #include <tomcrypt.h>
 #include <math.h>
-#include <libtasn1.h>
 #include <memory.h>
+
+QCKeyConfig kQCDefaultKeyConfig = {
+        .length = 4801,
+        .weight = 45,
+        .error = 42
+};
 
 static void QCKeyDeallocate(QCKeyRef key);
 static QCKeyRef QCKeyCopy(QCKeyRef key);
@@ -132,29 +137,37 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     *publicKey = pubKey;
 }
 
-static int _parsePrivateKeyFile(const QCByte *data, size_t length) {
+static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
     size_t len2;
     ltc_asn1_list *decoded_list;
     der_decode_sequence_flexi(data, &len2, &decoded_list);
-    QCByte buf[4801];
+    QCByte buf[kQCDefaultKeyConfig.length];
     size_t bufLength;
     if (decoded_list->type == LTC_ASN1_SEQUENCE) {
         ltc_asn1_list *child = decoded_list->child;
+        QCArrayRef h0 = NULL;
+        QCArrayRef h1 = NULL;
+        QCArrayRef h1inv = NULL;
+
         if (child && child->type == LTC_ASN1_BIT_STRING) {
             der_decode_bit_string(child->data, child->size, buf, &bufLength);
-            QCArrayRef h0 = QCArrayCreateWithByte(buf, bufLength, true);
+            h0 = QCArrayCreateWithByte(buf, bufLength, true);
         }
-        ltc_asn1_list *h1 = child->next;
-        if (h1 != NULL && h1->type == LTC_ASN1_BIT_STRING) {
+        child = child->next;
+        if (child != NULL && child->type == LTC_ASN1_BIT_STRING) {
             der_decode_bit_string(child->data, child->size, buf, &bufLength);
-            printf("2");
+            h1 = QCArrayCreateWithByte(buf, bufLength, true);
         }
-        ltc_asn1_list *h1inv = h1->next;
-        if (h1inv != NULL && h1inv->type == LTC_ASN1_BIT_STRING) {
+        child = child->next;
+        if (child != NULL && child->type == LTC_ASN1_BIT_STRING) {
             der_decode_bit_string(child->data, child->size, buf, &bufLength);
+            h1inv = QCArrayCreateWithByte(buf, bufLength, true);
         }
+        QCKeyRef key = QCKeyCreatePrivate(h0, h1, h1inv, kQCDefaultKeyConfig);
+        return key;
     }
     der_sequence_free(decoded_list);
+    return NULL;
 }
 
 #define kBeginTemplate "-----BEGIN %s-----"
@@ -168,7 +181,7 @@ static QCByte *_readFile(const char *path, size_t *outLength, const char *label)
 
     FILE *fileptr = fopen(path, "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-    size_t filelen = ftell(fileptr);             // Get the current byte offset in the file
+    size_t filelen = (size_t)ftell(fileptr);             // Get the current byte offset in the file
     rewind(fileptr);                      // Jump back to the beginning of the file
 
     QCByte *buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
@@ -216,5 +229,5 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
 
     QCObjectPrint(array);
 
-    int error = _parsePrivateKeyFile(array->data, array->count);
+    return _parsePrivateKeyFile(array->data, array->count);
 }
