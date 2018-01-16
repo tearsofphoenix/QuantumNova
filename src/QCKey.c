@@ -6,8 +6,7 @@
 #include "QCKeyPrivate.h"
 #include "QCRandom.h"
 #include "QCArrayPrivate.h"
-#include "asinine/asn1.h"
-#include "asinine/dsl.h"
+#include <tomcrypt.h>
 #include <math.h>
 #include <libtasn1.h>
 #include <memory.h>
@@ -133,34 +132,29 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     *publicKey = pubKey;
 }
 
-static asinine_err_t _parsePrivateKeyFile(QCByte *data, size_t length) {
-    asn1_parser_t parser;
-    asn1_init(&parser, data, length);
-
-    NEXT_TOKEN(&parser);
-
-    if (asn1_is_sequence(&parser.token)) {
-//        RETURN_ON_ERROR(asn1_push_seq(&parser));
-#define kBufferLength 4801
-        QCByte buffer[kBufferLength];
-        asn1_bitstring(&parser.token, buffer, kBufferLength);
-        NEXT_TOKEN(&parser);
-        asn1_bitstring(&parser.token, buffer, kBufferLength);
-        NEXT_TOKEN(&parser);
-        asn1_bitstring(&parser.token, buffer, kBufferLength);
-        NEXT_TOKEN(&parser);
+static int _parsePrivateKeyFile(const QCByte *data, size_t length) {
+    size_t len2;
+    ltc_asn1_list *decoded_list;
+    der_decode_sequence_flexi(data, &len2, &decoded_list);
+    QCByte buf[4801];
+    size_t bufLength;
+    if (decoded_list->type == LTC_ASN1_SEQUENCE) {
+        ltc_asn1_list *child = decoded_list->child;
+        if (child && child->type == LTC_ASN1_BIT_STRING) {
+            der_decode_bit_string(child->data, child->size, buf, &bufLength);
+            QCArrayRef h0 = QCArrayCreateWithByte(buf, bufLength, true);
+        }
+        ltc_asn1_list *h1 = child->next;
+        if (h1 != NULL && h1->type == LTC_ASN1_BIT_STRING) {
+            der_decode_bit_string(child->data, child->size, buf, &bufLength);
+            printf("2");
+        }
+        ltc_asn1_list *h1inv = h1->next;
+        if (h1inv != NULL && h1inv->type == LTC_ASN1_BIT_STRING) {
+            der_decode_bit_string(child->data, child->size, buf, &bufLength);
+        }
     }
-
-    // Undo the push from before
-    RETURN_ON_ERROR(asn1_pop(&parser));
-
-    // Make sure there the buffer has been fully parsed
-    if (!asn1_end(&parser)) {
-        return ERROR(ASININE_ERR_MALFORMED, "trailing data");
-    }
-
-    // Yay!
-    return ERROR(ASININE_OK, NULL);
+    der_sequence_free(decoded_list);
 }
 
 #define kBeginTemplate "-----BEGIN %s-----"
@@ -222,6 +216,5 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
 
     QCObjectPrint(array);
 
-    asinine_err_t error = _parsePrivateKeyFile(array->data, array->count);
-    printf("%d %s", error.errno, error.reason);
+    int error = _parsePrivateKeyFile(array->data, array->count);
 }
