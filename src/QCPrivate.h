@@ -5,7 +5,7 @@
 #ifndef PQC_CRYPTO_QCPRIVATE_H
 #define PQC_CRYPTO_QCPRIVATE_H
 
-#include <ntsid.h>
+#include <stddef.h>
 
 extern void *_QCMalloc(size_t size);
 

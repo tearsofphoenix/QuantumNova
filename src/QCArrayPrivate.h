@@ -11,7 +11,7 @@
 #include "QCObject.h"
 #include <openssl/bn.h>
 #include <stdbool.h>
-#include <ntsid.h>
+#include <stddef.h>
 
 typedef void (* QCArrayEnumeratorFunc) (QCArrayRef array, const void *func, const void *ctx);
 typedef QCArrayRef (* QCArrayAddFunc) (QCArrayRef x, QCArrayRef y);
