@@ -25,8 +25,14 @@ struct QCKey {
     size_t error;
 };
 
+/*
+ * create private key from arrays
+ */
 extern QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
 
+/*
+ * create public key from arrays
+ */
 extern QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H

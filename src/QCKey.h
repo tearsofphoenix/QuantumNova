@@ -16,10 +16,19 @@ typedef struct {
 
 typedef struct QCKey *QCKeyRef;
 
+/*
+ * default key config
+ */
 extern QCKeyConfig kQCDefaultKeyConfig;
 
+/*
+ * generate private & public key pair
+ */
 extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey);
 
+/*
+ * load key from PEM format file
+ */
 extern QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
 
 #endif //PQC_CRYPTO_QCKEY_H

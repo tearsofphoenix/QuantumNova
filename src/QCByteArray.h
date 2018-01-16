@@ -11,12 +11,24 @@ typedef void (* QCByteArrayLoopFunc)(QCByte value, size_t idx, const void *ctx);
 
 const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy);
 
+/*
+ * create byte array from hex string
+ */
 extern QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length);
 
+/*
+ * create byte array from base64 encoded string
+ */
 extern QCArrayRef QCByteArrayCreateWithBase64(const char *base64String, size_t length);
 
+/*
+ * do pkcs7 encode on array
+ */
 extern QCArrayRef QCByteArrayPKCS7Encode(QCArrayRef array);
 
+/*
+ * do pcks7 decode on array
+ */
 extern QCArrayRef QCByteArrayPKCS7Decode(QCArrayRef array);
 
 #endif //PQC_CRYPTO_QCBYTEARRAY_H

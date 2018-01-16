@@ -191,8 +191,6 @@ static QCByte *_readFile(const char *path, size_t *outLength, const char *label)
     ssize_t read;
     ssize_t total = 0;
     while ((read = getline(&line, &len, fileptr)) != -1) {
-        printf("Retrieved line of length %zu :\n", read);
-        printf("%s", line);
         // ignore '\n'
         memcpy(buffer + total, line, read - 1);
         total += read - 1;
@@ -226,8 +224,6 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
     QCArrayRef array = QCArrayCreateWithBase64(data, length);
 
     free(data);
-
-    QCObjectPrint(array);
 
     return _parsePrivateKeyFile(array->data, array->count);
 }

@@ -75,8 +75,6 @@ struct QCArray {
 
 extern void *_QCMallocData(QCArrayDataType type, size_t count, size_t  *size);
 
-extern void QCArrayXORAt(QCArrayRef array, int index, int value);
-
 /*
  * exp poly
  */

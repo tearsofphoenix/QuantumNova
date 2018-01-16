@@ -149,6 +149,11 @@ extern void QCArrayAddArray(QCArrayRef x, QCArrayRef y);
 extern void QCArrayAddAt(QCArrayRef x, int index, double value);
 
 /*
+ * do xor on index-th number in array
+ */
+extern void QCArrayXORAt(QCArrayRef array, int index, int value);
+
+/*
  * multiply each number in array by mul
  */
 extern void QCArrayMultiply(QCArrayRef array, double mul);
