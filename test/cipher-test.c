@@ -162,6 +162,8 @@ static void encrypt_test() {
 
     QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
     QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    enc->c0 = c0;
+    enc->c1 = c1;
     QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
     if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
         printf("cipher encrypt test passed\n");
@@ -170,6 +172,9 @@ static void encrypt_test() {
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
+    QCRelease(stream);
+    QCRelease(enc);
+    QCRelease(array);
 
     printf("-----------encrypt test end--------------\n");
 }
