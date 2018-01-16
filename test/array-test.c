@@ -18,7 +18,7 @@
 #include "fft-test.h"
 
 static void sha256_test() {
-
+    printf("-----------sha256 test--------------\n");
     QCByte text1[] = {"abc"};
     QCByte text2[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
 
@@ -29,14 +29,14 @@ static void sha256_test() {
 
     QCArrayRef a1 = QCArrayCreateWithByte(text1, strlen(text1), false);
     QCArrayRef s1 = QCArraySHA256(a1);
-    QCObjectPrint(s1);
+
     if (QCArrayCompareRaw(s1, hash1, QCDTByte)) {
         printf("equal\n");
     }
 
     QCArrayRef a2 = QCArrayCreateWithByte(text2, strlen(text2), false);
     QCArrayRef s2 = QCArraySHA256(a2);
-    QCObjectPrint(s2);
+
     if (QCArrayCompareRaw(s2, hash2, QCDTByte)) {
         printf("equal\n");
     }
@@ -141,6 +141,7 @@ static TestVector gTestVectors [] =
 #define NUM_TEST_VECTORS ( sizeof(gTestVectors) / sizeof(gTestVectors[0]) )
 
 static void sha512_test() {
+    printf("-----------sha512 test--------------\n");
     bool            success = true;
 
     for(size_t i=0; i<NUM_TEST_VECTORS; i++ )
@@ -176,6 +177,7 @@ static void array_slice_test() {
 }
 
 static void array_hex_test() {
+    printf("-----------hex test--------------\n");
     QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
@@ -185,14 +187,14 @@ static void array_hex_test() {
     QCArrayRef a2 = QCArrayCreateWithHex(hexString, strlen(hexString));
 
     if(QCObjectEqual(a1, a2)) {
-        printf("array hex test passed");
+        printf("array hex test passed\n");
     }
     QCRelease(a1);
     QCRelease(a2);
 }
 
 static void base64_test() {
-    //
+    printf("-----------base64 test--------------\n");
     QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
@@ -202,7 +204,7 @@ static void base64_test() {
     QCArrayRef a2 = QCArrayCreateWithBase64(baseString, strlen(baseString));
 
     if(QCObjectEqual(a1, a2)) {
-        printf("array base64 test passed");
+        printf("array base64 test passed\n");
     }
     QCRelease(a1);
     QCRelease(a2);
