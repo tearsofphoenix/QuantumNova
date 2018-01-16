@@ -139,9 +139,14 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
 
 static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
     size_t len2;
-    ltc_asn1_list *decoded_list;
-    der_decode_sequence_flexi(data, &len2, &decoded_list);
+    ltc_asn1_list decoded_list[3];
     QCByte buf[kQCDefaultKeyConfig.length];
+    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, buf, kQCDefaultKeyConfig.length);
+    int err = der_decode_sequence(data, length, decoded_list, 1);
+    if (err != CRYPT_OK) {
+        return NULL;
+    }
+
     size_t bufLength;
     if (decoded_list->type == LTC_ASN1_SEQUENCE) {
         ltc_asn1_list *child = decoded_list->child;

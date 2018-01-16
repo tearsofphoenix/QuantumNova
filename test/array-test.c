@@ -13,7 +13,6 @@
 
 #include "array-test.h"
 #include "src/QCArray.h"
-#include "src/vendor/sha256.h"
 #include "src/vendor/sha512.h"
 #include "fft-test.h"
 
@@ -21,7 +20,7 @@ static void sha256_test() {
     printf("-----------sha256 test--------------\n");
     QCByte text1[] = {"abc"};
     QCByte text2[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
-
+#define SHA256_BLOCK_SIZE 32
     QCByte hash1[SHA256_BLOCK_SIZE] = {0xba,0x78,0x16,0xbf,0x8f,0x01,0xcf,0xea,0x41,0x41,0x40,0xde,0x5d,0xae,0x22,0x23,
                                        0xb0,0x03,0x61,0xa3,0x96,0x17,0x7a,0x9c,0xb4,0x10,0xff,0x61,0xf2,0x00,0x15,0xad};
     QCByte hash2[SHA256_BLOCK_SIZE] = {0x24,0x8d,0x6a,0x61,0xd2,0x06,0x38,0xb8,0xe5,0xc0,0x26,0x93,0x0c,0x3e,0x60,0x39,
@@ -31,7 +30,7 @@ static void sha256_test() {
     QCArrayRef s1 = QCArraySHA256(a1);
 
     if (QCArrayCompareRaw(s1, hash1, QCDTByte)) {
-        printf("equal\n");
+        printf("sha256 test passed\n");
     }
 
     QCArrayRef a2 = QCArrayCreateWithByte(text2, strlen(text2), false);

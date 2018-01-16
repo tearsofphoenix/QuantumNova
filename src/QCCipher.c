@@ -8,7 +8,6 @@
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "QCMessagePrivate.h"
-#include "vendor/sha256.h"
 #include "vendor/aes.h"
 #include <math.h>
 #include <printf.h>

@@ -3,8 +3,8 @@
 //
 
 #include "QCByteArray.h"
-#include "vendor/sha256.h"
 #include "vendor/sha512.h"
+#include <tomcrypt.h>
 #include <math.h>
 #include <memory.h>
 #include <printf.h>
@@ -133,19 +133,12 @@ static size_t calcDecodeLength(const char* b64input) { //Calculates the length o
 }
 
 static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //Decodes a base64 encoded string
-    BIO *bio, *b64;
 
     int decodeLen = calcDecodeLength(b64message);
     *buffer = (unsigned char*)malloc(decodeLen + 1);
     (*buffer)[decodeLen] = '\0';
 
-    bio = BIO_new_mem_buf(b64message, -1);
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_push(b64, bio);
-
-    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
-    *length = BIO_read(bio, *buffer, strlen(b64message));
-    BIO_free_all(bio);
+    base64_decode(b64message, strlen(b64message), *buffer, length);
 
     return (0); //success
 }
@@ -280,16 +273,17 @@ static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array) {
 }
 
 
-static void QCSHA256(const void *data, size_t size, BYTE *buf) {
-    SHA256_CTX ctx;
+static void QCSHA256(const void *data, size_t size, QCByte *buf) {
+    hash_state    ctx;
 
     sha256_init(&ctx);
-    sha256_update(&ctx, data, size);
-    sha256_final(&ctx, buf);
+    sha256_process(&ctx, data, size);
+    sha256_done(&ctx, buf);
 }
 
 static QCArrayRef QCByteArraySHA256(QCArrayRef array) {
     if (array) {
+#define SHA256_BLOCK_SIZE 32
         QCByte buf[SHA256_BLOCK_SIZE];
         QCSHA256(array->data, sizeof(QCByte) * array->count, buf);
         return QCByteArrayCreate(buf, SHA256_BLOCK_SIZE, true);
