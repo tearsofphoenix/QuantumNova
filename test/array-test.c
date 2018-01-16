@@ -13,7 +13,6 @@
 
 #include "array-test.h"
 #include "src/QCArray.h"
-#include "src/vendor/sha512.h"
 #include "fft-test.h"
 
 static void sha256_test() {
@@ -49,6 +48,15 @@ static void sha256_test() {
 
 
 #define MAX_PLAINTEXT_SIZE      100
+
+#ifndef SHA512_HASH_SIZE
+#define SHA512_HASH_SIZE 64
+#endif
+
+typedef struct
+{
+    uint8_t      bytes [SHA512_HASH_SIZE];
+} SHA512_HASH;
 
 typedef struct
 {

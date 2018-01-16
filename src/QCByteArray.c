@@ -3,7 +3,6 @@
 //
 
 #include "QCByteArray.h"
-#include "vendor/sha512.h"
 #include <tomcrypt.h>
 #include <math.h>
 #include <memory.h>
@@ -292,15 +291,14 @@ static QCArrayRef QCByteArraySHA256(QCArrayRef array) {
 }
 
 static QCArrayRef QCByteArraySHA512(QCArrayRef array) {
-    Sha512Context context;
-    SHA512_HASH hash;
-
-    Sha512Initialise(&context);
+#define SHA512_HASH_SIZE 64
     size_t len = array->count;
-    Sha512Update(&context, array->data, len);
-    Sha512Finalise(&context, &hash);
-
-    return QCByteArrayCreate(&hash, SHA512_HASH_SIZE, true);
+    QCByte tmp[SHA512_HASH_SIZE];
+    hash_state ctx;
+    sha512_init(&ctx);
+    sha512_process(&ctx, array->data, len);
+    sha512_done(&ctx, tmp);
+    return QCByteArrayCreate(tmp, SHA512_HASH_SIZE, true);
 }
 
 QCARRAYCOMPARE(_arrayCompareInt, QCByte, int, "not equal: %d %d %d\n")
