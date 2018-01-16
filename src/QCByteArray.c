@@ -5,12 +5,7 @@
 #include "QCByteArray.h"
 #include <tomcrypt.h>
 #include <math.h>
-#include <memory.h>
-#include <printf.h>
 #include <fftw3.h>
-#include <stdlib.h>
-#include <openssl/bio.h>
-#include <openssl/evp.h>
 
 static void QCByteArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCByteArrayCopy(QCArrayRef array);
@@ -111,6 +106,7 @@ QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
         j = j + 2;
     }
 
+    array->datatype = type;
     array->data = data;
     array->count = length / 2;
     array->needfree = true;
