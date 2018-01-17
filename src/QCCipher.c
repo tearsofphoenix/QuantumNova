@@ -274,6 +274,7 @@ static void QCCipherDeallocate(QCObjectRef object) {
 
 QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     QCArrayRef padded = QCArrayPKCS7Encode(message);
+
     size_t messageSize = padded->count;
     QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
 
@@ -294,6 +295,9 @@ QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCAr
 
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
+
+    QCRelease(padded);
+
     return array;
 }
 
@@ -317,6 +321,7 @@ QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCAr
     }
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
+
     QCArrayRef ref = QCArrayPKCS7Decode(array);
     QCRelease(array);
     return ref;
@@ -352,6 +357,8 @@ QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCArrayRef c0;
     QCArrayRef c1;
     QCCipherEncrypt(cipher, randomized, &c0, &c1);
+
+    QCArrayAppend(plainData, mac);
 
     QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, plainData, keyA, iv);
 

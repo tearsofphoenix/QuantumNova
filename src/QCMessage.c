@@ -11,13 +11,16 @@
 
 static QCMessageRef QCMessageCopy(QCMessageRef message);
 
+static void QCMessagePrint(QCMessageRef message);
+
 static struct QCClass kQCMessageClass = {
         .base = NULL,
         .name = "QCMessage",
         .allocator = QCAllocator,
         .deallocate = QCDeallocate,
         .size = sizeof(struct QCMessage),
-        .copy = QCMessageCopy
+        .copy = QCMessageCopy,
+        .print = QCMessagePrint
 };
 
 
@@ -106,4 +109,13 @@ static QCMessageRef QCMessageCopy(QCMessageRef message) {
     ref->c1 = QCObjectCopy(message->c1);
     ref->sym = QCObjectCopy(message->sym);
     return ref;
+}
+
+static void QCMessagePrint(QCMessageRef message) {
+    if (message) {
+        printf("<%s %x> \n", message->isa->name, message);
+        QCObjectPrint(message->c0);
+        QCObjectPrint(message->c1);
+        QCObjectPrint(message->sym);
+    }
 }

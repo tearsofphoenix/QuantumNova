@@ -25,8 +25,6 @@ static void fft_test() {
     QCArrayRound(real);
     if(QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble)) {
         printf("FFT test passed.\n");
-    } else {
-        QCObjectPrint(real);
     }
 
     QCRelease(array);
