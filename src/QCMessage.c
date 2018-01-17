@@ -6,7 +6,6 @@
 #include "QCKeyPrivate.h"
 #include "QCArrayPrivate.h"
 #include <tomcrypt.h>
-#include <stdlib.h>
 
 #define kMessageLabel "PQP MESSAGE"
 

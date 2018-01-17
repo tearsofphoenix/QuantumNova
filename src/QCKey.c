@@ -8,7 +8,6 @@
 #include "QCArrayPrivate.h"
 #include <tomcrypt.h>
 #include <math.h>
-#include <memory.h>
 
 QCKeyConfig kQCDefaultKeyConfig = {
         .length = 4801,

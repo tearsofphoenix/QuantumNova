@@ -3,10 +3,8 @@
 //
 
 #include "QCInt32Array.h"
-#include "QCArrayPrivate.h"
 #include <memory.h>
 #include <math.h>
-#include <printf.h>
 #include <fftw3.h>
 
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);

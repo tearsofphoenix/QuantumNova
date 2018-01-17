@@ -5,9 +5,6 @@
 #include <memory.h>
 #include <math.h>
 #include "QCDoubleArray.h"
-#include "QCArrayPrivate.h"
-#include "QCClass.h"
-#include <printf.h>
 #include <fftw3.h>
 
 static const void *QCDoubleArrayCopy(QCArrayRef array);

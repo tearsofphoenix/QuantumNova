@@ -2,7 +2,6 @@
 // Created by Isaac on 2018/1/11.
 //
 #include "QCArrayPrivate.h"
-#include <printf.h>
 #include <fftw3.h>
 #include <memory.h>
 

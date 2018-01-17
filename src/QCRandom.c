@@ -3,7 +3,6 @@
 //
 
 #include <stdlib.h>
-#include <math.h>
 #include "QCRandom.h"
 #include "QCObject.h"
 
