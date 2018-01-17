@@ -16,7 +16,7 @@ int main() {
 
     array_test();
 
-//    key_test();
+    key_test();
 
     return 0;
 }
