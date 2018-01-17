@@ -175,6 +175,8 @@ static void encrypt_test() {
     QCRelease(stream);
     QCRelease(enc);
     QCRelease(array);
+    QCRelease(publicKey);
+    QCRelease(cipher);
 
     printf("-----------encrypt test end--------------\n");
 }
@@ -249,6 +251,36 @@ static void mac_test() {
     QCRelease(h);
 }
 
+static void file_test() {
+    printf("-------------file test start-------------\n");
+    const char *privateKeyPath = "./aux/priv.key";
+    const char *publicKeyPath = "./aux/pub.key";
+
+    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+
+    QCKeyRef privateKey = QCKeyCreateFromPEMFile(privateKeyPath);
+    QCKeyRef publicKey = QCKeyCreateFromPEMFile(publicKeyPath);
+
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privateKey);
+    QCCipherSetPublicKey(cipher, publicKey);
+
+    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+
+    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
+    if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
+        printf("cipher encrypt test passed\n");
+    }
+
+    QCRelease(privateKey);
+    QCRelease(publicKey);
+    QCRelease(stream);
+    QCRelease(enc);
+    QCRelease(array);
+    QCRelease(cipher);
+}
+
 void cipher_test() {
     mul_poly_test();
 
@@ -263,4 +295,6 @@ void cipher_test() {
     encrypt_test();
 
     decrypt_message_test();
+
+//    file_test();
 }

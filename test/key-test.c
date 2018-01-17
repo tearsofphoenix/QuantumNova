@@ -46,10 +46,20 @@ static void message_test() {
     }
 }
 
+static void save_private_key() {
+    printf("----------private key save test start---------\n");
+    const char *path = "./aux/priv.key";
+    QCKeyRef key = QCKeyCreateFromPEMFile(path);
+    const char *outpath = "./aux/priv-out.key";
+    QCKeySaveToFile(key, outpath);
+}
+
 void key_test() {
     private_key_test();
 
     public_key_test();
 
     message_test();
+
+    save_private_key();
 }

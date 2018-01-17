@@ -37,6 +37,11 @@ typedef bool (* QCEqualFunc)(const void *, const void *);
 
 #endif
 
+// indicate if memory is `strong` (allocated), should be free when not use anymore
+#ifndef QC_STRONG
+#define QC_STRONG
+#endif
+
 struct QCClass {
     QCCLASSFIELDS
 };

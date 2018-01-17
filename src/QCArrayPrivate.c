@@ -148,7 +148,7 @@ bool QCArrayCompareRaw(QCArrayRef x, const void *expected, QCArrayDataType dataT
     if (x && expected) {
         return ((QCArrayClassRef)x->isa)->compareRaw(x, expected, dataType);
     }
-    return true;
+    return false;
 }
 
 void QCArrayXORAt(QCArrayRef array, int index, int value) {

@@ -31,4 +31,9 @@ extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef
  */
 extern QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
 
+/*
+ * save key to file
+ */
+extern void QCKeySaveToFile(QCKeyRef key, const char *path);
+
 #endif //PQC_CRYPTO_QCKEY_H

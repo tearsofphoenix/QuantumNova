@@ -298,3 +298,73 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
     }
     return NULL;
 }
+
+
+static void _savePrivateKeyToPath(QCKeyRef key, const char *path) {
+    size_t count = key->h0->count + key->h1->count + key->h1inv->count;
+    QCByte *buffer = _QCMallocData(QCDTByte, count, NULL);
+    size_t idx = 0;
+    size_t total = 0;
+    der_encode_bit_string(key->h0->data, key->h0->count, buffer, &idx);
+    total += idx;
+    der_encode_bit_string(key->h1->data, key->h1->count, buffer + total, &idx);
+    total += idx;
+    der_encode_bit_string(key->h1inv->data, key->h1inv->count, buffer + total, &idx);
+    total += idx;
+    const char *b64string = QCEncodeBase64(buffer, total);
+
+    FILE * fp;
+    fp = fopen (path, "a");
+
+    fprintf(fp, kBeginTemplate, kPrivateKeyLabel);
+    fprintf(fp, "\n");
+    fprintf(fp, b64string);
+    fprintf(fp, kEndTemplate, kPrivateKeyLabel);
+    fprintf(fp, "\n");
+
+    /* close the file*/
+    fclose (fp);
+
+    free(buffer);
+}
+
+
+static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
+    size_t count = key->h0->count + key->h1->count + key->h1inv->count;
+    QCByte *buffer = _QCMallocData(QCDTByte, count, NULL);
+    size_t idx = 0;
+    size_t total = 0;
+    der_encode_bit_string(key->h0->data, key->h0->count, buffer, &idx);
+    total += idx;
+    der_encode_bit_string(key->h1->data, key->h1->count, buffer + total, &idx);
+    total += idx;
+    der_encode_bit_string(key->h1inv->data, key->h1inv->count, buffer + total, &idx);
+    total += idx;
+    const char *b64string = QCEncodeBase64(buffer, total);
+
+    FILE * fp;
+    fp = fopen (path, "a");
+
+    fprintf(fp, kBeginTemplate, kPublicKeyLabel);
+    fprintf(fp, "\n");
+    fprintf(fp, b64string);
+    fprintf(fp, kEndTemplate, kPublicKeyLabel);
+    fprintf(fp, "\n");
+
+    /* close the file*/
+    fclose (fp);
+
+    free(buffer);
+}
+
+void QCKeySaveToFile(QCKeyRef key, const char *path) {
+    if (key && path) {
+        if (key->h0) {
+            // is private key
+            _savePrivateKeyToPath(key, path);
+        } else if (key->g) {
+            // is public key
+            _savePublicKeyToPath(key, path);
+        }
+    }
+}

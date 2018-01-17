@@ -170,4 +170,6 @@ static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
 
 #endif
 
+extern QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length);
+
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H

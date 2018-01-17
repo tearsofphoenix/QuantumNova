@@ -65,11 +65,11 @@ static struct QCArrayClass kQCByteArrayClass = {
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;
 
 const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy) {
-    if (count > 0) {
-        QCArrayDataType type = QCDTByte;
-        QCArrayRef array = QCAllocate(&kQCByteArrayClass);
-        array->isa = kQCByteArrayClassRef;
+    QCArrayDataType type = QCDTByte;
+    QCArrayRef array = QCAllocate(&kQCByteArrayClass);
+    array->isa = kQCByteArrayClassRef;
 
+    if (count > 0) {
         if (initData) {
             if (needCopy) {
                 size_t size = 0;
@@ -81,13 +81,14 @@ const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy)
         } else {
             array->data = _QCMallocData(type, count, NULL);
         }
-        array->count = count;
-        array->fft = false;
-        array->needfree = needCopy;
-        array->datatype = type;
-        return array;
+    } else {
+        array->data = _QCMallocData(type, 1, NULL);
     }
-    return NULL;
+    array->count = count;
+    array->fft = false;
+    array->needfree = needCopy;
+    array->datatype = type;
+    return array;
 }
 
 QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
@@ -136,6 +137,17 @@ static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length
     base64_decode(b64message, strlen(b64message), *buffer, length);
 
     return (0); //success
+}
+
+QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length) {
+    if (data && length > 0) {
+        size_t size = (length * 4) / 3 + 4;
+        char *result = malloc(size * sizeof(char));
+        base64_encode(data, length, result, &size);
+        result[size] = '\0';
+        return result;
+    }
+    return NULL;
 }
 
 QCArrayRef QCByteArrayCreateWithBase64(const char *base64String, size_t length) {
