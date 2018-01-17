@@ -49,4 +49,5 @@ static void message_test() {
 void key_test() {
     private_key_test();
 
+    public_key_test();
 }

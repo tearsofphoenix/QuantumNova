@@ -138,14 +138,13 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
 }
 
 static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
-    size_t len2;
     ltc_asn1_list decoded_list[3];
-    QCByte h0buf[4801];
-    QCByte h1buf[4801];
-    QCByte h1invbuf[4801];
-    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, h0buf, 4801);
-    LTC_SET_ASN1(decoded_list, 1, LTC_ASN1_BIT_STRING, h1buf, 4801);
-    LTC_SET_ASN1(decoded_list, 2, LTC_ASN1_BIT_STRING, h1invbuf, 4801);
+    QCByte h0buf[kQCDefaultKeyConfig.length];
+    QCByte h1buf[kQCDefaultKeyConfig.length];
+    QCByte h1invbuf[kQCDefaultKeyConfig.length];
+    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, h0buf, kQCDefaultKeyConfig.length);
+    LTC_SET_ASN1(decoded_list, 1, LTC_ASN1_BIT_STRING, h1buf, kQCDefaultKeyConfig.length);
+    LTC_SET_ASN1(decoded_list, 2, LTC_ASN1_BIT_STRING, h1invbuf, kQCDefaultKeyConfig.length);
     der_decode_sequence(data, length, decoded_list, 3);
 
     QCByte buf[kQCDefaultKeyConfig.length];
@@ -153,33 +152,94 @@ static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
 
     ltc_asn1_list node = decoded_list[0];
     QCArrayRef h0, h1, h1inv;
+    int ret;
     if (node.type == LTC_ASN1_BIT_STRING) {
-        der_decode_bit_string(node.data, node.size, buf, &bufLength);
-        h0 = QCArrayCreateWithByte(buf, bufLength, true);
+        ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
+        if (ret == CRYPT_OK) {
+            h0 = QCArrayCreateWithByte(buf, bufLength, true);
+        } else {
+
+        }
     }
     node = decoded_list[1];
     if (node.type == LTC_ASN1_BIT_STRING) {
-        der_decode_bit_string(node.data, node.size, buf, &bufLength);
-        h1 = QCArrayCreateWithByte(buf, bufLength, true);
+        ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
+        if (ret == CRYPT_OK) {
+            h1 = QCArrayCreateWithByte(buf, bufLength, true);
+        } else {
+
+        }
     }
     node = decoded_list[2];
     if (node.type == LTC_ASN1_BIT_STRING) {
-        der_decode_bit_string(node.data, node.size, buf, &bufLength);
-        h1inv = QCArrayCreateWithByte(buf, bufLength, true);
+        ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
+        if (ret == CRYPT_OK) {
+            h1inv = QCArrayCreateWithByte(buf, bufLength, true);
+        } else {
+
+        }
     }
     QCKeyRef privateKey = QCKeyCreatePrivate(h0, h1, h1inv, kQCDefaultKeyConfig);
-//    der_sequence_free(decoded_list);
+    der_sequence_free(&decoded_list[0]);
+    der_sequence_free(&decoded_list[1]);
+    der_sequence_free(&decoded_list[2]);
+    return privateKey;
+}
+
+static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
+    ltc_asn1_list decoded_list[1];
+    QCByte gbuf[kQCDefaultKeyConfig.length];
+    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, gbuf, kQCDefaultKeyConfig.length);
+    der_decode_sequence(data, length, decoded_list, 1);
+
+    QCByte buf[kQCDefaultKeyConfig.length];
+    size_t bufLength;
+
+    ltc_asn1_list node = decoded_list[0];
+    QCArrayRef g;
+    if (node.type == LTC_ASN1_BIT_STRING) {
+        int ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
+        if (ret == CRYPT_OK) {
+            g = QCArrayCreateWithByte(buf, bufLength, true);
+        } else {
+
+        }
+    }
+
+    QCKeyRef privateKey = QCKeyCreatePublic(g, kQCDefaultKeyConfig);
+    der_sequence_free(decoded_list);
     return privateKey;
 }
 
 #define kBeginTemplate "-----BEGIN %s-----"
 #define kEndTemplate "-----END %s-----"
+#define kPrivateKeyLabel "PQP PRIVATE KEY"
+#define kPublicKeyLabel "PQP PUBLIC KEY"
+#define kMessageLabel "PQP MESSAGE"
 
-static QCByte *_readFile(const char *path, size_t *outLength, const char *label) {
-    char begin[1024] = {'\0'};
+static bool _isKindOfFile(const char *fileContent, const char *label) {
+    return strstr(fileContent, label) != NULL;
+}
+
+static QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label) {
+    char begin[64] = {'\0'};
     sprintf(begin, kBeginTemplate, label);
-    char end[1024] = {'\0'};
+    char end[64] = {'\0'};
     sprintf(end, kEndTemplate, label);
+
+    size_t bufferSize = (fileLength - strlen(begin) - strlen(end));
+    size_t resultSize = sizeof(QCByte) * bufferSize;
+    QCByte *result = malloc(resultSize + 1);
+    result[resultSize] = '\0';
+    memcpy(result, fileContent + strlen(begin), resultSize);
+
+    if (outLength) {
+        *outLength = bufferSize;
+    }
+    return result;
+}
+
+static QCByte *_readFileContent(const char *path, size_t *outLength) {
 
     FILE *fileptr = fopen(path, "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
@@ -201,33 +261,39 @@ static QCByte *_readFile(const char *path, size_t *outLength, const char *label)
         free(line);
     }
 
-    fclose(fileptr); // Close the file
-
-    const char *sch = strstr(buffer, begin);
-    const char *ech = strstr(buffer, end);
-
-    size_t bufferSize = (total - strlen(begin) - strlen(end));
-    size_t resultSize = sizeof(QCByte) * bufferSize;
-    QCByte *result = malloc(resultSize + 1);
-    result[resultSize] = '\0';
-    memcpy(result, buffer + strlen(begin), resultSize);
-
-    free(buffer);
-
     if (outLength) {
-        *outLength = bufferSize;
+        *outLength = total;
     }
 
-    return result;
+    fclose(fileptr); // Close the file
+
+    return buffer;
 }
 
 QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
     size_t length = 0;
-    QCByte *data = _readFile(filePath, &length, "PQP PRIVATE KEY");
-    QCArrayRef array = QCArrayCreateWithBase64(data, length);
-    free(data);
+    QCByte *data = _readFileContent(filePath, &length);
 
-    QCKeyRef key =_parsePrivateKeyFile(array->data, array->count);
-    QCRelease(array);
-    return key;
+    if (_isKindOfFile(data, kPrivateKeyLabel)) {
+        QCByte *trimmed = _trimFileContent(data, length, &length, kPrivateKeyLabel);
+        QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
+
+        free(data);
+        free(trimmed);
+
+        QCKeyRef key =_parsePrivateKeyFile(array->data, array->count);
+        QCRelease(array);
+        return key;
+    } else if (_isKindOfFile(data, kPublicKeyLabel)) {
+        QCByte *trimmed = _trimFileContent(data, length, &length, kPublicKeyLabel);
+        QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
+
+        free(data);
+        free(trimmed);
+
+        QCKeyRef key =_parsePublicKeyFile(array->data, array->count);
+        QCRelease(array);
+        return key;
+    }
+    return NULL;
 }
