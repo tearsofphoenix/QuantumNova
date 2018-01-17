@@ -2,7 +2,7 @@
 // Created by Isaac on 2018/1/15.
 //
 
-#include <printf.h>
+#include <stdio.h>
 #include <src/QCKeyPrivate.h>
 #include "key-test.h"
 #include "data.h"

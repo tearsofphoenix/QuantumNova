@@ -3,7 +3,7 @@
 //
 
 #include <stddef.h>
-#include <printf.h>
+#include <stdio.h>
 #include <memory.h>
 #include <src/QCKey.h>
 #include <src/QCCipherPrivate.h>

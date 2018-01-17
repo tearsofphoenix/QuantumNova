@@ -7,7 +7,7 @@
 #include "cipher-test.h"
 #include "array-test.h"
 #include "key-test.h"
-#include <printf.h>
+#include <stdio.h>
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"

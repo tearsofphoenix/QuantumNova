@@ -2,7 +2,7 @@
 // Created by Isaac on 2018/1/13.
 //
 
-#include <printf.h>
+#include <stdio.h>
 #include <memory.h>
 
 #include <stdio.h>

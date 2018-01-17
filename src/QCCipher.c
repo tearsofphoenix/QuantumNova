@@ -10,7 +10,7 @@
 #include "QCMessagePrivate.h"
 #include <tomcrypt.h>
 #include <math.h>
-#include <printf.h>
+#include <stdio.h>
 #include <memory.h>
 
 static QCByte kSaltA[] = {"this is just a salt"};
