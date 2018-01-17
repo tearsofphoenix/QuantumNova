@@ -8,10 +8,8 @@ add_library(qcrypto QCArray.c QCArray.h QCArrayPrivate.h QCArrayPrivate.c QCRand
         QCCipher.c QCCipher.h QCInt32Array.c QCInt32Array.h QCDoubleArray.c QCDoubleArray.h QCClass.c QCClass.h
         QCObject.c QCObject.h QCObjectPrivate.h QCCipherPrivate.h QCByteArray.c QCByteArray.h QCMessage.c QCMessage.h QCMessagePrivate.h)
 
-add_subdirectory(vendor)
-
 if (APPLE)
-    target_link_libraries(qcrypto fftw3 ext-crypto crypto tomcrypt)
+    target_link_libraries(qcrypto fftw3 crypto tomcrypt)
 elseif(UNIX)
-    target_link_libraries(qcrypto fftw3 ext-crypto crypto tomcrypt m)
+    target_link_libraries(qcrypto fftw3 crypto tomcrypt m)
 endif (APPLE)

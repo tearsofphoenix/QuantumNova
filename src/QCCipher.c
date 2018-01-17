@@ -8,7 +8,7 @@
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "QCMessagePrivate.h"
-#include "vendor/aes.h"
+#include <tomcrypt.h>
 #include <math.h>
 #include <printf.h>
 #include <memory.h>
@@ -274,12 +274,23 @@ static void QCCipherDeallocate(QCObjectRef object) {
 
 QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     size_t messageSize = message->count;
-    BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
-    WORD key_schedule[60];
-    int keysize = 256;
-    aes_key_setup(key->data, key_schedule, keysize);
+    QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
 
-    aes_encrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    int cipher_idx = find_cipher("aes");
+    /* encode the block */
+    int ret = cbc_start(cipher_idx, iv->data, key->data, key->count, 0, &cbc);
+    if (ret != CRYPT_OK) {
+        printf("cbc start failed!\n");
+        return NULL;
+    }
+    ret = cbc_encrypt(message->data, out, messageSize * sizeof(QCByte), &cbc);
+    if (ret != CRYPT_OK) {
+        printf("cbc encrypt failed!\n");
+        return NULL;
+    }
+
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
     return array;
@@ -287,12 +298,22 @@ QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCAr
 
 QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     size_t messageSize = message->count;
-    BYTE *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
-    WORD key_schedule[60];
-    int keysize = 256;
-    aes_key_setup(key->data, key_schedule, keysize);
+    QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
 
-    aes_decrypt_cbc(message->data, messageSize * sizeof(QCByte), out, key_schedule, keysize, iv->data);
+    register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    int cipher_idx = find_cipher("aes");
+
+    int ret = cbc_start(cipher_idx, iv->data, key->data, key->count, 0, &cbc);
+    if (ret != CRYPT_OK) {
+        printf("cbc start failed!\n");
+        return NULL;
+    }
+    ret = cbc_decrypt(message->data, out, messageSize * sizeof(QCByte), &cbc);
+    if (ret != CRYPT_OK) {
+        printf("cbc decrypt failed!\n");
+        return NULL;
+    }
     QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
     QCArrayRef ref = QCArrayPKCS7Decode(array);
