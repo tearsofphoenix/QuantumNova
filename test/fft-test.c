@@ -20,13 +20,14 @@ static void fft_test() {
     size_t size = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
-
     QCArrayRef fft = QCArrayFFT(array);
-
     QCArrayRef real = QCArrayGetRealParts(fft);
-
     QCArrayRound(real);
-    QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble);
+    if(QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble)) {
+        printf("FFT test passed.\n");
+    } else {
+        QCObjectPrint(real);
+    }
 
     QCRelease(array);
     QCRelease(fft);
@@ -45,7 +46,9 @@ static void complex_multiply_test() {
     QCArraySetCount(result, count);
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
-    QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble);
+    if(QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble)) {
+        printf("complex multiply test passed\n");
+    }
 
     QCRelease(tempH0);
     QCRelease(tempC0);
@@ -62,7 +65,9 @@ static void inverse_fft_test() {
     QCArrayRef x = QCArrayFFT(tempH0);
     QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
-    QCArrayCompareRaw(result, H0, QCDTDouble);
+    if(QCArrayCompareRaw(result, H0, QCDTDouble)) {
+        printf("inverse FFT test passed.\n");
+    }
 
     QCRelease(tempH0);
     QCRelease(x);
@@ -75,7 +80,9 @@ static void square_sparse_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
     QCArrayRef array = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
-    QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble);
+    if(QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble)) {
+        printf("square sparse test passed.\n");
+    }
 
     QCRelease(array);
     QCRelease(tempH0);
@@ -90,7 +97,9 @@ static void mul_poly_test() {
     QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
     QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
 
-    QCArrayCompareRaw(result, kMulPoly, QCDTDouble);
+    if(QCArrayCompareRaw(result, kMulPoly, QCDTDouble)) {
+        printf("mul_poly test passed.\n");
+    }
 
     QCRelease(tempH0);
     QCRelease(tempC0);

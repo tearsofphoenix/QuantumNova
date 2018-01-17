@@ -36,32 +36,6 @@ static QCKeyRef _getPrivateKey() {
     return privateKey;
 }
 
-static void mul_poly_test() {
-    printf("-----------mul poly test--------------\n");
-
-    size_t length = 4801;
-    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
-    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
-
-    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
-    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
-
-    QCArrayRef h0c0 = QCArrayMulPoly(h0, c0);
-    QCArrayCompareRaw(h0c0, kMulPoly, QCDTDouble);
-
-    QCArrayRef h1c1 = QCArrayMulPoly(h1, c1);
-    QCArrayCompareRaw(h1c1, kH1C1MulPoly, QCDTDouble);
-
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(c0);
-    QCRelease(c1);
-    QCRelease(h0c0);
-    QCRelease(h1c1);
-
-    printf("-----------mul poly test end--------------\n");
-}
-
 static void cipher_syndrome_test() {
     printf("-----------cipher syndrome test--------------\n");
 
@@ -76,13 +50,14 @@ static void cipher_syndrome_test() {
     QCCipherSetPrivateKey(cipher, privateKey);
 
     QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
-    QCArrayCompareRaw(result, kSyndrome, QCDTDouble);
+    if(QCArrayCompareRaw(result, kSyndrome, QCDTDouble)) {
+        printf("syndrome test passed.\n");
+    }
 
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
-    printf("-----------cipher syndrome test end--------------\n");
 }
 
 static void decrypt_test() {
@@ -99,14 +74,14 @@ static void decrypt_test() {
 
     QCArrayRef result = QCCipherDecrypt(cipher, c0, c1);
 
-    QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
+    if(QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble)) {
+        printf("decrypt test passed.\n");
+    }
 
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
-
-    printf("-----------decrypt test end--------------\n");
 }
 
 static void decrypt_message_test() {
@@ -130,7 +105,7 @@ static void decrypt_message_test() {
     QCArrayRef array = QCCipherDecryptMessage(cipher, message);
 
     if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
-        printf("cipher decrypt test passed\n");
+        printf("cipher decrypt message test passed\n");
     }
 
     QCRelease(c0);
@@ -176,8 +151,6 @@ static void encrypt_test() {
     QCRelease(array);
     QCRelease(publicKey);
     QCRelease(cipher);
-
-    printf("-----------encrypt test end--------------\n");
 }
 
 static void aes_cbc_test()
@@ -281,8 +254,6 @@ static void file_test() {
 }
 
 void cipher_test() {
-    mul_poly_test();
-
     cipher_syndrome_test();
 
     decrypt_test();

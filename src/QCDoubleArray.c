@@ -240,6 +240,8 @@ QCARRAYCOMPARE(_arrayCompareInt, double, int, "not equal: %d %f %d\n")
 
 QCARRAYCOMPARE(_arrayCompareByte, double , QCByte, "not equal: %d %f %d\n")
 
+QCARRAYCOMPARE(_arrayCompareDouble, double , double , "not equal: %d %f %f\n")
+
 static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType) {
     switch (dataType) {
         case QCDTInt: {
@@ -249,7 +251,7 @@ static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCAr
             return _arrayCompareByte(array->data, expected, array->count);
         }
         default: {
-            return memcmp(array->data, expected, sizeof(double) * array->count) == 0;
+            return _arrayCompareDouble(array->data, expected, array->count);
         }
 
     }
