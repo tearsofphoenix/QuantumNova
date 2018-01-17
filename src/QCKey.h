@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "QCClass.h"
 
 typedef struct {
     size_t length;
@@ -29,7 +30,7 @@ extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef
 /*
  * load key from PEM format file
  */
-extern QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
+extern QC_STRONG QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
 
 /*
  * save key to file

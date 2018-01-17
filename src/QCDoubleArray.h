@@ -11,7 +11,7 @@ typedef void (* QCDoubleLoopFunc)(double value, size_t idx, const void *ctx);
 
 extern const QCClassRef kQCDoubleArrayClassRef;
 
-extern const void *QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy);
+extern QC_STRONG QCArrayRef QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy);
 
 
 #endif //PQC_CRYPTO_QCDOUBLEARRAY_H

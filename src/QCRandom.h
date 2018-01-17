@@ -10,12 +10,12 @@
 /*
  * vector of `count`, contains randomly 0/1
  */
-extern QCArrayRef QCRandomVector(size_t count);
+extern QC_STRONG QCArrayRef QCRandomVector(size_t count);
 
 /*
  * vector of `count`, `weight` of it is 1
  */
-extern QCArrayRef QCRandomWeightVector(size_t count, size_t weight);
+extern QC_STRONG QCArrayRef QCRandomWeightVector(size_t count, size_t weight);
 
 /*
  * return 0 or 1

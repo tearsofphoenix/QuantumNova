@@ -172,4 +172,9 @@ static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
 
 extern QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length);
 
+/*
+ * free array's data
+ */
+extern void QCArrayDeallocate(QCArrayRef array);
+
 #endif //PQC_CRYPTO_QCARRAYPRIVATE_H

@@ -63,7 +63,7 @@ static struct QCArrayClass kQCDoubleArrayClass = {
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
 
-const void *QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy) {
+QCArrayRef QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy) {
     if (count > 0) {
         QCArrayDataType type = QCDTDouble;
         QCArrayRef array = QCAllocate(&kQCDoubleArrayClass);

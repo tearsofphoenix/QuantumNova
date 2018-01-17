@@ -60,7 +60,7 @@ static struct QCArrayClass kQCInt32ArrayClass = {
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;
 
-const void *QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy) {
+const QCArrayRef QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy) {
     if (count > 0) {
         QCArrayDataType type = QCDTInt;
         QCArrayRef array = QCAllocate(&kQCInt32ArrayClass);

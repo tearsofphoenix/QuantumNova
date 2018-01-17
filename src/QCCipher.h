@@ -45,31 +45,21 @@ extern void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *
 /*
  * syndrome c0 & c1
  */
-extern QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
+extern QC_STRONG QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
 
 /*
  * asymmetric decrypt on c0 & c1
  */
-extern QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
+extern QC_STRONG QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
 
 /*
  * encrypt message with publicKey
  */
-extern QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData);
+extern QC_STRONG QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData);
 
 /*
  * decrypt message with privateKey
  */
-extern QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message);
-
-/*
- * symmetric encrypt (current AES-CBC)
- */
-extern QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv);
-
-/*
- * symmetric decrypt (current AES-CBC)
- */
-extern QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv);
+extern QC_STRONG QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message);
 
 #endif //PQC_CRYPTO_QCCIPHER_H

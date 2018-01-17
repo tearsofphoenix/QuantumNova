@@ -9,7 +9,7 @@
 
 typedef struct _QCObject *QCObject;
 
-extern QCObjectRef _QCRetain(QCObjectRef object);
+extern QC_STRONG QCObjectRef _QCRetain(QCObjectRef object);
 
 extern void _QCRelease(QCObjectRef object);
 

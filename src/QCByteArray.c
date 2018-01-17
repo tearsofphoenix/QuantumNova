@@ -190,13 +190,18 @@ QCArrayRef QCByteArrayPKCS7Encode(QCArrayRef array) {
 // Remove the PKCS#7 padding from a text string
 QCArrayRef QCByteArrayPKCS7Decode(QCArrayRef array) {
     size_t count = array->count;
-    QCByte *data = array->data;
-    int val = data[count - 1];
-    if (val > 16) {
-        printf("Input is not padded or padding is corrupt!\n");
+    if (count % 16 == 0) {
+        // no pad
         return array;
     } else {
-        return QCArraySlice(array, 0, count - val);
+        QCByte *data = array->data;
+        int val = data[count - 1];
+        if (val > 16) {
+            printf("Input is not padded or padding is corrupt!\n");
+            return NULL;
+        } else {
+            return QCArraySlice(array, 0, count - val);
+        }
     }
 }
 

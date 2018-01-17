@@ -222,7 +222,6 @@ static void pkcs7_test() {
     QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
     QCArrayRef array = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
     QCArrayRef encoded = QCArrayPKCS7Encode(array);
-    QCObjectPrint(encoded);
     QCArrayRef decoded = QCArrayPKCS7Decode(encoded);
     if(QCObjectEqual(decoded, encoded)) {
         printf("pkcs7 test passed.\n");

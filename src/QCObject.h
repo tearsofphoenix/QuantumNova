@@ -20,13 +20,13 @@ struct _QCObject {
 
 typedef const void * QCObjectRef;
 
-extern QCObjectRef QCAllocate(QCClassRef classRef);
+extern QC_STRONG QCObjectRef QCAllocate(QCClassRef classRef);
 
-extern QCObjectRef QCRetain(QCObjectRef object);
+extern QC_STRONG QCObjectRef QCRetain(QCObjectRef object);
 
 extern void QCRelease(QCObjectRef object);
 
-extern QCObjectRef QCObjectCopy(QCObjectRef object);
+extern QC_STRONG QCObjectRef QCObjectCopy(QCObjectRef object);
 
 extern bool QCObjectEqual(QCObjectRef object, QCObjectRef other);
 

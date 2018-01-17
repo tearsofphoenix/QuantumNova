@@ -16,6 +16,6 @@ struct QCMessage {
     QCArrayRef sym;
 };
 
-QCMessageRef QCMessageCreate(QCArrayRef c0, QCArrayRef c1, QCArrayRef sym);
+extern QC_STRONG QCMessageRef QCMessageCreate(QCArrayRef c0, QCArrayRef c1, QCArrayRef sym);
 
 #endif //PQC_CRYPTO_QCMESSAGEPRIVATE_H

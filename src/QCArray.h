@@ -21,32 +21,32 @@ typedef struct QCArray * QCArrayRef;
 /*
  *  create an array with `count`, zero filled
  */
-extern QCArrayRef QCArrayCreate(int count);
+extern QC_STRONG QCArrayRef QCArrayCreate(int count);
 
 /*
  * create QCArray from double array
  */
-extern QCArrayRef QCArrayCreateWithDouble(const double *array, size_t count, bool needCopy);
+extern QC_STRONG QCArrayRef QCArrayCreateWithDouble(const double *array, size_t count, bool needCopy);
 
 /*
  * create QCArray from int32 array
  */
-extern QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool needCopy);
+extern QC_STRONG QCArrayRef QCArrayCreateWithInt(const int *array, size_t count, bool needCopy);
 
 /*
  * create QCArray from byte array
  */
-extern QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy);
+extern QC_STRONG QCArrayRef QCArrayCreateWithByte(const QCByte *array, size_t count, bool needCopy);
 
 /*
  * create QCArray from hex string
  */
-extern QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length);
+extern QC_STRONG QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t length);
 
 /*
  * create QCArray from base64 string
  */
-extern QCArrayRef QCArrayCreateWithBase64(const char *base64String, size_t length);
+extern QC_STRONG QCArrayRef QCArrayCreateWithBase64(const char *base64String, size_t length);
 
 /*
  * do PKCS7 encode on array
@@ -60,7 +60,7 @@ extern QCArrayRef QCArrayPKCS7Decode(QCArrayRef array);
 /*
  * create copy of array
  */
-extern QCArrayRef QCArrayCreateCopy(QCArrayRef array);
+extern QC_STRONG QCArrayRef QCArrayCreateCopy(QCArrayRef array);
 
 /*
  * reset the count in array, this will not release memory
@@ -70,17 +70,17 @@ extern void QCArraySetCount(QCArrayRef array, size_t newCount);
 /*
  * do sha256 on byte array
  */
-extern QCArrayRef QCArraySHA256(QCArrayRef byteArray);
+extern QC_STRONG QCArrayRef QCArraySHA256(QCArrayRef byteArray);
 
 /*
  * do sha512 on byte array
  */
-extern QCArrayRef QCArraySHA512(QCArrayRef byteArray);
+extern QC_STRONG QCArrayRef QCArraySHA512(QCArrayRef byteArray);
 
 /*
  * do sha512 on byte array
  */
-extern QCArrayRef QCArrayPack(QCArrayRef byteArray);
+extern QC_STRONG QCArrayRef QCArrayPack(QCArrayRef byteArray);
 
 /*
  * append array
@@ -90,12 +90,12 @@ extern void QCArrayAppend(QCArrayRef array, QCArrayRef other);
 /*
  * slice an array
  */
-extern QCArrayRef QCArraySlice(QCArrayRef array, size_t start, size_t end);
+extern QC_STRONG QCArrayRef QCArraySlice(QCArrayRef array, size_t start, size_t end);
 
 /*
  * convert array to another typed array
  */
-extern QCArrayRef QCArrayConvert(QCArrayRef array, QCArrayDataType type);
+extern QC_STRONG QCArrayRef QCArrayConvert(QCArrayRef array, QCArrayDataType type);
 
 /*
  * set value at index
@@ -126,17 +126,17 @@ extern void QCArrayForeach(QCArrayRef array, const void *func, const void *ctx);
 /*
  * do fft on `array`, return a new array
  */
-extern QCArrayRef QCArrayFFT(QCArrayRef array);
+extern QC_STRONG QCArrayRef QCArrayFFT(QCArrayRef array);
 
 /*
  * do inverse fft on `array`, return a new array
  */
-extern QCArrayRef QCArrayInverseFFT(QCArrayRef array);
+extern QC_STRONG QCArrayRef QCArrayInverseFFT(QCArrayRef array);
 
 /*
  * do complex multiply : x * y, return a new array
  */
-extern QCArrayRef QCArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
+extern QC_STRONG QCArrayRef QCArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
 
 /*
  * add each number of two arrays
@@ -176,12 +176,12 @@ extern void QCArrayMod(QCArrayRef array, int mod);
 /*
  * return real parts of each complex number in array
  */
-extern QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray);
+extern QC_STRONG QCArrayRef QCArrayGetRealParts(QCArrayRef complexArray);
 
 /*
  * return indices of no-zero number in array
  */
-extern QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array);
+extern QC_STRONG QCArrayRef QCArrayGetNoZeroIndices(QCArrayRef array);
 
 /*
  * compare array with raw data
@@ -191,17 +191,11 @@ extern bool QCArrayCompareRaw(QCArrayRef x, const void *expected, QCArrayDataTyp
 /*
  * square spare poly
  */
-extern QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times);
+extern QC_STRONG QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times);
 
 /*
  * mul poly
  */
-extern QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
-
-/*
- * free array's data
- */
-extern void QCArrayDeallocate(QCArrayRef array);
-
+extern QC_STRONG QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
 
 #endif //PQC_CRYPTO_QCARRAY_H

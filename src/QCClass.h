@@ -49,7 +49,7 @@ struct QCClass {
 
 extern const QCClassRef kQCBaseClassRef;
 
-extern void *QCAllocator(size_t size);
+extern QC_STRONG void *QCAllocator(size_t size);
 
 extern void QCDeallocate(const void *p);
 

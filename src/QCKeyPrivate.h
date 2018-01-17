@@ -28,18 +28,18 @@ struct QCKey {
 /*
  * create private key from arrays
  */
-extern QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
+extern QC_STRONG QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
 
 /*
  * create public key from arrays
  */
-extern QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
+extern QC_STRONG QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
 
 
 extern bool _isKindOfFile(const char *fileContent, const char *label);
 
-extern QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label);
+extern QC_STRONG QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label);
 
-extern QCByte *_readFileContent(const char *path, size_t *outLength);
+extern QC_STRONG QCByte *_readFileContent(const char *path, size_t *outLength);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H
