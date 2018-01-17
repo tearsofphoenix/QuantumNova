@@ -167,7 +167,24 @@ QCArrayRef QCByteArrayCreateWithBase64(const char *base64String, size_t length) 
 }
 
 QCArrayRef QCByteArrayPKCS7Encode(QCArrayRef array) {
-    // TODO
+    size_t count = array->count;
+    QCByte val = 16 - (count % 16);
+    if (val == 16) {
+        // no need to pad
+        return array;
+    } else {
+        QCByte *str = malloc(sizeof(QCByte) * val);
+        for (size_t i = 0; i < val; ++i) {
+            str[i] = val;
+        }
+        QCArrayRef pad = QCArrayCreateWithByte(str, val, false);
+        pad->needfree = true;
+
+        QCArrayRef result = QCArrayCreateCopy(array);
+        QCArrayAppend(result, pad);
+        QCRelease(pad);
+        return result;
+    }
 }
 
 // Remove the PKCS#7 padding from a text string

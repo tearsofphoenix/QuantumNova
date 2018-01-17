@@ -217,6 +217,22 @@ static void base64_test() {
     QCRelease(a2);
 }
 
+static void pkcs7_test() {
+    printf("---------------pkcs7 test------------------\n");
+    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QCArrayRef array = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
+    QCArrayRef encoded = QCArrayPKCS7Encode(array);
+    QCObjectPrint(encoded);
+    QCArrayRef decoded = QCArrayPKCS7Decode(encoded);
+    if(QCObjectEqual(decoded, encoded)) {
+        printf("pkcs7 test passed.\n");
+    }
+
+    QCRelease(array);
+    QCRelease(encoded);
+    QCRelease(decoded);
+}
+
 void array_test() {
     sha256_test();
 
@@ -227,4 +243,6 @@ void array_test() {
     array_hex_test();
 
     base64_test();
+
+    pkcs7_test();
 }

@@ -273,7 +273,8 @@ static void QCCipherDeallocate(QCObjectRef object) {
 }
 
 QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-    size_t messageSize = message->count;
+    QCArrayRef padded = QCArrayPKCS7Encode(message);
+    size_t messageSize = padded->count;
     QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
 
     register_cipher(&aes_desc);
@@ -285,7 +286,7 @@ QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCAr
         printf("cbc start failed!\n");
         return NULL;
     }
-    ret = cbc_encrypt(message->data, out, messageSize * sizeof(QCByte), &cbc);
+    ret = cbc_encrypt(padded->data, out, messageSize * sizeof(QCByte), &cbc);
     if (ret != CRYPT_OK) {
         printf("cbc encrypt failed!\n");
         return NULL;
