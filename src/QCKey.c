@@ -181,6 +181,10 @@ static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
         }
     }
     QCKeyRef privateKey = QCKeyCreatePrivate(h0, h1, h1inv, kQCDefaultKeyConfig);
+
+    QCRelease(h0);
+    QCRelease(h1);
+    QCRelease(h1inv);
     return privateKey;
 }
 
@@ -205,6 +209,8 @@ static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
     }
 
     QCKeyRef key = QCKeyCreatePublic(g, kQCDefaultKeyConfig);
+    QCRelease(g);
+
     return key;
 }
 
@@ -212,13 +218,12 @@ static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
 #define kEndTemplate "-----END %s-----"
 #define kPrivateKeyLabel "PQP PRIVATE KEY"
 #define kPublicKeyLabel "PQP PUBLIC KEY"
-#define kMessageLabel "PQP MESSAGE"
 
-static bool _isKindOfFile(const char *fileContent, const char *label) {
+bool _isKindOfFile(const char *fileContent, const char *label) {
     return strstr(fileContent, label) != NULL;
 }
 
-static QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label) {
+QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label) {
     char begin[64] = {'\0'};
     sprintf(begin, kBeginTemplate, label);
     char end[64] = {'\0'};
@@ -236,7 +241,7 @@ static QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size
     return result;
 }
 
-static QCByte *_readFileContent(const char *path, size_t *outLength) {
+QCByte *_readFileContent(const char *path, size_t *outLength) {
 
     FILE *fileptr = fopen(path, "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file

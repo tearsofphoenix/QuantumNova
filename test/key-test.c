@@ -50,4 +50,6 @@ void key_test() {
     private_key_test();
 
     public_key_test();
+
+    message_test();
 }
