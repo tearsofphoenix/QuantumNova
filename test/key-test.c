@@ -6,48 +6,44 @@
 #include <src/QCKeyPrivate.h>
 #include "key-test.h"
 #include "data.h"
-#include "src/QCKey.h"
+#include "src/QNTest.h"
 #include "src/QCArrayPrivate.h"
 #include "src/QCMessagePrivate.h"
 
-static void private_key_test() {
-    printf("----------private key test start---------\n");
+static bool private_key_test() {
+
     const char *path = "./aux/priv.key";
     QCKeyRef key = QCKeyCreateFromPEMFile(path);
-    if(QCArrayCompareRaw(key->h0, H0, QCDTDouble)) {
-        printf("h0 passed\n");
-    }
-    if(QCArrayCompareRaw(key->h1, H1, QCDTDouble)) {
-        printf("h1 passed\n");
-    }
-    if(QCArrayCompareRaw(key->h1inv, H1_inv, QCDTDouble)) {
-        printf("h1inv passed\n");
-    }
+    bool ret1 = QCArrayCompareRaw(key->h0, H0, QCDTDouble);
+    bool ret2 = QCArrayCompareRaw(key->h1, H1, QCDTDouble);
+    bool ret3 = QCArrayCompareRaw(key->h1inv, H1_inv, QCDTDouble);
+
+    QCRelease(key);
+
+    return ret1 && ret2 && ret3;
 }
 
-static void public_key_test() {
-    printf("----------public key test start---------\n");
+static bool public_key_test() {
     const char *path = "./aux/pub.key";
     QCKeyRef key = QCKeyCreateFromPEMFile(path);
-    if(QCArrayCompareRaw(key->g, G, QCDTDouble)) {
-        printf("G passed\n");
-    }
+    bool ret = QCArrayCompareRaw(key->g, G, QCDTDouble);
+    QCRelease(key);
+
+    return ret;
 }
 
-static void message_test() {
-    printf("----------message test start---------\n");
+static bool message_test() {
     const char *path = "./aux/enc.data";
     QCMessageRef message = QCMessageCreateFromPEMFile(path);
-    if(QCArrayCompareRaw(message->c0, C0, QCDTDouble)) {
-        printf("C0 passed\n");
-    }
-    if(QCArrayCompareRaw(message->c1, C1, QCDTDouble)) {
-        printf("C1 passed\n");
-    }
+    bool ret1 = QCArrayCompareRaw(message->c0, C0, QCDTDouble);
+    bool ret2 = QCArrayCompareRaw(message->c1, C1, QCDTDouble);
+
+    QCRelease(message);
+
+    return ret1 && ret2;
 }
 
-static void save_private_key() {
-    printf("----------private key save test start---------\n");
+static bool save_private_key() {
     const char *path = "./aux/priv.key";
     QCKeyRef key = QCKeyCreateFromPEMFile(path);
     const char *outpath = "./aux/priv-out.key";
@@ -55,11 +51,10 @@ static void save_private_key() {
 }
 
 void key_test() {
-    private_key_test();
 
-    public_key_test();
+    QNT("private key file", NULL, private_key_test, 1);
 
-    message_test();
+    QNT("public key file", NULL, public_key_test, 1);
 
-    save_private_key();
+    QNT("message file", NULL, message_test, 1);
 }

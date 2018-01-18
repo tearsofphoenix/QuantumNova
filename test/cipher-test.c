@@ -8,10 +8,9 @@
 #include <src/QCKey.h>
 #include <src/QCCipherPrivate.h>
 #include "cipher-test.h"
-#include "src/QCCipher.h"
-#include "src/QCRandom.h"
 #include "src/QCMessagePrivate.h"
 #include "src/QCKeyPrivate.h"
+#include "src/QNTest.h"
 #include "data.h"
 
 
@@ -36,8 +35,7 @@ static QCKeyRef _getPrivateKey() {
     return privateKey;
 }
 
-static void cipher_syndrome_test() {
-    printf("-----------cipher syndrome test--------------\n");
+static bool cipher_syndrome_test() {
 
     size_t length = config.length;
 
@@ -50,18 +48,18 @@ static void cipher_syndrome_test() {
     QCCipherSetPrivateKey(cipher, privateKey);
 
     QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
-    if(QCArrayCompareRaw(result, kSyndrome, QCDTDouble)) {
-        printf("syndrome test passed.\n");
-    }
+    bool ret = QCArrayCompareRaw(result, kSyndrome, QCDTDouble);
 
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
+
+    return ret;
 }
 
-static void decrypt_test() {
-    printf("-----------decrypt test--------------\n");
+static bool decrypt_test() {
+
     size_t length = config.length;
 
     QCKeyRef privateKey = _getPrivateKey();
@@ -74,18 +72,16 @@ static void decrypt_test() {
 
     QCArrayRef result = QCCipherDecrypt(cipher, c0, c1);
 
-    if(QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble)) {
-        printf("decrypt test passed.\n");
-    }
+    bool ret = QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
 
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
+    return ret;
 }
 
-static void decrypt_message_test() {
-    printf("-----------decrypt message test start--------------\n");
+static bool decrypt_message_test() {
     QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
@@ -105,9 +101,7 @@ static void decrypt_message_test() {
     QCMessageRef message = QCMessageCreate(c0, c1, streamArray);
     QCArrayRef array = QCCipherDecryptMessage(cipher, message);
 
-    if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
-        printf("cipher decrypt message test passed\n");
-    }
+    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
     QCRelease(c0);
     QCRelease(c1);
@@ -115,10 +109,11 @@ static void decrypt_message_test() {
     QCRelease(message);
     QCRelease(array);
     QCRelease(privateKey);
+
+    return ret;
 }
 
-static void encrypt_test() {
-    printf("-----------encrypt test start--------------\n");
+static bool encrypt_test() {
 
     size_t length = config.length;
     QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
@@ -141,9 +136,7 @@ static void encrypt_test() {
     enc->c1 = c1;
 
     QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
-        printf("cipher encrypt test passed\n");
-    }
+    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
     QCRelease(privateKey);
     QCRelease(c0);
@@ -153,11 +146,12 @@ static void encrypt_test() {
     QCRelease(array);
     QCRelease(publicKey);
     QCRelease(cipher);
+
+    return ret;
 }
 
-static void aes_cbc_test()
+static bool aes_cbc_test()
 {
-    printf("-----------aes cbc test--------------\n");
     QCByte plaintext[1][32] = {
             {0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51}
     };
@@ -179,15 +173,11 @@ static void aes_cbc_test()
 
     QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, message, keyArray, ivArray);
 
-    if(QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte)) {
-        printf("passed aes encrypt\n");
-    }
+    bool ret1 = QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte);
 
     QCArrayRef plain = QCCipherSymmetricDecrypt(cipher, ciphered, keyArray, ivArray);
 
-    if (QCObjectEqual(plain, message)) {
-        printf("passed aes decrypt\n");
-    }
+    bool ret2 = QCObjectEqual(plain, message);
 
     QCRelease(cipher);
     QCRelease(message);
@@ -195,10 +185,11 @@ static void aes_cbc_test()
     QCRelease(ivArray);
     QCRelease(plain);
     QCRelease(ciphered);
+
+    return ret1 && ret2;
 }
 
-static void mac_test() {
-    printf("-------------mac test start-------------\n");
+static bool mac_test() {
     QCByte message[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
     QCByte token[] = {0xee, 0xc7, 0xf5, 0xa7, 0x9b, 0x1b, 0x42, 0x2a, 0x7c, 0x32, 0xe0, 0xe4, 0xbe, 0xcc, 0x50, 0x7f,
                       0x66, 0x9f, 0x88, 0x0a, 0x86, 0x3b, 0xbb, 0x71, 0xb7, 0xe7, 0xd0, 0x81, 0x43, 0x54, 0xec, 0xab,
@@ -216,18 +207,17 @@ static void mac_test() {
 
     QCArrayRef h = QCArraySHA256(m);
 
-    if (QCArrayCompareRaw(h, mac, QCDTByte)) {
-        printf("mac test passed\n");
-    }
+    bool ret = QCArrayCompareRaw(h, mac, QCDTByte);
 
     QCRelease(m);
     QCRelease(t);
     QCRelease(k);
     QCRelease(h);
+
+    return ret;
 }
 
-static void file_test() {
-    printf("-------------file test start-------------\n");
+static bool file_test() {
     const char *privateKeyPath = "./aux/priv.key";
     const char *publicKeyPath = "./aux/pub.key";
 
@@ -244,9 +234,7 @@ static void file_test() {
     QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
 
     QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    if (QCArrayCompareRaw(array, msg, QCDTByte) ) {
-        printf("cipher encrypt test passed\n");
-    }
+    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
     QCRelease(privateKey);
     QCRelease(publicKey);
@@ -254,20 +242,23 @@ static void file_test() {
     QCRelease(enc);
     QCRelease(array);
     QCRelease(cipher);
+
+    return ret;
 }
 
 void cipher_test() {
-    cipher_syndrome_test();
 
-    decrypt_test();
+    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
 
-    aes_cbc_test();
+    QNT("cipher decrypt", NULL, decrypt_test, 1);
 
-    mac_test();
+    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
 
-    encrypt_test();
+    QNT("cipher mac", NULL, mac_test, 1);
 
-    decrypt_message_test();
+    QNT("cipher encrypt", NULL, encrypt_test, 1);
 
-//    file_test();
+    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
+
+//    QNT("cipher file", NULL, file_test, 1);
 }
