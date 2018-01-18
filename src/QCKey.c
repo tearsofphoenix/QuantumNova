@@ -111,8 +111,6 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     BN_exp(n, base, exp, bnCTX);
     BN_sub(n, n, base);
 
-    printf("%s", BN_bn2dec(n));
-
     QCArrayRef h1inv = QCArrayExpPoly(h1, n);
 
     BN_free(base);

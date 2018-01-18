@@ -8,6 +8,6 @@
 #include "src/QCArray.h"
 #include "src/QCObject.h"
 
-extern void fft_test_all(size_t count);
+extern void fft_test_all();
 
 #endif //PQC_CRYPTO_FFT_TEST_H

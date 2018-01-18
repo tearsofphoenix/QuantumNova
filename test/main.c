@@ -7,17 +7,16 @@
 #include "cipher-test.h"
 #include "array-test.h"
 #include "key-test.h"
-#include <stdio.h>
 
 int main() {
 
-//    fft_test_all(1);
-//
-//    cipher_test();
-//
-//    array_test();
+    fft_test_all();
 
-    key_test();
+    cipher_test();
+
+    array_test();
+
+//    key_test();
 
     return 0;
 }

@@ -117,7 +117,8 @@ static bool exp_poly_test() {
     return ret;
 }
 
-void fft_test_all(size_t count) {
+void fft_test_all() {
+    size_t count = 1;
 
     QNT("fft", "", fft_test, count);
 

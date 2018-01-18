@@ -129,6 +129,7 @@ static bool encrypt_test() {
     QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
     bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
+    QCRelease(g);
     QCRelease(privateKey);
     QCRelease(stream);
     QCRelease(enc);
@@ -235,6 +236,33 @@ static bool file_test() {
     return ret;
 }
 
+static bool key_pair_test() {
+    QCKeyRef privKey = NULL;
+    QCKeyRef pubKey = NULL;
+    QCKeyGeneratePair(kQCDefaultKeyConfig, &privKey, &pubKey);
+
+    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+
+    QCCipherRef cipher = QCCipherCreate();
+    QCCipherSetPrivateKey(cipher, privKey);
+    QCCipherSetPublicKey(cipher, pubKey);
+
+    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+
+    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
+    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+
+    QCRelease(privKey);
+    QCRelease(stream);
+    QCRelease(enc);
+    QCRelease(array);
+    QCRelease(pubKey);
+    QCRelease(cipher);
+
+    return ret;
+}
+
 static void _init_test() {
     config = kQCDefaultKeyConfig;
 }
@@ -252,6 +280,8 @@ void cipher_test() {
     QNT("cipher encrypt", NULL, encrypt_test, 1);
 
     QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
+
+    QNT("key pair", NULL, key_pair_test, 1);
 
 //    QNT("cipher file", NULL, file_test, 1);
 }
