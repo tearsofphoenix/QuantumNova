@@ -253,14 +253,35 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     return c0;
 }
 
-//
-QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
-    QCArrayRef data = QCArrayCreateCopy(message);
-    QCArrayAppend(data, token);
-    QCArrayAppend(data, key);
+static QC_STRONG QCArrayRef _sha256Contact(QCArrayRef a1, QCArrayRef a2, QCArrayRef a3) {
+    QCArrayRef data = QCArrayCreateCopy(a1);
+    if (a2) {
+        QCArrayAppend(data, a2);
+    }
+    if (a3) {
+        QCArrayAppend(data, a3);
+    }
     QCArrayRef result = QCArraySHA256(data);
     QCRelease(data);
     return result;
+}
+
+//
+QC_STRONG QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
+    return _sha256Contact(message, token, key);
+}
+
+static QC_STRONG QCArrayRef  _getIV(QCArrayRef token, QCArrayRef salt) {
+    QCArrayRef data = QCArrayCreateCopy(token);
+    if (salt) {
+        QCArrayAppend(data, salt);
+    }
+    QCArrayRef result = QCArraySHA512(data);
+    QCRelease(data);
+
+    QCArrayRef iv = QCArraySlice(result, 0, 16);
+    QCRelease(result);
+    return iv;
 }
 
 //
@@ -333,23 +354,11 @@ QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCArrayRef token = QCArrayPack(randomized);
 
     // derive keys
-    QCArrayRef temp = QCArrayCreateCopy(token);
-    QCArrayAppend(temp, cipher->saltA);
-    QCArrayRef keyA = QCArraySHA256(temp);
-    QCRelease(temp);
-
-    temp = QCArrayCreateCopy(token);
-    QCArrayAppend(temp, cipher->saltB);
-    QCArrayRef keyB = QCArraySHA256(temp);
-    QCRelease(temp);
+    QCArrayRef keyA = _sha256Contact(token, cipher->saltA, NULL);
+    QCArrayRef keyB = _sha256Contact(token, cipher->saltB, NULL);
 
     // derive iv
-    temp = QCArrayCreateCopy(token);
-    QCArrayAppend(temp, cipher->ivSalt);
-    QCArrayRef tem = QCArraySHA512(temp);
-    QCArrayRef iv = QCArraySlice(tem, 0, 16);
-    QCRelease(temp);
-    QCRelease(tem);
+    QCArrayRef iv = _getIV(token, cipher->ivSalt);
 
     // generate mac
     QCArrayRef mac = QCCipherGenerateMAC(plainData, token, keyB);
@@ -358,17 +367,23 @@ QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCArrayRef c1;
     QCCipherEncrypt(cipher, randomized, &c0, &c1);
 
-    QCArrayAppend(plainData, mac);
+    QCArrayRef pc = QCArrayCreateCopy(plainData);
+    QCArrayAppend(pc, mac);
 
-    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, plainData, keyA, iv);
+    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, pc, keyA, iv);
 
     QCMessageRef message = QCMessageCreate(c0, c1, ciphered);
 
-    QCRelease(ciphered);
+    QCRelease(randomized);
+    QCRelease(token);
+    QCRelease(keyA);
+    QCRelease(keyB);
+    QCRelease(iv);
+    QCRelease(mac);
     QCRelease(c0);
     QCRelease(c1);
-    QCRelease(mac);
-    QCRelease(randomized);
+    QCRelease(pc);
+    QCRelease(ciphered);
 
     return message;
 }
@@ -380,27 +395,16 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
 
     QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
     QCArrayRef decrypted_token = QCArrayPack(temp);
-
+    printf("QCCipherDecryptMessage: decrypted_token\n");
+    QCObjectPrint(decrypted_token);
     QCRelease(temp);
 
     // derive keys from data
-    QCArrayRef dt_copy = QCArrayCreateCopy(decrypted_token);
-    QCArrayAppend(dt_copy, cipher->saltA);
-    QCArrayRef decrypted_keyA = QCArraySHA256(dt_copy);
-    QCRelease(dt_copy);
-
-    dt_copy = QCArrayCreateCopy(decrypted_token);
-    QCArrayAppend(dt_copy, cipher->saltB);
-    QCArrayRef decrypted_keyB = QCArraySHA256(dt_copy);
-    QCRelease(dt_copy);
+    QCArrayRef decrypted_keyA = _sha256Contact(decrypted_token, cipher->saltA, NULL);
+    QCArrayRef decrypted_keyB = _sha256Contact(decrypted_token, cipher->saltB, NULL);
 
     // derive iv
-    dt_copy = QCArrayCreateCopy(decrypted_token);
-    QCArrayAppend(dt_copy, cipher->ivSalt);
-    QCArrayRef tem = QCArraySHA512(dt_copy);
-    QCRelease(dt_copy);
-    QCArrayRef decrypted_iv = QCArraySlice(tem, 0, 16);
-    QCRelease(tem);
+    QCArrayRef decrypted_iv = _getIV(decrypted_token, cipher->ivSalt);
 
     // decrypt ciphertext and derive mac
     QCArrayRef sem = QCCipherSymmetricDecrypt(cipher, message->sym, decrypted_keyA, decrypted_iv);

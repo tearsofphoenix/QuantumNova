@@ -22,14 +22,14 @@ void QNTestRun(QNTestRef test) {
         printf(KNRM kLine "%s test start" kLine "\n", test->name);
         const QNTestFunc func = test->func;
         if (test->loopCount > 0 && func) {
-            printf(KBLU "will loop %d times \n", test->loopCount);
+            printf(KBLU "| will loop %d times \n", test->loopCount);
             bool success = true;
             clock_t start = clock();
             for (size_t i = 0; i < test->loopCount; ++i) {
                 if(func()) {
                     // success one time
                 } else {
-                    printf(KRED "fail at %d-th loop.\n", i);
+                    printf(KRED "| fail at %d-th loop.\n", i);
                     success = false;
                     break;
                 }
@@ -37,9 +37,9 @@ void QNTestRun(QNTestRef test) {
             clock_t end = clock();
             if (success) {
                 float total = (float)(end - start) / 1000;
-                printf(KBLU "test passed. cost: %.02f ms average: %.02f.\n", total, total / test->loopCount);
+                printf(KBLU "| test passed. cost: %.02fms average: %.02fms.\n", total, total / test->loopCount);
             }
         }
-        printf(KNRM kLine "test end" kLine "\n");
+        printf(KNRM kLine "%s" kLine "\n\n\n", "test end");
     }
 }

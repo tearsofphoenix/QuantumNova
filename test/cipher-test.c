@@ -120,9 +120,6 @@ static bool encrypt_test() {
 
     QCKeyRef privateKey = _getPrivateKey();
 
-    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
-    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
-
     QCCipherRef cipher = QCCipherCreate();
     QCCipherSetPrivateKey(cipher, privateKey);
 
@@ -132,15 +129,11 @@ static bool encrypt_test() {
 
     QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
     QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
-    enc->c0 = c0;
-    enc->c1 = c1;
 
     QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
     bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
     QCRelease(privateKey);
-    QCRelease(c0);
-    QCRelease(c1);
     QCRelease(stream);
     QCRelease(enc);
     QCRelease(array);
@@ -248,13 +241,13 @@ static bool file_test() {
 
 void cipher_test() {
 
-    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
-
-    QNT("cipher decrypt", NULL, decrypt_test, 1);
-
-    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
-
-    QNT("cipher mac", NULL, mac_test, 1);
+//    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
+//
+//    QNT("cipher decrypt", NULL, decrypt_test, 1);
+//
+//    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+//
+//    QNT("cipher mac", NULL, mac_test, 1);
 
     QNT("cipher encrypt", NULL, encrypt_test, 1);
 
