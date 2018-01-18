@@ -131,7 +131,7 @@ static size_t calcDecodeLength(const char* b64input) { //Calculates the length o
 static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //Decodes a base64 encoded string
 
     int decodeLen = calcDecodeLength(b64message);
-    *buffer = (unsigned char*)malloc(decodeLen + 1);
+    *buffer = (unsigned char*)QCAllocator(decodeLen + 1);
     (*buffer)[decodeLen] = '\0';
 
     base64_decode(b64message, strlen(b64message), *buffer, length);
@@ -142,7 +142,7 @@ static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length
 QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length) {
     if (data && length > 0) {
         size_t size = (length * 4) / 3 + 4;
-        char *result = malloc(size * sizeof(char));
+        char *result = QCAllocator(size * sizeof(char));
         base64_encode(data, length, result, &size);
         result[size] = '\0';
         return result;
@@ -173,7 +173,7 @@ QCArrayRef QCByteArrayPKCS7Encode(QCArrayRef array) {
         // no need to pad
         return QCArrayCreateCopy(array);
     } else {
-        QCByte *str = malloc(sizeof(QCByte) * val);
+        QCByte *str = QCAllocator(sizeof(QCByte) * val);
         for (size_t i = 0; i < val; ++i) {
             str[i] = val;
         }
@@ -290,7 +290,7 @@ static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array) {
         }
 
         QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        fftw_free(indices);
+        QCDeallocate(indices);
         return ref;
     }
     return NULL;

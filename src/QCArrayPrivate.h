@@ -108,7 +108,7 @@ static void CLASS ## Append(QCArrayRef array, QCArrayRef other) { \
             memcpy(p, array->data, size); \
             memcpy(p + size, other->data, otherSize); \
             if (array->needfree) { \
-                fftw_free(array->data); \
+                QCDeallocate(array->data); \
             } \
             array->data = p; \
             array->count += co->count; \

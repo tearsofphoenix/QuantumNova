@@ -230,7 +230,7 @@ QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *out
 
     size_t bufferSize = (fileLength - strlen(begin) - strlen(end));
     size_t resultSize = sizeof(QCByte) * bufferSize;
-    QCByte *result = malloc(resultSize + 1);
+    QCByte *result = QCAllocator(resultSize + 1);
     result[resultSize] = '\0';
     memcpy(result, fileContent + strlen(begin), resultSize);
 
@@ -247,7 +247,7 @@ QCByte *_readFileContent(const char *path, size_t *outLength) {
     size_t filelen = (size_t)ftell(fileptr);             // Get the current byte offset in the file
     rewind(fileptr);                      // Jump back to the beginning of the file
 
-    QCByte *buffer = malloc((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
+    QCByte *buffer = QCAllocator((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
 
     char * line = NULL;
     size_t len = 0;
@@ -259,7 +259,7 @@ QCByte *_readFileContent(const char *path, size_t *outLength) {
         total += read - 1;
     }
     if (line) {
-        free(line);
+        QCDeallocate(line);
     }
 
     if (outLength) {
@@ -279,8 +279,8 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
         QCByte *trimmed = _trimFileContent(data, length, &length, kPrivateKeyLabel);
         QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
 
-        free(data);
-        free(trimmed);
+        QCDeallocate(data);
+        QCDeallocate(trimmed);
 
         QCKeyRef key =_parsePrivateKeyFile(array->data, array->count);
         QCRelease(array);
@@ -289,8 +289,8 @@ QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
         QCByte *trimmed = _trimFileContent(data, length, &length, kPublicKeyLabel);
         QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
 
-        free(data);
-        free(trimmed);
+        QCDeallocate(data);
+        QCDeallocate(trimmed);
 
         QCKeyRef key =_parsePublicKeyFile(array->data, array->count);
         QCRelease(array);
@@ -325,7 +325,7 @@ static void _savePrivateKeyToPath(QCKeyRef key, const char *path) {
     /* close the file*/
     fclose (fp);
 
-    free(buffer);
+    QCDeallocate(buffer);
 }
 
 
@@ -354,7 +354,7 @@ static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
     /* close the file*/
     fclose (fp);
 
-    free(buffer);
+    QCDeallocate(buffer);
 }
 
 void QCKeySaveToFile(QCKeyRef key, const char *path) {

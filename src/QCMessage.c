@@ -85,8 +85,8 @@ QCMessageRef QCMessageCreateFromPEMFile(const char *path) {
         QCByte *trimmed = _trimFileContent(data, length, &length, kMessageLabel);
         QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
 
-        free(data);
-        free(trimmed);
+        QCDeallocate(data);
+        QCDeallocate(trimmed);
 
         QCMessageRef message =_parseMessageFile(array->data, array->count);
         QCRelease(array);

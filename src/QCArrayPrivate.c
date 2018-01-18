@@ -31,7 +31,7 @@ void *_QCMallocData(QCArrayDataType type, size_t count, size_t *outsize) {
             break;
         }
     }
-    void *data = fftw_malloc(size);
+    void *data = QCAllocator(size);
     memset(data, 0, size);
 
     if (outsize) {
@@ -159,6 +159,6 @@ void QCArrayXORAt(QCArrayRef array, int index, int value) {
 
 void QCArrayDeallocate(QCArrayRef array) {
     if (array && array->needfree) {
-        fftw_free(array->data);
+        QCDeallocate(array->data);
     }
 }

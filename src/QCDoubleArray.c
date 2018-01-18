@@ -230,7 +230,7 @@ static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array) {
         }
 
         QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        fftw_free(indices);
+        QCDeallocate(indices);
         return ref;
     }
     return NULL;
