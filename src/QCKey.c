@@ -136,6 +136,84 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     *publicKey = pubKey;
 }
 
+static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
+{
+    char buf[1024];
+    const char* name = NULL;
+    const char* text = NULL;
+    ltc_asn1_list* ostring = NULL;
+    unsigned int n;
+
+    switch (l->type)
+    {
+        case LTC_ASN1_BIT_STRING:
+            name = "BIT STRING";
+            const char *out = malloc(sizeof(char) * l->size);
+            size_t ol = 0;
+            int ret = der_decode_bit_string(l->data, l->size, out, &ol);
+            if (ret == CRYPT_OK) {
+                printf("parse ok");
+            }
+            break;
+        case LTC_ASN1_OCTET_STRING:
+            name = "OCTET STRING";
+            {
+                unsigned long ostring_l = l->size;
+                /* sometimes there's another sequence in an octet string...
+                 * try to decode that... if it fails print out the octet string
+                 */
+                if (der_decode_sequence_flexi(l->data, &ostring_l, &ostring) == CRYPT_OK) {
+                    text = "";
+                }
+                else {
+                    int r;
+                    char* s = buf;
+                    int sz = sizeof(buf);
+                    for (n = 0; n < l->size; ++n) {
+                        r = snprintf(s, sz, "%02X", ((unsigned char*)l->data)[n]);
+                        if (r < 0 || r >= sz) {
+                            fprintf(stderr, "%s boom\n", name);
+                            exit(EXIT_FAILURE);
+                        }
+                        s += r;
+                        sz -= r;
+                    }
+                    text = buf;
+                }
+            }
+            break;
+        case LTC_ASN1_SEQUENCE:
+            name = "SEQUENCE";
+            text = "";
+            break;
+        case LTC_ASN1_RAW_BIT_STRING:
+            name = "RAW BIT STRING";
+            break;
+    }
+
+    for (n = 0; n < level; ++n) {
+        fprintf(stderr, "    ");
+    }
+    if (name) {
+        if (text)
+            fprintf(stderr, "%s %s\n", name, text);
+        else
+            fprintf(stderr, "%s <missing decoding>\n", name);
+    } else
+        fprintf(stderr, "WTF type=%i\n", l->type);
+
+    if (ostring) {
+        _der_tests_print_flexi(ostring, level + 1);
+        der_free_sequence_flexi(ostring);
+    }
+
+    if (l->child)
+        _der_tests_print_flexi(l->child, level + 1);
+
+    if (l->next)
+        _der_tests_print_flexi(l->next, level);
+}
+
 static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
 
     size_t bs = kQCDefaultKeyConfig.length;
@@ -153,6 +231,8 @@ static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
         return NULL;
     }
     if (decoded_list->type == LTC_ASN1_SEQUENCE) {
+        _der_tests_print_flexi(decoded_list, 0);
+
         ltc_asn1_list *node = decoded_list->child;
         ret = der_decode_bit_string(node->data, node->size, buf, &bufLength);
         if (ret == CRYPT_OK) {
