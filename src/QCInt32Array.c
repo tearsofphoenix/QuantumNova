@@ -74,12 +74,13 @@ const QCArrayRef QCInt32ArrayCreate(const void *initData, size_t count, bool nee
             } else {
                 array->data = initData;
             }
+            array->needfree = needCopy;
         } else {
             array->data = _QCMallocData(type, count, NULL);
+            array->needfree = true;
         }
         array->count = count;
         array->fft = false;
-        array->needfree = needCopy;
         array->datatype = type;
         return array;
     }

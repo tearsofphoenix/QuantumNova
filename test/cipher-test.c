@@ -17,7 +17,7 @@
 
 static QCKeyConfig config;
 
-static QCKeyRef _getPrivateKey() {
+static QC_STRONG QCKeyRef _getPrivateKey() {
     size_t length = config.length;
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
@@ -75,6 +75,8 @@ static bool decrypt_test() {
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
+    QCRelease(cipher);
+
     return ret;
 }
 
@@ -271,9 +273,11 @@ static void _init_test() {
 void cipher_test() {
     _init_test();
     QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
+
+    QNT("cipher decrypt", NULL, decrypt_test, 1);
+
     _QCPrintMemoryLeak();
 
-//    QNT("cipher decrypt", NULL, decrypt_test, 1);
 //
 //    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
 //

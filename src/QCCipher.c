@@ -161,7 +161,7 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     QCArrayRef H1_ind = QCArrayGetNoZeroIndices(privateKey->h1);
 
     size_t kBL = privateKey->length;
-    QCArrayRef unsat_H0 = QCArrayCreateWithInt(NULL, kBL, false);
+    QCArrayRef unsat_H0 = QCArrayCreateWithInt(NULL, kBL, true);
 
     QCLoopContext ctx;
     ctx.synd = synd;
@@ -169,7 +169,7 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     ctx.kBL = kBL;
     QCArrayForeach(H0_ind, _h0LoopFunc, &ctx);
 
-    QCArrayRef unsat_H1 = QCArrayCreateWithInt(NULL, kBL, false);
+    QCArrayRef unsat_H1 = QCArrayCreateWithInt(NULL, kBL, true);
     ctx.array = unsat_H1;
     QCArrayForeach(H1_ind, _h0LoopFunc, &ctx);
 
@@ -178,6 +178,8 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     int threshold = 100;
     int r = 0;
 
+    QCArrayRef round_unsat_H0 = NULL;
+    QCArrayRef round_unsat_H1 = NULL;
     while (true) {
         int max_unsat = (int)fmax(QCArrayMax(unsat_H0), QCArrayMax(unsat_H1));
 
@@ -197,8 +199,15 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
         if (max_unsat > delta) {
             threshold = max_unsat - delta;
         }
-        QCArrayRef round_unsat_H0 = QCArrayCreateCopy(unsat_H0);
-        QCArrayRef round_unsat_H1 = QCArrayCreateCopy(unsat_H1);
+
+        if (round_unsat_H0) {
+            QCRelease(round_unsat_H0);
+        }
+        if (round_unsat_H1) {
+            QCRelease(round_unsat_H1);
+        }
+        round_unsat_H0 = QCArrayCreateCopy(unsat_H0);
+        round_unsat_H1 = QCArrayCreateCopy(unsat_H1);
 
         // first block sweep
         for (int i = 0; i < kBL; ++i) {
@@ -242,7 +251,12 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
 
         QCRelease(round_unsat_H0);
         QCRelease(round_unsat_H1);
+        round_unsat_H0 = NULL;
+        round_unsat_H1 = NULL;
     }
+
+    QCRelease(round_unsat_H0);
+    QCRelease(round_unsat_H1);
 
     QCRelease(unsat_H0);
     QCRelease(unsat_H1);
