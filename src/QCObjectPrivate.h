@@ -13,4 +13,8 @@ extern QC_STRONG QCObjectRef _QCRetain(QCObjectRef object);
 
 extern void _QCRelease(QCObjectRef object);
 
+extern void _QCStartMemoryRecord();
+
+extern void _QCPrintMemoryLeak();
+
 #endif //PQC_CRYPTO_QCOBJECTPRIVATE_H
