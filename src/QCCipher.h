@@ -40,7 +40,7 @@ extern void QCCipherSetPublicKey(QCCipherRef cipher, QCKeyRef publicKey);
 /*
  * do asymmetric encrypt on message, result: [u, v]
  */
-extern void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCArrayRef *v);
+extern void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef random, QCArrayRef *u, QCArrayRef *v);
 
 /*
  * syndrome c0 & c1

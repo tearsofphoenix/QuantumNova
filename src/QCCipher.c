@@ -8,6 +8,7 @@
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "QCMessagePrivate.h"
+#include "../test/data.h"
 #include <tomcrypt.h>
 #include <math.h>
 #include <stdio.h>
@@ -52,23 +53,22 @@ void QCCipherSetPublicKey(QCCipherRef cipher, QCKeyRef publicKey) {
     cipher->publicKey = QCRetain(publicKey);
 }
 
-
-void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef *u, QCArrayRef *v) {
+void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef random, QCArrayRef *u, QCArrayRef *v) {
 // non-constant weight to achieve cipertext indistinguishability
     QCKeyRef publicKey = cipher->publicKey;
-    QCArrayRef temp = QCArrayMulPoly(publicKey->g, message);
+    QCArrayRef temp = QCArrayMulPoly(publicKey->g, random);
 
     QCArrayRef t = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
     QCArrayAddArray(temp, t);
     QCArrayMod(temp, 2);
 
     QCArrayRef t2 = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
-    QCArrayRef copy = QCArrayCreateCopy(message);
+    QCArrayRef copy = QCArrayCreateCopy(random);
     QCArrayAddArray(copy, t2);
     QCArrayMod(copy, 2);
 
-    *u = temp;
-    *v = copy;
+    *u = copy;
+    *v = temp;
 }
 
 QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
@@ -395,8 +395,7 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
 
     QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
     QCArrayRef decrypted_token = QCArrayPack(temp);
-    printf("QCCipherDecryptMessage: decrypted_token\n");
-    QCObjectPrint(decrypted_token);
+
     QCRelease(temp);
 
     // derive keys from data

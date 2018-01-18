@@ -11,11 +11,11 @@
 
 int main() {
 
-//    fft_test_all(1);
+    fft_test_all(1);
 
     cipher_test();
 
-//    array_test();
+    array_test();
 
 //    key_test();
 
