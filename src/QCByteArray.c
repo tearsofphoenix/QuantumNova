@@ -289,8 +289,8 @@ static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array) {
             }
         }
 
-        QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        QCDeallocate(indices);
+        QCArrayRef ref = QCArrayCreateWithInt(indices, idx, false);
+        ref->needfree = true;
         return ref;
     }
     return NULL;

@@ -126,12 +126,12 @@ void fft_test_all() {
     QNT("complex multiply", "", complex_multiply_test, count);
 
     QNT("inverse fft", "", inverse_fft_test, count);
-    _QCPrintMemoryLeak();
 
-//
 //    QNT("square sparse", "", square_sparse_test, count);
-//
-//    QNT("mul_poly", "", mul_poly_test, count);
-//
-//    QNT("exp_poly", "", exp_poly_test, count);
+
+    QNT("mul_poly", "", mul_poly_test, count);
+
+    QNT("exp_poly", "", exp_poly_test, count);
+
+    _QCPrintMemoryLeak();
 }
