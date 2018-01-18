@@ -153,7 +153,7 @@ static void _blockLoopFunc(int dj, int index, const void *ctx) {
     QCArrayXORAt(synd, idx, 1);
 }
 
-QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
+void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     QCKeyRef privateKey = cipher->privateKey;
     QCArrayRef synd = QCCipherSyndrome(cipher, c0, c1);
     // compute correlations with syndrome
@@ -250,7 +250,7 @@ QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     QCRelease(H1_ind);
     QCRelease(synd);
 
-    return c0;
+    return; // c0
 }
 
 static QC_STRONG QCArrayRef _sha256Contact(QCArrayRef a1, QCArrayRef a2, QCArrayRef a3) {
@@ -393,10 +393,9 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
     QCArrayRef rc_0 = message->c0;
     QCArrayRef rc_1 = message->c1;
 
-    QCArrayRef temp = QCCipherDecrypt(cipher, rc_0, rc_1);
+    QCCipherDecrypt(cipher, rc_0, rc_1);
+    QCArrayRef temp = rc_0;
     QCArrayRef decrypted_token = QCArrayPack(temp);
-
-    QCRelease(temp);
 
     // derive keys from data
     QCArrayRef decrypted_keyA = _sha256Contact(decrypted_token, cipher->saltA, NULL);

@@ -50,7 +50,7 @@ extern QC_STRONG QCArrayRef QCCipherSyndrome(QCCipherRef cipher, QCArrayRef c0, 
 /*
  * asymmetric decrypt on c0 & c1
  */
-extern QC_STRONG QCArrayRef QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
+extern void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1);
 
 /*
  * encrypt message with publicKey

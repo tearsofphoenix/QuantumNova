@@ -66,14 +66,13 @@ static bool decrypt_test() {
     QCCipherRef cipher = QCCipherCreate();
     QCCipherSetPrivateKey(cipher, privateKey);
 
-    QCArrayRef result = QCCipherDecrypt(cipher, c0, c1);
-
+    QCCipherDecrypt(cipher, c0, c1);
+    QCArrayRef result = c0;
     bool ret = QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
 
     QCRelease(privateKey);
     QCRelease(c0);
     QCRelease(c1);
-    QCRelease(result);
     return ret;
 }
 

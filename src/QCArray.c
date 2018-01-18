@@ -191,8 +191,12 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n) {
 
     while (BN_cmp(n, one) == 1) {
         BN_mod(mod, n, two, ctx);
+        QCArrayRef tx = x;
+
         if (BN_is_zero(mod)) {
-            x = QCArraySquareSparsePoly(x, 1);
+            x = QCArraySquareSparsePoly(tx, 1);
+            QCRelease(tx);
+
             BN_div(n, NULL, n, two, ctx);
         } else {
             // precision does not allow us to stay in FFT domain
@@ -200,12 +204,19 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n) {
             QCArrayRef X = QCArrayFFT(x);
             QCArrayRef Y = QCArrayFFT(y);
 
-            QCArrayRef temp = QCArrayComplexMultiply(X, Y);
-            temp = QCArrayInverseFFT(temp);
+            QCArrayRef t = QCArrayComplexMultiply(X, Y);
+            QCArrayRef temp = QCArrayInverseFFT(t);
             QCArrayRound(temp);
             QCArrayMod(temp, 2);
+
+            QCRelease(X);
+            QCRelease(Y);
+            QCRelease(t);
+            QCRelease(y);
             y = temp;
             x = QCArraySquareSparsePoly(x, 1);
+            QCRelease(tx);
+
             BN_sub(n, n, one);
             BN_div(n, NULL, n, two, ctx);
         }
@@ -219,6 +230,9 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n) {
     QCArrayRef result = QCArrayMulPoly(x, y);
     QCArrayRound(result);
     QCArrayMod(result, 2);
+
+    QCRelease(x);
+    QCRelease(y);
 
     return result;
 }

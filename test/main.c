@@ -13,9 +13,11 @@ int main() {
 
     _QCStartMemoryRecord();
 
-    fft_test_all();
+//    fft_test_all();
 
-//    cipher_test();
+    cipher_test();
+
+    _QCPrintMemoryLeak();
 
 //    array_test();
 

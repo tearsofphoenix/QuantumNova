@@ -115,6 +115,9 @@ static bool exp_poly_test() {
     BN_free(n);
     BN_CTX_free(bnCTX);
 
+    QCRelease(tempH0);
+    QCRelease(result);
+
     return ret;
 }
 
@@ -127,11 +130,9 @@ void fft_test_all() {
 
     QNT("inverse fft", "", inverse_fft_test, count);
 
-//    QNT("square sparse", "", square_sparse_test, count);
+    QNT("square sparse", "", square_sparse_test, count);
 
     QNT("mul_poly", "", mul_poly_test, count);
 
     QNT("exp_poly", "", exp_poly_test, count);
-
-    _QCPrintMemoryLeak();
 }
