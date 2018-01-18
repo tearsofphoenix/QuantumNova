@@ -136,7 +136,14 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     *publicKey = pubKey;
 }
 
-static QCArrayRef _decodeBitString(ltc_asn1_list *node) {
+QCArrayRef _decodeBitString(ltc_asn1_list *node) {
+    QCByte buf[kQCDefaultKeyConfig.length];
+    size_t size = node->size;
+    memcpy(buf, node->data, size);
+    return QCArrayCreateWithByte(buf, size, true);
+}
+
+QCArrayRef _decodeOCTString(ltc_asn1_list *node) {
     QCByte buf[kQCDefaultKeyConfig.length];
     size_t size = node->size;
     memcpy(buf, node->data, size);

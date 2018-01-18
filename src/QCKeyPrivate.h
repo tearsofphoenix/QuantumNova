@@ -8,6 +8,7 @@
 #include "QCArray.h"
 #include "QCKey.h"
 #include "QCObject.h"
+#include <tomcrypt.h>
 
 struct QCKey {
     QCOBJECTFIELDS
@@ -41,5 +42,9 @@ extern bool _isKindOfFile(const char *fileContent, const char *label);
 extern QC_STRONG QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label);
 
 extern QC_STRONG QCByte *_readFileContent(const char *path, size_t *outLength);
+
+extern QC_STRONG QCArrayRef _decodeBitString(ltc_asn1_list *node);
+
+extern QC_STRONG QCArrayRef _decodeOCTString(ltc_asn1_list *node);
 
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H

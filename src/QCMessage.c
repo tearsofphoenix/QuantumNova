@@ -5,8 +5,6 @@
 #include "QCMessagePrivate.h"
 #include "QCKeyPrivate.h"
 #include "QCArrayPrivate.h"
-#include "QCKey.h"
-#include <tomcrypt.h>
 
 #define kMessageLabel "PQP MESSAGE"
 
@@ -26,54 +24,28 @@ static struct QCClass kQCMessageClass = {
 
 
 static QCMessageRef _parseMessageFile(const QCByte *data, size_t length) {
-    ltc_asn1_list decoded_list[3];
-    size_t bs = kQCDefaultKeyConfig.length;
-    QCByte c0buf[bs];
-    QCByte c1buf[bs];
-    QCByte symbuf[bs];
-    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, c0buf, bs);
-    LTC_SET_ASN1(decoded_list, 1, LTC_ASN1_BIT_STRING, c1buf, bs);
-    LTC_SET_ASN1(decoded_list, 2, LTC_ASN1_BIT_STRING, symbuf, bs);
-    der_decode_sequence(data, length, decoded_list, 3);
 
-    QCByte buf[bs];
-    size_t bufLength;
-
-    ltc_asn1_list node = decoded_list[0];
+    ltc_asn1_list *decoded_list;
+    size_t len;
+    int ret = der_decode_sequence_flexi(data, &len, &decoded_list);
     QCArrayRef c0 = NULL, c1 = NULL, sym = NULL;
-    int ret;
-    if (node.type == LTC_ASN1_BIT_STRING) {
-        ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
-        if (ret == CRYPT_OK) {
-            c0 = QCArrayCreateWithByte(buf, bufLength, true);
-        } else {
-
-        }
+    if (ret != CRYPT_OK) {
+        return NULL;
     }
-    node = decoded_list[1];
-    if (node.type == LTC_ASN1_BIT_STRING) {
-        ret = der_decode_bit_string(node.data, node.size, buf, &bufLength);
-        if (ret == CRYPT_OK) {
-            c1 = QCArrayCreateWithByte(buf, bufLength, true);
-        } else {
-
-        }
-    }
-    node = decoded_list[2];
-    if (node.type == LTC_ASN1_OCTET_STRING) {
-        ret = der_decode_octet_string(node.data, node.size, buf, &bufLength);
-        if (ret == CRYPT_OK) {
-            sym = QCArrayCreateWithByte(buf, bufLength, true);
-        } else {
-
-        }
-    }
+    ltc_asn1_list *node = decoded_list->child;
+    c0 = _decodeBitString(node);
+    node = node->next;
+    c1 = _decodeBitString(node);
+    node = node->next;
+    sym = _decodeOCTString(node);
 
     QCMessageRef message = QCMessageCreate(c0, c1, sym);
 
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(sym);
+
+    der_sequence_free(decoded_list);
 
     return message;
 }

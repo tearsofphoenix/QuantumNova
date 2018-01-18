@@ -56,5 +56,5 @@ void key_test() {
 
     QNT("public key file", NULL, public_key_test, 1);
 
-//    QNT("message file", NULL, message_test, 1);
+    QNT("message file", NULL, message_test, 1);
 }
