@@ -138,7 +138,7 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
 
 static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
     ltc_asn1_list decoded_list[3];
-    size_t bs = 4801;
+    size_t bs = kQCDefaultKeyConfig.length;
     QCByte h0buf[bs];
     QCByte h1buf[bs];
     QCByte h1invbuf[bs];
@@ -189,11 +189,12 @@ static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
 
 static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
     ltc_asn1_list decoded_list[1];
-    QCByte gbuf[4801];
-    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, gbuf, 4801);
+    size_t size = kQCDefaultKeyConfig.length;
+    QCByte gbuf[size];
+    LTC_SET_ASN1(decoded_list, 0, LTC_ASN1_BIT_STRING, gbuf, size);
     der_decode_sequence(data, length, decoded_list, 1);
 
-    QCByte buf[4801];
+    QCByte buf[size];
     size_t bufLength;
 
     ltc_asn1_list node = decoded_list[0];

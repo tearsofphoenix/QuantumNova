@@ -14,11 +14,7 @@
 #include "data.h"
 
 
-QCKeyConfig config = {
-        .length = 4801,
-        .weight = 45,
-        .error = 42
-};
+static QCKeyConfig config;
 
 static QCKeyRef _getPrivateKey() {
     size_t length = config.length;
@@ -239,8 +235,12 @@ static bool file_test() {
     return ret;
 }
 
-void cipher_test() {
+static void _init_test() {
+    config = kQCDefaultKeyConfig;
+}
 
+void cipher_test() {
+    _init_test();
 //    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
 //
 //    QNT("cipher decrypt", NULL, decrypt_test, 1);

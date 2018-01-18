@@ -5,6 +5,7 @@
 #include "QCMessagePrivate.h"
 #include "QCKeyPrivate.h"
 #include "QCArrayPrivate.h"
+#include "QCKey.h"
 #include <tomcrypt.h>
 
 #define kMessageLabel "PQP MESSAGE"
@@ -26,7 +27,7 @@ static struct QCClass kQCMessageClass = {
 
 static QCMessageRef _parseMessageFile(const QCByte *data, size_t length) {
     ltc_asn1_list decoded_list[3];
-    size_t bs = 4801;
+    size_t bs = kQCDefaultKeyConfig.length;
     QCByte c0buf[bs];
     QCByte c1buf[bs];
     QCByte symbuf[bs];
