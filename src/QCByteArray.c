@@ -9,17 +9,17 @@
 
 static void QCByteArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCByteArrayCopy(QCArrayRef array);
-static QCArrayRef QCByteArrayAdd (QCArrayRef x, QCArrayRef y);
-static QCArrayRef QCByteArrayMultiply (QCArrayRef x, double mul);
-static QCArrayRef QCByteArrayRound (QCArrayRef x);
-static QCArrayRef QCByteArrayMod (QCArrayRef x, int mod);
-static size_t QCByteArrayZeroCount (QCArrayRef x);
+static QCArrayRef QCByteArrayAdd (QCArrayRef, QCArrayRef);
+static QCArrayRef QCByteArrayMultiply (QCArrayRef , double );
+static QCArrayRef QCByteArrayRound (QCArrayRef );
+static QCArrayRef QCByteArrayMod (QCArrayRef , int mod);
+static size_t QCByteArrayZeroCount (QCArrayRef );
 static void QCByteArrayAddAt(QCArrayRef x, int index, double value);
 static void QCByteArrayXORAt(QCArrayRef x, int index, int value);
 static void QCByteArraySetAt(QCArrayRef x, int index, double value);
 static double QCByteArrayGetAt(QCArrayRef x, int index);
-static void QCByteArrayPrint(QCArrayRef x);
-static bool QCByteArrayEqual(QCArrayRef x, QCArrayRef y);
+static void QCByteArrayPrint(QCArrayRef );
+static bool QCByteArrayEqual(QCArrayRef , QCArrayRef );
 static double QCByteArrayMax(QCArrayRef array);
 
 static QCArrayRef QCByteArrayGetNoZeroIndices(QCArrayRef array);
@@ -130,8 +130,8 @@ static size_t calcDecodeLength(const char* b64input) { //Calculates the length o
 
 static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //Decodes a base64 encoded string
 
-    int decodeLen = calcDecodeLength(b64message);
-    *buffer = (unsigned char*)QCAllocator(decodeLen + 1);
+    size_t decodeLen = calcDecodeLength(b64message);
+    *buffer = (unsigned char *)QCAllocator(decodeLen + 1);
     (*buffer)[decodeLen] = '\0';
 
     base64_decode(b64message, strlen(b64message), *buffer, length);
@@ -346,7 +346,7 @@ static bool QCByteArrayCompareRaw(QCArrayRef array, const void *expected, QCArra
     return false;
 }
 
-static int byteArrayToInt(QCByte *b) {
+static int byteArrayToInt(const QCByte * b) {
     return (b[0] << 24)
            + ((b[1] & 0xFF) << 16)
            + ((b[2] & 0xFF) << 8)

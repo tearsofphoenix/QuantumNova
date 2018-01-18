@@ -9,17 +9,17 @@
 
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
 static const void *QCInt32ArrayCopy(QCArrayRef array);
-static QCArrayRef QCInt32ArrayAdd (QCArrayRef x, QCArrayRef y);
-static QCArrayRef QCInt32ArrayMultiply (QCArrayRef x, double mul);
-static QCArrayRef QCInt32ArrayRound (QCArrayRef x);
-static QCArrayRef QCInt32ArrayMod (QCArrayRef x, int mod);
-static size_t QCInt32ArrayZeroCount (QCArrayRef x);
+static QCArrayRef QCInt32ArrayAdd (QCArrayRef , QCArrayRef );
+static QCArrayRef QCInt32ArrayMultiply (QCArrayRef , double );
+static QCArrayRef QCInt32ArrayRound (QCArrayRef );
+static QCArrayRef QCInt32ArrayMod (QCArrayRef , int );
+static size_t QCInt32ArrayZeroCount (QCArrayRef );
 static void QCInt32ArrayAddAt(QCArrayRef x, int index, double value);
 static void QCInt32ArrayXORAt(QCArrayRef x, int index, int value);
 static void QCInt32ArraySetAt(QCArrayRef x, int index, double value);
 static double QCInt32ArrayGetAt(QCArrayRef x, int index);
-static void QCInt32ArrayPrint(QCArrayRef x);
-static bool QCInt32ArrayEqual(QCArrayRef x, QCArrayRef y);
+static void QCInt32ArrayPrint(QCArrayRef );
+static bool QCInt32ArrayEqual(QCArrayRef , QCArrayRef );
 static double QCInt32ArrayMax(QCArrayRef array);
 static QCArrayRef QCInt32ArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCInt32ArrayRealParts(QCArrayRef x);

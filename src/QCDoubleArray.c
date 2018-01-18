@@ -5,23 +5,22 @@
 #include <memory.h>
 #include <math.h>
 #include "QCDoubleArray.h"
-#include <fftw3.h>
 
 static const void *QCDoubleArrayCopy(QCArrayRef array);
 
 static void QCDoubleArrayEnumerator(QCArrayRef array, const void *func, const void *ctx);
-static QCArrayRef QCDoubleArrayAdd (QCArrayRef x, QCArrayRef y);
-static QCArrayRef QCDoubleArrayMultiply (QCArrayRef x, double mul);
-static QCArrayRef QCDoubleArrayRound (QCArrayRef x);
-static QCArrayRef QCDoubleArrayMod (QCArrayRef x, int mod);
-static size_t QCDoubleArrayZeroCount (QCArrayRef x);
+static QCArrayRef QCDoubleArrayAdd (QCArrayRef array, QCArrayRef y);
+static QCArrayRef QCDoubleArrayMultiply (QCArrayRef array, double mul);
+static QCArrayRef QCDoubleArrayRound (QCArrayRef array);
+static QCArrayRef QCDoubleArrayMod (QCArrayRef array, int mod);
+static size_t QCDoubleArrayZeroCount (QCArrayRef array);
 static void QCDoubleArrayAddAt(QCArrayRef x, int index, double value);
 static void QCDoubleArrayXORAt(QCArrayRef x, int index, int value);
 static void QCDoubleArraySetAt(QCArrayRef x, int index, double value);
 static double QCDoubleArrayGetAt(QCArrayRef x, int index);
-static double QCDoubleArrayMax(QCArrayRef x);
+static double QCDoubleArrayMax(QCArrayRef array);
 static QCArrayRef QCDoubleArrayRealParts(QCArrayRef x);
-static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef x, QCArrayRef y);
+static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef , QCArrayRef );
 static QCArrayRef QCDoubleArrayGetNoZeroIndices(QCArrayRef array);
 static void QCDoubleArrayPrint(QCArrayRef array);
 static bool QCDoubleArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
