@@ -196,7 +196,9 @@ static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yAr
         if (count % 2 == 1) {
             out[count - 1] = x[count - 1] * y[count - 1];
         }
-        return QCArrayCreateWithDouble(out, count, true);
+        QCArrayRef ret = QCArrayCreateWithDouble(out, count, false);
+        ret->needfree = true;
+        return ret;
     } else {
         int count = xArray->count;
         double *x = xArray->data;
@@ -213,7 +215,9 @@ static QCArrayRef QCDoubleArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yAr
         if (count % 2 == 1) {
             out[count - 1] = x[count - 1] * y[count - 1];
         }
-        return QCArrayCreateWithDouble(out, count, true);
+        QCArrayRef ret = QCArrayCreateWithDouble(out, count, false);
+        ret->needfree = true;
+        return ret;
     }
 }
 

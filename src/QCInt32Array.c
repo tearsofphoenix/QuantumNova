@@ -199,7 +199,9 @@ static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArr
         if (count % 2 == 1) {
             out[count - 1] = x[count - 1] * y[count - 1];
         }
-        return QCArrayCreateWithDouble(out, count, true);
+        QCArrayRef ret = QCArrayCreateWithDouble(out, count, false);
+        ret->needfree = true;
+        return ret;
     } else {
         int count = xArray->count;
         int *x = xArray->data;
@@ -216,7 +218,9 @@ static QCArrayRef QCInt32ArrayComplexMultiply(QCArrayRef xArray, QCArrayRef yArr
         if (count % 2 == 1) {
             out[count - 1] = x[count - 1] * y[count - 1];
         }
-        return QCArrayCreateWithDouble(out, count, true);
+        QCArrayRef ret = QCArrayCreateWithDouble(out, count, false);
+        ret->needfree = true;
+        return ret;
     }
 }
 
@@ -233,8 +237,8 @@ static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array) {
             }
         }
 
-        QCArrayRef ref = QCArrayCreateWithInt(indices, idx, true);
-        QCDeallocate(indices);
+        QCArrayRef ref = QCArrayCreateWithInt(indices, idx, false);
+        ref->needfree = true;
         return ref;
     }
     return NULL;

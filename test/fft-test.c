@@ -21,8 +21,6 @@ static bool fft_test() {
     QCRelease(fft);
     QCRelease(real);
 
-    _QCPrintMemoryLeak();
-
     return result;
 }
 
@@ -44,6 +42,8 @@ static bool complex_multiply_test() {
     QCRelease(tempC0);
     QCRelease(result);
     QCRelease(real);
+    QCRelease(x);
+    QCRelease(y);
 
     return ret;
 }
@@ -123,10 +123,11 @@ void fft_test_all() {
 
     QNT("fft", "", fft_test, count);
 
+    QNT("complex multiply", "", complex_multiply_test, count);
 
-//    QNT("complex multiply", "", complex_multiply_test, count);
-//
-//    QNT("inverse fft", "", inverse_fft_test, count);
+    QNT("inverse fft", "", inverse_fft_test, count);
+    _QCPrintMemoryLeak();
+
 //
 //    QNT("square sparse", "", square_sparse_test, count);
 //
