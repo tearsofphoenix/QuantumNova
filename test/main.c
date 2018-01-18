@@ -15,13 +15,12 @@ int main() {
 
     fft_test_all();
 
-    cipher_test();
+//    cipher_test();
 
-    array_test();
+//    array_test();
 
 //    key_test();
 
-    _QCPrintMemoryLeak();
 
     return 0;
 }

@@ -160,5 +160,6 @@ void QCArrayXORAt(QCArrayRef array, int index, int value) {
 void QCArrayDeallocate(QCArrayRef array) {
     if (array && array->needfree) {
         QCDeallocate(array->data);
+        QCDeallocate(array);
     }
 }

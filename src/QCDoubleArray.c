@@ -171,7 +171,9 @@ static QCArrayRef QCDoubleArrayRealParts(QCArrayRef x) {
             out[i / 2] = temp;
             out[count - i / 2] = temp;
         }
-        return QCArrayCreateWithDouble(out, count, true);
+        QCArrayRef ret = QCArrayCreateWithDouble(out, count, false);
+        ret->needfree = true;
+        return ret;
     }
     return NULL;
 }

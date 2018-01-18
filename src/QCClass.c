@@ -42,8 +42,10 @@ void _QCPrintMemoryLeak() {
     kNeedRecordMemory = false;
     int total = 0;
     for (int i = 0; i < kMaxCount; ++i) {
-        if (kMemoryRecords[i].p) {
-            total += kMemoryRecords[i].size;
+        QCMemoryRecord *r = &kMemoryRecords[i];
+        if (r->p) {
+            total += r->size;
+            printf("leak: %p, size: %d \n", r->p, r->size);
         }
     }
     printf("total leak: %d bytes.\n", total);

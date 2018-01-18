@@ -6,8 +6,7 @@
 #include "data.h"
 #include "src/QCArrayPrivate.h"
 #include "src/QNTest.h"
-
-typedef void (* QCTestFunc)(void);
+#include "src/QCObjectPrivate.h"
 
 static bool fft_test() {
     size_t size = sizeof(H0) / sizeof(H0[0]);
@@ -21,6 +20,8 @@ static bool fft_test() {
     QCRelease(array);
     QCRelease(fft);
     QCRelease(real);
+
+    _QCPrintMemoryLeak();
 
     return result;
 }
@@ -122,13 +123,14 @@ void fft_test_all() {
 
     QNT("fft", "", fft_test, count);
 
-    QNT("complex multiply", "", complex_multiply_test, count);
 
-    QNT("inverse fft", "", inverse_fft_test, count);
-
-    QNT("square sparse", "", square_sparse_test, count);
-
-    QNT("mul_poly", "", mul_poly_test, count);
-
-    QNT("exp_poly", "", exp_poly_test, count);
+//    QNT("complex multiply", "", complex_multiply_test, count);
+//
+//    QNT("inverse fft", "", inverse_fft_test, count);
+//
+//    QNT("square sparse", "", square_sparse_test, count);
+//
+//    QNT("mul_poly", "", mul_poly_test, count);
+//
+//    QNT("exp_poly", "", exp_poly_test, count);
 }
