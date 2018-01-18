@@ -4,36 +4,28 @@
 
 #include "fft-test.h"
 #include "data.h"
-#include "cipher-test.h"
 #include "src/QCArrayPrivate.h"
-#include "array-test.h"
-#include <openssl/bn.h>
-#include <fftw3.h>
-#include <stdio.h>
-#include <math.h>
+#include "src/QNTest.h"
 
 typedef void (* QCTestFunc)(void);
 
-static void fft_test() {
-    printf("-----------FFT test--------------\n");
-
+static bool fft_test() {
     size_t size = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
     QCArrayRef fft = QCArrayFFT(array);
     QCArrayRef real = QCArrayGetRealParts(fft);
     QCArrayRound(real);
-    if(QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble)) {
-        printf("FFT test passed.\n");
-    }
+    bool result = QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble);
 
     QCRelease(array);
     QCRelease(fft);
     QCRelease(real);
+
+    return result;
 }
 
-static void complex_multiply_test() {
-    printf("-----------complex multiply test--------------\n");
+static bool complex_multiply_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
@@ -44,50 +36,46 @@ static void complex_multiply_test() {
     QCArraySetCount(result, count);
     QCArrayRef real = QCArrayGetRealParts(result);
     QCArrayRound(real);
-    if(QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble)) {
-        printf("complex multiply test passed\n");
-    }
+
+    bool ret = QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(tempC0);
     QCRelease(result);
     QCRelease(real);
+
+    return ret;
 }
 
-static void inverse_fft_test() {
-
-    printf("-----------inverse FFT test--------------\n");
+static bool inverse_fft_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
     QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef x = QCArrayFFT(tempH0);
     QCArrayRef result = QCArrayInverseFFT(x);
     QCArrayRound(result);
-    if(QCArrayCompareRaw(result, H0, QCDTDouble)) {
-        printf("inverse FFT test passed.\n");
-    }
+    bool ret = QCArrayCompareRaw(result, H0, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(x);
     QCRelease(result);
+    return ret;
 }
 
-static void square_sparse_test() {
-    printf("-----------square sparse test--------------\n");
+static bool square_sparse_test() {
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
     QCArrayRef array = QCArrayCreateWithDouble(H0, count, true);
     QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
-    if(QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble)) {
-        printf("square sparse test passed.\n");
-    }
+    bool ret = QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble);
 
     QCRelease(array);
     QCRelease(tempH0);
+
+    return ret;
 }
 
-static void mul_poly_test() {
-    printf("-----------mul_poly test--------------\n");
+static bool mul_poly_test() {
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
@@ -95,18 +83,16 @@ static void mul_poly_test() {
     QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
     QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
 
-    if(QCArrayCompareRaw(result, kMulPoly, QCDTDouble)) {
-        printf("mul_poly test passed.\n");
-    }
+    bool ret = QCArrayCompareRaw(result, kMulPoly, QCDTDouble);
 
     QCRelease(tempH0);
     QCRelease(tempC0);
     QCRelease(result);
+
+    return ret;
 }
 
-static void exp_poly_test() {
-    printf("-----------exp_poly test--------------\n");
-
+static bool exp_poly_test() {
     size_t count = sizeof(kExpInput) / sizeof(kExp20[0]);
     QCArrayRef tempH0 = QCArrayCreateWithDouble(kExpInput, count, true);
 
@@ -121,32 +107,27 @@ static void exp_poly_test() {
     BN_sub(n, n, base);
 
     QCArrayRef result = QCArrayExpPoly(tempH0, n);
-    if(QCArrayCompareRaw(result, kExp20, QCDTDouble)) {
-        printf("exp_poly test passed\n");
-    }
+    bool ret = QCArrayCompareRaw(result, kExp20, QCDTDouble);
 
     BN_free(base);
     BN_free(exp);
     BN_free(n);
     BN_CTX_free(bnCTX);
-}
 
-static void loop_test(QCTestFunc func, size_t count) {
-    for (size_t i = 0; i < count; ++i) {
-        func();
-    }
+    return ret;
 }
 
 void fft_test_all(size_t count) {
-    loop_test(fft_test, count);
 
-    loop_test(complex_multiply_test, count);
+    QNT("fft", "", fft_test, count);
 
-    loop_test(inverse_fft_test, count);
+    QNT("complex multiply", "", complex_multiply_test, count);
 
-    loop_test(square_sparse_test, count);
+    QNT("inverse fft", "", inverse_fft_test, count);
 
-    loop_test(mul_poly_test, count);
+    QNT("square sparse", "", square_sparse_test, count);
 
-    loop_test(exp_poly_test, count);
+    QNT("mul_poly", "", mul_poly_test, count);
+
+    QNT("exp_poly", "", exp_poly_test, count);
 }

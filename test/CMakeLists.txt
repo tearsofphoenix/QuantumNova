@@ -1,7 +1,7 @@
 
 include_directories(../)
 
-add_executable(fft-test fft-test.c fft-test.h data.h cipher-test.c cipher-test.h array-test.c array-test.h key-test.c key-test.h main.c)
+add_executable(fft-test fft-test.c fft-test.h data.h cipher-test.c cipher-test.h array-test.c array-test.h key-test.c key-test.h main.c test.h)
 
 #configure_file(data.txt ${CMAKE_CURRENT_BINARY_DIR}/data.txt COPYONLY)
 #configure_file(enc.data ${CMAKE_CURRENT_BINARY_DIR}/enc.data COPYONLY)
