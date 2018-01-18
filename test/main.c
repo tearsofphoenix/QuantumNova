@@ -17,8 +17,6 @@ int main() {
 
     cipher_test();
 
-    _QCPrintMemoryLeak();
-
 //    array_test();
 
 //    key_test();

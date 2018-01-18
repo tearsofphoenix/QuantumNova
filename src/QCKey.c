@@ -15,7 +15,7 @@ QCKeyConfig kQCDefaultKeyConfig = {
         .error = 42
 };
 
-static void QCKeyDeallocate(QCKeyRef key);
+static void QCKeyDeallocate(QCObjectRef obj);
 static QCKeyRef QCKeyCopy(QCKeyRef key);
 static void QCKeyPrint(QCKeyRef key);
 static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2);
@@ -65,12 +65,14 @@ static QCKeyRef QCKeyCopy(QCKeyRef key) {
     return NULL;
 }
 
-static void QCKeyDeallocate(QCKeyRef key) {
+static void QCKeyDeallocate(QCObjectRef obj) {
+    QCKeyRef key = obj;
     if (key) {
         QCRelease(key->h0);
         QCRelease(key->h1);
         QCRelease(key->h1inv);
         QCRelease(key->g);
+        QCDeallocate(key);
     }
 }
 

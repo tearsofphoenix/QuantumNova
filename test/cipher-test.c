@@ -7,6 +7,7 @@
 #include <memory.h>
 #include <src/QCKey.h>
 #include <src/QCCipherPrivate.h>
+#include <src/QCObjectPrivate.h>
 #include "cipher-test.h"
 #include "src/QCMessagePrivate.h"
 #include "src/QCKeyPrivate.h"
@@ -50,6 +51,7 @@ static bool cipher_syndrome_test() {
     QCRelease(c0);
     QCRelease(c1);
     QCRelease(result);
+    QCRelease(cipher);
 
     return ret;
 }
@@ -269,18 +271,19 @@ static void _init_test() {
 void cipher_test() {
     _init_test();
     QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
+    _QCPrintMemoryLeak();
 
-    QNT("cipher decrypt", NULL, decrypt_test, 1);
-
-    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
-
-    QNT("cipher mac", NULL, mac_test, 1);
-
-    QNT("cipher encrypt", NULL, encrypt_test, 1);
-
-    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
-
-    QNT("key pair", NULL, key_pair_test, 1);
+//    QNT("cipher decrypt", NULL, decrypt_test, 1);
+//
+//    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+//
+//    QNT("cipher mac", NULL, mac_test, 1);
+//
+//    QNT("cipher encrypt", NULL, encrypt_test, 1);
+//
+//    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
+//
+//    QNT("key pair", NULL, key_pair_test, 1);
 
 //    QNT("cipher file", NULL, file_test, 1);
 }

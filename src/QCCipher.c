@@ -290,6 +290,10 @@ static void QCCipherDeallocate(QCObjectRef object) {
     if (object) {
         QCRelease(cipher->privateKey);
         QCRelease(cipher->publicKey);
+        QCRelease(cipher->saltA);
+        QCRelease(cipher->saltB);
+        QCRelease(cipher->ivSalt);
+        QCDeallocate(cipher);
     }
 }
 

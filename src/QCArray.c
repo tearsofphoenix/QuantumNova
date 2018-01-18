@@ -11,7 +11,7 @@
 #include <math.h>
 
 QCArrayRef QCArrayCreate(int count) {
-    return QCArrayCreateWithDouble(NULL, count, false);
+    return QCArrayCreateWithDouble(NULL, count, true);
 }
 
 QCArrayRef QCArrayCreateWithDouble(const double *array, size_t count, bool needCopy) {
@@ -180,7 +180,7 @@ QCArrayRef QCArrayExpPoly(QCArrayRef array, BIGNUM *n) {
     size_t length = array->count;
     QCArrayRef y = QCArrayCreate(length);
     QCArraySetValueAt(y, 0, 1);
-    QCArrayRef x = array;
+    QCArrayRef x = QCArrayCreateCopy(array);
 
     BN_CTX *ctx = BN_CTX_new();
     BIGNUM *one = NULL;
