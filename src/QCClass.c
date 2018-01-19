@@ -29,7 +29,7 @@ struct QCMemoryRecord {
 
 typedef struct QCMemoryRecord QCMemoryRecord;
 
-static const size_t kMaxCount = 48000;
+#define kMaxCount 48000
 
 static QCMemoryRecord kMemoryRecords[kMaxCount] = {{NULL, 0}};
 
