@@ -9,19 +9,28 @@
 #define kMessageLabel "PQP MESSAGE"
 
 static QCMessageRef QCMessageCopy(QCMessageRef message);
-
+static void QCMessageDeallocate(QCMessageRef message);
 static void QCMessagePrint(QCMessageRef message);
 
 static struct QCClass kQCMessageClass = {
         .base = NULL,
         .name = "QCMessage",
         .allocator = QCAllocator,
-        .deallocate = QCDeallocate,
+        .deallocate = QCMessageDeallocate,
         .size = sizeof(struct QCMessage),
         .copy = QCMessageCopy,
         .print = QCMessagePrint
 };
 
+static void QCMessageDeallocate(QCMessageRef message) {
+    if (message) {
+        QCRelease(message->c0);
+        QCRelease(message->c1);
+        QCRelease(message->sym);
+
+        QCDeallocate(message);
+    }
+}
 
 static QCMessageRef _parseMessageFile(const QCByte *data, size_t length) {
 

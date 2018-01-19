@@ -129,18 +129,18 @@ static bool encrypt_test() {
     QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
     QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
 
-//    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-//    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
+    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
 
     QCRelease(g);
     QCRelease(privateKey);
     QCRelease(stream);
     QCRelease(enc);
-//    QCRelease(array);
+    QCRelease(array);
     QCRelease(publicKey);
     QCRelease(cipher);
 
-    return true;
+    return ret;
 }
 
 static bool aes_cbc_test()
@@ -272,13 +272,13 @@ static void _init_test() {
 
 void cipher_test() {
     _init_test();
-    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
-
-    QNT("cipher decrypt", NULL, decrypt_test, 1);
-
-    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
-
-    QNT("cipher mac", NULL, mac_test, 1);
+//    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
+//
+//    QNT("cipher decrypt", NULL, decrypt_test, 1);
+//
+//    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+//
+//    QNT("cipher mac", NULL, mac_test, 1);
 
     QNT("cipher encrypt", NULL, encrypt_test, 1);
     _QCPrintMemoryLeak();

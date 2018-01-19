@@ -62,10 +62,14 @@ void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef random, QCArrayRef *u, QCArr
     QCArrayAddArray(temp, t);
     QCArrayMod(temp, 2);
 
+    QCRelease(t);
+
     QCArrayRef t2 = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
     QCArrayRef copy = QCArrayCreateCopy(random);
     QCArrayAddArray(copy, t2);
     QCArrayMod(copy, 2);
+
+    QCRelease(t2);
 
     *u = copy;
     *v = temp;
