@@ -193,8 +193,8 @@ static bool mac_test() {
     QCByte mac[] = {0xc4, 0x70, 0xe4, 0x73, 0xc6, 0x2e, 0xfb, 0xfe, 0x62, 0x70, 0x8d, 0x2e, 0x51, 0xa2, 0x43, 0x51,
                     0x97, 0xce, 0xdf, 0x9e, 0x95, 0x73, 0xd0, 0xf0, 0x6f, 0xb0, 0x79, 0x18, 0xb1, 0x97, 0x69, 0x35};
     QCArrayRef m = QCArrayCreateWithByte(message, sizeof(message), true);
-    QCArrayRef t = QCArrayCreateWithByte(token, sizeof(token), false);
-    QCArrayRef k = QCArrayCreateWithByte(keyB, sizeof(keyB), false);
+    QCArrayRef t = QCArrayCreateWithByte(token, sizeof(token), true);
+    QCArrayRef k = QCArrayCreateWithByte(keyB, sizeof(keyB), true);
     QCArrayAppend(m, t);
     QCArrayAppend(m, k);
 
@@ -276,14 +276,13 @@ void cipher_test() {
 
     QNT("cipher decrypt", NULL, decrypt_test, 1);
 
+    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+
+    QNT("cipher mac", NULL, mac_test, 1);
+
+    QNT("cipher encrypt", NULL, encrypt_test, 1);
     _QCPrintMemoryLeak();
 
-//
-//    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
-//
-//    QNT("cipher mac", NULL, mac_test, 1);
-//
-//    QNT("cipher encrypt", NULL, encrypt_test, 1);
 //
 //    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
 //

@@ -110,8 +110,10 @@ static void CLASS ## Append(QCArrayRef array, QCArrayRef other) { \
             if (array->needfree) { \
                 QCDeallocate(array->data); \
             } \
+            array->needfree = true; \
             array->data = p; \
             array->count += co->count; \
+            if (co != other) { QCRelease(co); } \
         } \
     } \
 } \
