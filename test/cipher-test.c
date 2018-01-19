@@ -286,7 +286,6 @@ void cipher_test() {
     QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
 
     QNT("key pair", NULL, key_pair_test, 1);
-    _QCPrintMemoryLeak();
 
 //    QNT("cipher file", NULL, file_test, 1);
 }

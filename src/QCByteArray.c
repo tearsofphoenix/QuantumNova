@@ -85,6 +85,7 @@ const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy)
         }
     } else {
         array->data = _QCMallocData(type, 1, NULL);
+        array->needfree = true;
     }
     array->count = count;
     array->fft = false;
