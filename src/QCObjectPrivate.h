@@ -13,6 +13,8 @@ extern QC_STRONG QCObjectRef _QCRetain(QCObjectRef object);
 
 extern void _QCRelease(QCObjectRef object);
 
+extern void _QCTagMemory(const void *p, const char *tag);
+
 extern void _QCStartMemoryRecord();
 
 extern void _QCPrintMemoryLeak();

@@ -23,6 +23,7 @@ const QCClassRef kQCBaseClassRef = &kBaseClass;
 
 struct QCMemoryRecord {
     const void *p;
+    const char *tag;
     size_t size;
 };
 
@@ -45,7 +46,11 @@ void _QCPrintMemoryLeak() {
         QCMemoryRecord *r = &kMemoryRecords[i];
         if (r->p) {
             total += r->size;
-            printf("leak: %p, size: %d \n", r->p, r->size);
+            if (r->tag) {
+                printf("leak: <%s %p>, size: %d \n", r->tag, r->p, r->size);
+            } else {
+                printf("leak: %p, size: %d \n", r->p, r->size);
+            }
         }
     }
     printf("total leak: %d bytes.\n", total);
@@ -67,6 +72,17 @@ static int _findMemoryIndex(QCMemoryRecord *list, size_t count, const void *p) {
         }
     }
     return -1;
+}
+
+void _QCTagMemory(const void *p, const char *tag) {
+    if (kNeedRecordMemory) {
+        int idx = _findMemoryIndex(kMemoryRecords, kMaxCount, p);
+        if (idx != -1) {
+            kMemoryRecords[idx].tag = tag;
+        } else {
+            printf("Warning: %p not in record!\n", p);
+        }
+    }
 }
 
 void *QCAllocator(size_t size) {

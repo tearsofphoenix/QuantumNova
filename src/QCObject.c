@@ -10,6 +10,7 @@ QCObjectRef QCAllocate(QCClassRef classRef) {
         QCObject obj = classRef->allocator(classRef->size);
         obj->isa = classRef;
         obj->retainCount = 1;
+        _QCTagMemory(obj, classRef->name);
         return obj;
     }
     return NULL;
