@@ -29,6 +29,7 @@ static QCArrayRef QCDoubleArraySlice(QCArrayRef array, size_t start, size_t end)
 static QCArrayRef QCDoubleArrayConvert(QCArrayRef array, QCArrayDataType type);
 static QCArrayRef QCDoubleArrayPack(QCArrayRef array);
 static bool QCDoubleArrayEqual(QCArrayRef array, QCArrayRef y);
+static bool QCDoubleArraySaveFile(QCArrayRef array, FILE *fp);
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -57,7 +58,8 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .slice = QCDoubleArraySlice,
         .convert = QCDoubleArrayConvert,
         .pack = QCDoubleArrayPack,
-        .equal = QCDoubleArrayEqual
+        .equal = QCDoubleArrayEqual,
+        .saveFile = QCDoubleArraySaveFile
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;
@@ -87,6 +89,17 @@ QCArrayRef QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy
         return array;
     }
     return NULL;
+}
+
+QCArrayRef QCDoubleArrayFromFile(FILE *fp) {
+    size_t count = 0;
+    fread(&count, sizeof(size_t), 1, fp);
+    double *data = QCAllocator(sizeof(double) * count);
+    fread(data, sizeof(double), count, fp);
+    QCArrayRef ref = QCArrayCreateWithDouble(data, count, false);
+    ref->needfree = true;
+
+    return ref;
 }
 
 static const void *QCDoubleArrayCopy(QCArrayRef array) {

@@ -11,6 +11,8 @@ typedef void (* QCByteArrayLoopFunc)(QCByte value, size_t idx, const void *ctx);
 
 const void *QCByteArrayCreate(const void *initData, size_t count, bool needCopy);
 
+extern QC_STRONG QCArrayRef QCByteArrayFromFile(FILE *fp);
+
 /*
  * create byte array from hex string
  */

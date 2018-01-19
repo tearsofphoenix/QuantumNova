@@ -47,4 +47,14 @@ extern QC_STRONG QCArrayRef _decodeBitString(ltc_asn1_list *node);
 
 extern QC_STRONG QCArrayRef _decodeOCTString(ltc_asn1_list *node);
 
+/*
+ * save key to file (base64 format)
+ */
+extern bool QCKeySaveToFile(QCKeyRef key, const char *path);
+
+/*
+ * load key from file (base64 format)
+ */
+extern QCKeyRef QCKeyCreateFromFile(const char *path);
+
 #endif //PQC_CRYPTO_QCKEYPRIVATE_H

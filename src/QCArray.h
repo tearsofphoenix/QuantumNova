@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
 #include "QCClass.h"
 
 typedef enum {
@@ -47,6 +48,16 @@ extern QC_STRONG QCArrayRef QCArrayCreateWithHex(const char *hexString, size_t l
  * create QCArray from base64 string
  */
 extern QC_STRONG QCArrayRef QCArrayCreateWithBase64(const char *base64String, size_t length);
+
+/*
+ * load array from file
+ */
+extern QC_STRONG QCArrayRef QCArrayFromFile(FILE *fp);
+
+/*
+ * save array to file
+ */
+extern QC_STRONG bool QCArraySaveToFile(QCArrayRef array, FILE *fp);
 
 /*
  * do PKCS7 encode on array
@@ -197,5 +208,6 @@ extern QC_STRONG QCArrayRef QCArraySquareSparsePoly(QCArrayRef array, int times)
  * mul poly
  */
 extern QC_STRONG QCArrayRef QCArrayMulPoly(QCArrayRef x, QCArrayRef y);
+
 
 #endif //PQC_CRYPTO_QCARRAY_H

@@ -31,6 +31,7 @@ static void QCByteArrayAppend(QCArrayRef array, QCArrayRef other);
 static QCArrayRef QCByteArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type);
 static QCArrayRef QCByteArrayPack(QCArrayRef array);
+static bool QCByteArraySaveFile(QCArrayRef array, FILE *fp);
 
 static struct QCArrayClass kQCByteArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -59,7 +60,8 @@ static struct QCArrayClass kQCByteArrayClass = {
         .append = QCByteArrayAppend,
         .convert = QCByteArrayConvert,
         .slice = QCByteArraySlice,
-        .pack = QCByteArrayPack
+        .pack = QCByteArrayPack,
+        .saveFile = QCByteArraySaveFile
 };
 
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;
@@ -117,6 +119,16 @@ QCArrayRef QCByteArrayCreateWithHex(const char *hexString, size_t length) {
     return array;
 }
 
+QCArrayRef QCByteArrayFromFile(FILE *fp) {
+    size_t count = 0;
+    fread(&count, sizeof(size_t), 1, fp);
+    QCByte *data = QCAllocator(sizeof(QCByte ) * count);
+    fread(data, sizeof(QCByte), count, fp);
+    QCArrayRef ref = QCArrayCreateWithByte(data, count, false);
+    ref->needfree = true;
+
+    return ref;
+}
 
 static size_t calcDecodeLength(const char* b64input) { //Calculates the length of a decoded string
     size_t len = strlen(b64input),

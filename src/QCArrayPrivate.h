@@ -33,6 +33,7 @@ typedef void (* QCArrayAppendFunc)(QCArrayRef array, QCArrayRef other);
 typedef QCArrayRef (* QCArraySliceFunc)(QCArrayRef array, size_t start, size_t end);
 typedef QCArrayRef (* QCArrayConvertFunc)(QCArrayRef array, QCArrayDataType type);
 typedef QCArrayRef (* QCArrayPackFunc)(QCArrayRef array);
+typedef bool (* QCByteArraySaveFileFunc)(QCArrayRef array, FILE *fp);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -57,6 +58,7 @@ struct QCArrayClass {
     QCArrayConvertFunc convert;
     QCArraySliceFunc slice;
     QCArrayPackFunc pack;
+    QCByteArraySaveFileFunc saveFile;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -137,7 +139,14 @@ static QCArrayRef CLASS ## Pack(QCArrayRef array) { \
     QCArrayRef result = QCArraySHA512(a1); \
     QCRelease(a1); \
     return result; \
-}
+} \
+static bool CLASS ## SaveFile(QCArrayRef array, FILE *fp) { \
+    QCArrayDataType type = array->datatype; \
+    fwrite(&type, sizeof(QCArrayDataType), 1, fp); \
+    fwrite(&array->count, sizeof(size_t), 1, fp); \
+    fwrite(array->data, sizeof(TYPE), array->count, fp); \
+    return true; \
+} \
 
 #endif
 

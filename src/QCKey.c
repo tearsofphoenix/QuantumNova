@@ -9,6 +9,9 @@
 #include <tomcrypt.h>
 #include <math.h>
 
+static const char *kPrivateKeyTag = "QNPVK";
+static const char *kPublicKeyTag = "QNPBK";
+
 QCKeyConfig kQCDefaultKeyConfig = {
         .length = 4801,
         .weight = 45,
@@ -347,7 +350,7 @@ static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
     QCDeallocate(buffer);
 }
 
-void QCKeySaveToFile(QCKeyRef key, const char *path) {
+void QCKeySaveToPEMFile(QCKeyRef key, const char *path) {
     if (key && path) {
         if (key->h0) {
             // is private key
@@ -357,4 +360,89 @@ void QCKeySaveToFile(QCKeyRef key, const char *path) {
             _savePublicKeyToPath(key, path);
         }
     }
+}
+
+/*
+ * custom save & parse
+ */
+bool QCKeySaveToFile(QCKeyRef key, const char *path) {
+    FILE *f = fopen(path, "wb");
+    const char *tag = NULL;
+    if (key->g) {
+        // public key
+        tag = kPublicKeyTag;
+        fwrite(tag, sizeof(char), strlen(tag), f);
+
+        fwrite(&key->length, sizeof(size_t), 1, f);
+        fwrite(&key->weight, sizeof(size_t), 1, f);
+        fwrite(&key->error, sizeof(size_t), 1, f);
+
+        QCArraySaveToFile(key->g, f);
+    } else {
+        tag = kPrivateKeyTag;
+        fwrite(tag, sizeof(char), strlen(tag), f);
+
+        fwrite(&key->length, sizeof(size_t), 1, f);
+        fwrite(&key->weight, sizeof(size_t), 1, f);
+        fwrite(&key->error, sizeof(size_t), 1, f);
+
+        QCArraySaveToFile(key->h0, f);
+        QCArraySaveToFile(key->h1, f);
+        QCArraySaveToFile(key->h1inv, f);
+    }
+
+    fclose(f);
+    return true;
+}
+
+QCKeyRef QCKeyCreateFromFile(const char *path) {
+    FILE *f = fopen(path, "rb");
+    size_t len = 5;
+    const char *tag = QCAllocator(sizeof(char) * (5 + 1));
+    fread(tag, sizeof(char), len, f);
+    if (strcmp(tag, kPrivateKeyTag) == 0) {
+
+        size_t length = 0;
+        fread(&length, sizeof(size_t), 1, f);
+        size_t weight = 0;
+        fread(&weight, sizeof(size_t), 1, f);
+        size_t error = 0;
+        fread(&error, sizeof(size_t), 1, f);
+
+        // private key
+        QCArrayRef h0 = QCArrayFromFile(f);
+        QCArrayRef h1 = QCArrayFromFile(f);
+        QCArrayRef h1inv = QCArrayFromFile(f);
+
+        QCKeyConfig config = {length, weight, error};
+        QCKeyRef key = QCKeyCreatePrivate(h0, h1, h1inv, config);
+        QCRelease(h0);
+        QCRelease(h1);
+        QCRelease(h1inv);
+
+        fclose(f);
+        QCDeallocate(tag);
+
+        return key;
+    } else {
+
+        size_t length = 0;
+        fread(&length, sizeof(size_t), 1, f);
+        size_t weight = 0;
+        fread(&weight, sizeof(size_t), 1, f);
+        size_t error = 0;
+        fread(&error, sizeof(size_t), 1, f);
+
+        QCArrayRef g = QCArrayFromFile(f);
+
+        QCKeyConfig config = {length, weight, error};
+        QCKeyRef pubkey = QCKeyCreatePublic(g, config);
+        QCRelease(g);
+
+        fclose(f);
+        QCDeallocate(tag);
+
+        return pubkey;
+    }
+
 }

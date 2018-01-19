@@ -19,10 +19,9 @@ int main() {
 
     array_test();
 
+    key_test();
+
     _QCPrintMemoryLeak();
-
-//    key_test();
-
 
     return 0;
 }

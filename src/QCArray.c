@@ -34,6 +34,26 @@ QCArrayRef QCArrayPKCS7Decode(QCArrayRef array) {
     return QCByteArrayPKCS7Decode(array);
 }
 
+QCArrayRef QCArrayFromFile(FILE *fp) {
+    QCArrayDataType type;
+    fread(&type, sizeof(QCArrayDataType), 1, fp);
+    switch (type) {
+        case QCDTInt: {
+            return QCInt32ArrayFromFile(fp);
+        }
+        case QCDTByte: {
+            return QCByteArrayFromFile(fp);
+        }
+        default: {
+            return QCDoubleArrayFromFile(fp);
+        }
+    }
+    return NULL;
+}
+
+bool QCArraySaveToFile(QCArrayRef array, FILE *fp) {
+    return ((QCArrayClassRef)array->isa)->saveFile(array, fp);
+}
 
 QCArrayRef QCArrayCreateCopy(QCArrayRef array) {
     if (array) {

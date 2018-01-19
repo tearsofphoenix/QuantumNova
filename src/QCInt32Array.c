@@ -28,6 +28,7 @@ static QCArrayRef QCInt32ArrayGetNoZeroIndices(QCArrayRef array);
 static QCArrayRef QCInt32ArraySHA256(QCArrayRef array);
 static bool QCInt32ArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 static QCArrayRef QCInt32ArrayPack(QCArrayRef array);
+static bool QCInt32ArraySaveFile(QCArrayRef array, FILE *fp);
 
 static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -55,7 +56,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .slice = QCInt32ArraySlice,
         .sha256 = QCInt32ArraySHA256,
         .compareRaw = QCInt32ArrayCompareRaw,
-        .pack = QCInt32ArrayPack
+        .pack = QCInt32ArrayPack,
+        .saveFile = QCInt32ArraySaveFile
 };
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;
@@ -94,6 +96,16 @@ static const void *QCInt32ArrayCopy(QCArrayRef array) {
     return NULL;
 }
 
+QCArrayRef QCInt32ArrayFromFile(FILE *fp) {
+    size_t count = 0;
+    fread(&count, sizeof(size_t), 1, fp);
+    int *data = QCAllocator(sizeof(int) * count);
+    fread(data, sizeof(int), count, fp);
+    QCArrayRef ref = QCArrayCreateWithInt(data, count, false);
+    ref->needfree = true;
+
+    return ref;
+}
 
 static void QCInt32ArrayEnumerator(QCArrayRef array, const void *func, const void *ctx) {
     QCInt32LoopFunc f = func;

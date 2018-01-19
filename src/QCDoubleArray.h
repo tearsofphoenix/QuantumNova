@@ -13,5 +13,6 @@ extern const QCClassRef kQCDoubleArrayClassRef;
 
 extern QC_STRONG QCArrayRef QCDoubleArrayCreate(const void *initData, size_t count, bool needCopy);
 
+extern QC_STRONG QCArrayRef QCDoubleArrayFromFile(FILE *fp);
 
 #endif //PQC_CRYPTO_QCDOUBLEARRAY_H
