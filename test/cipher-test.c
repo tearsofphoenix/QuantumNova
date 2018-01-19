@@ -108,6 +108,7 @@ static bool decrypt_message_test() {
     QCRelease(message);
     QCRelease(array);
     QCRelease(privateKey);
+    QCRelease(streamArray);
 
     return ret;
 }
@@ -272,21 +273,20 @@ static void _init_test() {
 
 void cipher_test() {
     _init_test();
-//    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
-//
-//    QNT("cipher decrypt", NULL, decrypt_test, 1);
-//
-//    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
-//
-//    QNT("cipher mac", NULL, mac_test, 1);
+    QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
+
+    QNT("cipher decrypt", NULL, decrypt_test, 1);
+
+    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+
+    QNT("cipher mac", NULL, mac_test, 1);
 
     QNT("cipher encrypt", NULL, encrypt_test, 1);
-    _QCPrintMemoryLeak();
 
-//
-//    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
-//
-//    QNT("key pair", NULL, key_pair_test, 1);
+    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
+
+    QNT("key pair", NULL, key_pair_test, 1);
+    _QCPrintMemoryLeak();
 
 //    QNT("cipher file", NULL, file_test, 1);
 }

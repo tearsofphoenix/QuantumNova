@@ -437,6 +437,8 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
     QCRelease(decrypted_keyA);
     QCRelease(decrypted_iv);
     QCRelease(decrypted_keyB);
+    QCRelease(decrypted_token);
+    QCRelease(sem);
 
     if (QCObjectEqual(receiver_mac, decrypted_mac)) {
 
