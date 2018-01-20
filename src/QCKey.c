@@ -12,10 +12,28 @@
 static const char *kPrivateKeyTag = "QNPVK";
 static const char *kPublicKeyTag = "QNPBK";
 
+/*
+ * 80bit security
+ */
 QCKeyConfig kQCDefaultKeyConfig = {
         .length = 4801,
         .weight = 45,
         .error = 42
+};
+
+QCKeyConfig kQC128BitKeyConfig = {
+        .length = 9857,
+        .weight = 70,
+        .error = 67,
+};
+
+/*
+ * 256bit security key config
+ */
+QCKeyConfig kQC256BitKeyConfig = {
+        .length = 32771,
+        .weight = 135,
+        .error = 132,
 };
 
 static void QCKeyDeallocate(QCObjectRef obj);

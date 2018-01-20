@@ -8,11 +8,8 @@
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "QCMessagePrivate.h"
-#include "../test/data.h"
-#include <tomcrypt.h>
 #include <math.h>
 #include <stdio.h>
-#include <memory.h>
 
 static QCByte kSaltA[] = {"this is just a salt"};
 static QCByte kSaltB[] = {"this is another a salt"};
@@ -194,7 +191,7 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
 
         // we have reach the upper bound on rounds
         if (r >= rounds) {
-            printf("Decryption error");
+            printf("Decryption error.\n");
             break;
         }
         r += 1;
@@ -204,12 +201,6 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
             threshold = max_unsat - delta;
         }
 
-        if (round_unsat_H0) {
-            QCRelease(round_unsat_H0);
-        }
-        if (round_unsat_H1) {
-            QCRelease(round_unsat_H1);
-        }
         round_unsat_H0 = QCArrayCreateCopy(unsat_H0);
         round_unsat_H1 = QCArrayCreateCopy(unsat_H1);
 

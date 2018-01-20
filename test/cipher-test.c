@@ -14,10 +14,8 @@
 #include "src/QNTest.h"
 #include "data.h"
 
-
-static QCKeyConfig config;
-
 static QC_STRONG QCKeyRef _getPrivateKey() {
+    QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
     QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
@@ -33,7 +31,7 @@ static QC_STRONG QCKeyRef _getPrivateKey() {
 }
 
 static bool cipher_syndrome_test() {
-
+    QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
 
     QCKeyRef privateKey = _getPrivateKey();
@@ -57,7 +55,7 @@ static bool cipher_syndrome_test() {
 }
 
 static bool decrypt_test() {
-
+    QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
 
     QCKeyRef privateKey = _getPrivateKey();
@@ -81,6 +79,7 @@ static bool decrypt_test() {
 }
 
 static bool decrypt_message_test() {
+    QCKeyConfig config = kQCDefaultKeyConfig;
     QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
@@ -114,7 +113,7 @@ static bool decrypt_message_test() {
 }
 
 static bool encrypt_test() {
-
+    QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
     QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
@@ -240,10 +239,10 @@ static bool file_test() {
     return ret;
 }
 
-static bool key_pair_test() {
+static bool _key_test(QCKeyConfig config1) {
     QCKeyRef privKey = NULL;
     QCKeyRef pubKey = NULL;
-    QCKeyGeneratePair(kQCDefaultKeyConfig, &privKey, &pubKey);
+    QCKeyGeneratePair(config1, &privKey, &pubKey);
 
     QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
@@ -267,8 +266,19 @@ static bool key_pair_test() {
     return ret;
 }
 
+static bool key_pair_test() {
+    return _key_test(kQCDefaultKeyConfig);
+}
+
+static bool key_128bit_test() {
+    return _key_test(kQC128BitKeyConfig);
+}
+
+static bool key_256bit_test() {
+    return _key_test(kQC256BitKeyConfig);
+}
+
 static void _init_test() {
-    config = kQCDefaultKeyConfig;
 }
 
 void cipher_test() {
@@ -286,6 +296,10 @@ void cipher_test() {
     QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
 
     QNT("key pair", NULL, key_pair_test, 1);
+
+//    QNT("key(128bit) ", NULL, key_128bit_test, 1);
+
+//    QNT("key(256bit) ", NULL, key_256bit_test, 1);
 
 //    QNT("cipher file", NULL, file_test, 1);
 }

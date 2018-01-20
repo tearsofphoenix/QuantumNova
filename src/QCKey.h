@@ -23,6 +23,16 @@ typedef struct QCKey *QCKeyRef;
 extern QCKeyConfig kQCDefaultKeyConfig;
 
 /*
+ * 128bit security key config
+ */
+extern QCKeyConfig kQC128BitKeyConfig;
+
+/*
+ * 256bit security key config
+ */
+extern QCKeyConfig kQC256BitKeyConfig;
+
+/*
  * generate private & public key pair
  */
 extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey);
