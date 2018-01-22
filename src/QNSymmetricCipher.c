@@ -4,6 +4,7 @@
 
 #include "QNSymmetricCipher.h"
 #include "QCArrayPrivate.h"
+#include "vendor/salsa20.h"
 #include <tomcrypt.h>
 
 // aes cipher
@@ -77,9 +78,41 @@ QNSymmetricCipherRef QNGetAESCipher() {
     return &kAESCipher;
 }
 
-//
+// salsa20 cipher
+static QC_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+//    QCArrayRef padded = QCArrayPKCS7Encode(message);
+    QCArrayRef copy = QCArrayCreateCopy(message);
+    size_t size = QCArrayGetSize(copy);
+    enum s20_status_t status = s20_crypt(key->data, S20_KEYLEN_256, iv->data, 0, copy->data, size);
+    if (status == S20_SUCCESS) {
+        return copy;
+    } else {
+        QCRelease(copy);
+        return NULL;
+    }
+}
+
+/*
+ * symmetric decrypt (current AES-CBC)
+ */
+static QC_STRONG QCArrayRef QNSalsa20Decrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+    QCArrayRef copy = QCArrayCreateCopy(message);
+    size_t size = QCArrayGetSize(copy);
+    enum s20_status_t status = s20_crypt(key->data, S20_KEYLEN_256, iv->data, 0, copy->data, size);
+    if (status == S20_SUCCESS) {
+        return copy;
+    } else {
+        QCRelease(copy);
+        return NULL;
+    }
+}
+
+static struct QNSymmetricCipher kSalsa20Cipher = {
+        .encrypt = QNSalsa20Encrypt,
+        .decrypt = QNSalsa20Decrypt,
+};
 
 QNSymmetricCipherRef QNGetSalsa20Cipher() {
-
+    return &kSalsa20Cipher;
 }
 

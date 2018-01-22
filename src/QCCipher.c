@@ -26,7 +26,7 @@ static struct QCClass kQCCipherClass = {
 
 QCCipherRef QCCipherCreate(void) {
     QCCipherRef cipher = QCAllocate(&kQCCipherClass);
-    cipher->symmetricCipher = QNGetAESCipher(); // default is AES
+    cipher->symmetricCipher = QNGetSalsa20Cipher(); // default is AES
     cipher->saltA = QCArrayCreateWithByte(kSaltA, strlen(kSaltA), false);
     cipher->saltB = QCArrayCreateWithByte(kSaltB, strlen(kSaltB), false);
     cipher->ivSalt = QCArrayCreateWithByte(kIVSalt, strlen(kIVSalt), false);

@@ -126,8 +126,12 @@ extern int QCArrayFindIndex(QCArrayRef array, int value);
 /*
  * get nonzero number count
  */
-
 extern int QCArrayGetNonZeroCount(QCArrayRef array);
+
+/*
+ *
+ */
+extern size_t QCArrayGetSize(QCArrayRef array);
 
 /*
  * for-each loop on array

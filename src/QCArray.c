@@ -111,6 +111,11 @@ QCArrayRef QCArrayCreateWithBase64(const char *base64String, size_t length) {
     return QCByteArrayCreateWithBase64(base64String, length);
 }
 
+size_t QCArrayGetSize(QCArrayRef array) {
+    return ((QCArrayClassRef)array->isa)->getSize(array);
+}
+
+
 QCArrayRef QCArrayFFT(QCArrayRef array) {
     if (array) {
         size_t count = array->count;

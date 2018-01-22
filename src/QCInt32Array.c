@@ -29,6 +29,7 @@ static QCArrayRef QCInt32ArraySHA256(QCArrayRef array);
 static bool QCInt32ArrayCompareRaw(QCArrayRef array, const void *expected, QCArrayDataType dataType);
 static QCArrayRef QCInt32ArrayPack(QCArrayRef array);
 static bool QCInt32ArraySaveFile(QCArrayRef array, FILE *fp);
+static size_t QCInt32ArrayGetSize(QCArrayRef );
 
 static struct QCArrayClass kQCInt32ArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -57,7 +58,8 @@ static struct QCArrayClass kQCInt32ArrayClass = {
         .sha256 = QCInt32ArraySHA256,
         .compareRaw = QCInt32ArrayCompareRaw,
         .pack = QCInt32ArrayPack,
-        .saveFile = QCInt32ArraySaveFile
+        .saveFile = QCInt32ArraySaveFile,
+        .getSize = QCInt32ArrayGetSize
 };
 
 const QCClassRef kQCInt32ArrayClassRef = &kQCInt32ArrayClass;

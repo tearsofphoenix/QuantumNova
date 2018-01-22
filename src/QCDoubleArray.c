@@ -30,6 +30,7 @@ static QCArrayRef QCDoubleArrayConvert(QCArrayRef array, QCArrayDataType type);
 static QCArrayRef QCDoubleArrayPack(QCArrayRef array);
 static bool QCDoubleArrayEqual(QCArrayRef array, QCArrayRef y);
 static bool QCDoubleArraySaveFile(QCArrayRef array, FILE *fp);
+static size_t QCDoubleArrayGetSize(QCArrayRef );
 
 static struct QCArrayClass kQCDoubleArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -59,7 +60,8 @@ static struct QCArrayClass kQCDoubleArrayClass = {
         .convert = QCDoubleArrayConvert,
         .pack = QCDoubleArrayPack,
         .equal = QCDoubleArrayEqual,
-        .saveFile = QCDoubleArraySaveFile
+        .saveFile = QCDoubleArraySaveFile,
+        .getSize = QCDoubleArrayGetSize
 };
 
 const QCClassRef kQCDoubleArrayClassRef = &kQCDoubleArrayClass;

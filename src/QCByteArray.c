@@ -32,6 +32,7 @@ static QCArrayRef QCByteArraySlice(QCArrayRef array, size_t start, size_t end);
 static QCArrayRef QCByteArrayConvert(QCArrayRef array, QCArrayDataType type);
 static QCArrayRef QCByteArrayPack(QCArrayRef array);
 static bool QCByteArraySaveFile(QCArrayRef array, FILE *fp);
+static size_t QCByteArrayGetSize(QCArrayRef );
 
 static struct QCArrayClass kQCByteArrayClass = {
 //        .base = kQCArrayClassRef,
@@ -61,7 +62,8 @@ static struct QCArrayClass kQCByteArrayClass = {
         .convert = QCByteArrayConvert,
         .slice = QCByteArraySlice,
         .pack = QCByteArrayPack,
-        .saveFile = QCByteArraySaveFile
+        .saveFile = QCByteArraySaveFile,
+        .getSize = QCByteArrayGetSize
 };
 
 const QCClassRef kQCByteArrayClassRef = &kQCByteArrayClass;

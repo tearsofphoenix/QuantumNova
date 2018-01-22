@@ -79,40 +79,6 @@ static bool decrypt_test() {
     return ret;
 }
 
-static bool decrypt_message_test() {
-    QCKeyConfig config = kQCDefaultKeyConfig;
-    QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
-                       0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
-                       0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
-
-    QCArrayRef streamArray = QCArrayCreateWithByte(stream, sizeof(stream) / sizeof(QCByte), true);
-
-    size_t length = config.length;
-
-    QCKeyRef privateKey = _getPrivateKey();
-
-    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
-    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
-
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privateKey);
-    QCMessageRef message = QCMessageCreate(c0, c1, streamArray);
-    QCArrayRef array = QCCipherDecryptMessage(cipher, message);
-
-    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
-
-    QCRelease(c0);
-    QCRelease(c1);
-    QCRelease(cipher);
-    QCRelease(message);
-    QCRelease(array);
-    QCRelease(privateKey);
-    QCRelease(streamArray);
-
-    return ret;
-}
-
 static bool encrypt_test() {
     QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
@@ -159,8 +125,6 @@ static bool aes_cbc_test()
             {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4}
     };
 
-    QCCipherRef cipher = QCCipherCreate();
-
     QCArrayRef message = QCArrayCreateWithByte(plaintext[0], 32, false);
     QCArrayRef keyArray = QCArrayCreateWithByte(key[0], 32, false);
     QCArrayRef ivArray = QCArrayCreateWithByte(iv[0], 16, false);
@@ -175,7 +139,45 @@ static bool aes_cbc_test()
 
     bool ret2 = QCObjectEqual(plain, message);
 
-    QCRelease(cipher);
+    QCRelease(message);
+    QCRelease(keyArray);
+    QCRelease(ivArray);
+    QCRelease(plain);
+    QCRelease(ciphered);
+
+    return ret1 && ret2;
+}
+
+static bool salsa20_test()
+{
+    QCByte plaintext[1][32] = {
+            {0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51}
+    };
+    QCByte ciphertext[1][32] = {
+            {0xf1, 0xfb, 0xe3, 0xa7, 0x0f, 0xef, 0xfc, 0x56, 0x5d, 0x4b, 0x26, 0xe4, 0x8a, 0x7c, 0x2e, 0x27, 0xbb, 0x20, 0x7e, 0x25, 0xb8, 0x08, 0x81, 0x62, 0xc4, 0x5a, 0xcf,
+                    0x10, 0x65, 0xfc, 0xd5, 0xe2}
+    };
+    QCByte iv[1][16] = {
+            {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f}
+    };
+    QCByte key[1][32] = {
+            {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4}
+    };
+
+    QCArrayRef message = QCArrayCreateWithByte(plaintext[0], 32, false);
+    QCArrayRef keyArray = QCArrayCreateWithByte(key[0], 32, false);
+    QCArrayRef ivArray = QCArrayCreateWithByte(iv[0], 16, false);
+
+    QNSymmetricCipherRef cipher = QNGetSalsa20Cipher();
+
+    QCArrayRef ciphered = cipher->encrypt(message, keyArray, ivArray);
+
+    bool ret1 = QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte);
+
+    QCArrayRef plain = cipher->decrypt(ciphered, keyArray, ivArray);
+
+    bool ret2 = QCObjectEqual(plain, message);
+
     QCRelease(message);
     QCRelease(keyArray);
     QCRelease(ivArray);
@@ -286,15 +288,16 @@ void cipher_test() {
 
     QNT("cipher decrypt", NULL, decrypt_test, 1);
 
-    QNT("cipher aes cbc", NULL, aes_cbc_test, 1);
+    QNT("aes cbc", NULL, aes_cbc_test, 1);
+
+    QNT("salsa20 ", NULL, salsa20_test, 1);
 
     QNT("cipher mac", NULL, mac_test, 1);
 
     QNT("cipher encrypt", NULL, encrypt_test, 1);
 
-    QNT("cipher decrypt message", NULL, decrypt_message_test, 1);
-
-    QNT("key pair", NULL, key_pair_test, 1);
+//
+//    QNT("key pair", NULL, key_pair_test, 1);
 
 //    QNT("key(128bit) ", NULL, key_128bit_test, 1);
 

@@ -33,7 +33,8 @@ typedef void (* QCArrayAppendFunc)(QCArrayRef array, QCArrayRef other);
 typedef QCArrayRef (* QCArraySliceFunc)(QCArrayRef array, size_t start, size_t end);
 typedef QCArrayRef (* QCArrayConvertFunc)(QCArrayRef array, QCArrayDataType type);
 typedef QCArrayRef (* QCArrayPackFunc)(QCArrayRef array);
-typedef bool (* QCByteArraySaveFileFunc)(QCArrayRef array, FILE *fp);
+typedef bool (* QCArraySaveFileFunc)(QCArrayRef array, FILE *fp);
+typedef size_t (* QCArrayGetSizeFunc)(QCArrayRef array);
 
 struct QCArrayClass {
     QCCLASSFIELDS
@@ -58,7 +59,8 @@ struct QCArrayClass {
     QCArrayConvertFunc convert;
     QCArraySliceFunc slice;
     QCArrayPackFunc pack;
-    QCByteArraySaveFileFunc saveFile;
+    QCArraySaveFileFunc saveFile;
+    QCArrayGetSizeFunc getSize;
 };
 
 typedef struct QCArrayClass *QCArrayClassRef;
@@ -146,6 +148,9 @@ static bool CLASS ## SaveFile(QCArrayRef array, FILE *fp) { \
     fwrite(&array->count, sizeof(size_t), 1, fp); \
     fwrite(array->data, sizeof(TYPE), array->count, fp); \
     return true; \
+} \
+static size_t CLASS ## GetSize(QCArrayRef array) { \
+    return array->count * sizeof(TYPE); \
 } \
 
 #endif
