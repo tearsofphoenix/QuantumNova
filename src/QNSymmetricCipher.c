@@ -3,7 +3,7 @@
 //
 
 #include "QNSymmetricCipher.h"
-#include "QCArrayPrivate.h"
+#include "QNArrayPrivate.h"
 #include "vendor/salsa20.h"
 #include <tomcrypt.h>
 
@@ -11,11 +11,11 @@
 /*
  * symmetric encrypt (current AES-CBC)
  */
-static QN_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-    QCArrayRef padded = QCArrayPKCS7Encode(message);
+static QN_STRONG QNArrayRef QNAESEncrypt(QNArrayRef message, QNArrayRef key, QNArrayRef iv) {
+    QNArrayRef padded = QNArrayPKCS7Encode(message);
 
     size_t messageSize = padded->count;
-    QCByte *out = message->isa->allocator(messageSize * sizeof(QCByte));
+    QNByte *out = message->isa->allocator(messageSize * sizeof(QNByte));
 
     register_cipher(&aes_desc);
     symmetric_CBC cbc;
@@ -26,16 +26,16 @@ static QN_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCA
         printf("cbc start failed!\n");
         return NULL;
     }
-    ret = cbc_encrypt(padded->data, out, messageSize * sizeof(QCByte), &cbc);
+    ret = cbc_encrypt(padded->data, out, messageSize * sizeof(QNByte), &cbc);
     if (ret != CRYPT_OK) {
         printf("cbc encrypt failed!\n");
         return NULL;
     }
 
-    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
+    QNArrayRef array = QNArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
 
-    QCRelease(padded);
+    QNRelease(padded);
 
     return array;
 }
@@ -43,9 +43,9 @@ static QN_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCA
 /*
  * symmetric decrypt (current AES-CBC)
  */
-static QN_STRONG QCArrayRef QNAESDecrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+static QN_STRONG QNArrayRef QNAESDecrypt(QNArrayRef message, QNArrayRef key, QNArrayRef iv) {
     size_t messageSize = message->count;
-    QCByte *out = message->isa->allocator(messageSize * sizeof(QCByte));
+    QNByte *out = message->isa->allocator(messageSize * sizeof(QNByte));
 
     register_cipher(&aes_desc);
     symmetric_CBC cbc;
@@ -56,16 +56,16 @@ static QN_STRONG QCArrayRef QNAESDecrypt(QCArrayRef message, QCArrayRef key, QCA
         printf("cbc start failed!\n");
         return NULL;
     }
-    ret = cbc_decrypt(message->data, out, messageSize * sizeof(QCByte), &cbc);
+    ret = cbc_decrypt(message->data, out, messageSize * sizeof(QNByte), &cbc);
     if (ret != CRYPT_OK) {
         printf("cbc decrypt failed!\n");
         return NULL;
     }
-    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
+    QNArrayRef array = QNArrayCreateWithByte(out, messageSize, false);
     array->needfree = true;
 
-    QCArrayRef ref = QCArrayPKCS7Decode(array);
-    QCRelease(array);
+    QNArrayRef ref = QNArrayPKCS7Decode(array);
+    QNRelease(array);
     return ref;
 }
 
@@ -79,15 +79,15 @@ QNSymmetricCipherRef QNGetAESCipher() {
 }
 
 // salsa20 cipher
-static QN_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-//    QCArrayRef padded = QCArrayPKCS7Encode(message);
-    QCArrayRef copy = QCArrayCreateCopy(message);
-    size_t size = QCArrayGetSize(copy);
+static QN_STRONG QNArrayRef QNSalsa20Encrypt(QNArrayRef message, QNArrayRef key, QNArrayRef iv) {
+//    QNArrayRef padded = QNArrayPKCS7Encode(message);
+    QNArrayRef copy = QNArrayCreateCopy(message);
+    size_t size = QNArrayGetSize(copy);
     enum s20_status_t status = s20_crypt(key->data, S20_KEYLEN_256, iv->data, 0, copy->data, size);
     if (status == S20_SUCCESS) {
         return copy;
     } else {
-        QCRelease(copy);
+        QNRelease(copy);
         return NULL;
     }
 }
@@ -95,14 +95,14 @@ static QN_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key,
 /*
  * symmetric decrypt (current AES-CBC)
  */
-static QN_STRONG QCArrayRef QNSalsa20Decrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-    QCArrayRef copy = QCArrayCreateCopy(message);
-    size_t size = QCArrayGetSize(copy);
+static QN_STRONG QNArrayRef QNSalsa20Decrypt(QNArrayRef message, QNArrayRef key, QNArrayRef iv) {
+    QNArrayRef copy = QNArrayCreateCopy(message);
+    size_t size = QNArrayGetSize(copy);
     enum s20_status_t status = s20_crypt(key->data, S20_KEYLEN_256, iv->data, 0, copy->data, size);
     if (status == S20_SUCCESS) {
         return copy;
     } else {
-        QCRelease(copy);
+        QNRelease(copy);
         return NULL;
     }
 }

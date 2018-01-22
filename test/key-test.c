@@ -3,66 +3,66 @@
 //
 
 #include <stdio.h>
-#include <src/QCKeyPrivate.h>
+#include <src/QNKeyPrivate.h>
 #include "key-test.h"
 #include "data.h"
 #include "src/QNTest.h"
-#include "src/QCArrayPrivate.h"
-#include "src/QCMessagePrivate.h"
-#include "src/QCCipherPrivate.h"
+#include "src/QNArrayPrivate.h"
+#include "src/QNMessagePrivate.h"
+#include "src/QNCipherPrivate.h"
 
 static bool private_key_test() {
 
     const char *path = "./aux/priv.key";
-    QCKeyRef key = QCKeyCreateFromPEMFile(path);
-    bool ret1 = QCArrayCompareRaw(key->h0, H0, QCDTDouble);
-    bool ret2 = QCArrayCompareRaw(key->h1, H1, QCDTDouble);
-    bool ret3 = QCArrayCompareRaw(key->h1inv, H1_inv, QCDTDouble);
+    QNKeyRef key = QNKeyCreateFromPEMFile(path);
+    bool ret1 = QNArrayCompareRaw(key->h0, H0, QNDTDouble);
+    bool ret2 = QNArrayCompareRaw(key->h1, H1, QNDTDouble);
+    bool ret3 = QNArrayCompareRaw(key->h1inv, H1_inv, QNDTDouble);
 
-    QCRelease(key);
+    QNRelease(key);
 
     return ret1 && ret2 && ret3;
 }
 
 static bool public_key_test() {
     const char *path = "./aux/pub.key";
-    QCKeyRef key = QCKeyCreateFromPEMFile(path);
-    bool ret = QCArrayCompareRaw(key->g, G, QCDTDouble);
-    QCRelease(key);
+    QNKeyRef key = QNKeyCreateFromPEMFile(path);
+    bool ret = QNArrayCompareRaw(key->g, G, QNDTDouble);
+    QNRelease(key);
 
     return ret;
 }
 
 static bool message_test() {
     const char *path = "./aux/enc.data";
-    QCMessageRef message = QCMessageCreateFromPEMFile(path);
-    bool ret1 = QCArrayCompareRaw(message->c0, C0, QCDTDouble);
-    bool ret2 = QCArrayCompareRaw(message->c1, C1, QCDTDouble);
+    QNMessageRef message = QNMessageCreateFromPEMFile(path);
+    bool ret1 = QNArrayCompareRaw(message->c0, C0, QNDTDouble);
+    bool ret2 = QNArrayCompareRaw(message->c1, C1, QNDTDouble);
 
-    QCRelease(message);
+    QNRelease(message);
 
     return ret1 && ret2;
 }
 
 static bool save_private_key() {
     const char *path = "./aux/priv.key";
-    QCKeyRef key = QCKeyCreateFromPEMFile(path);
+    QNKeyRef key = QNKeyCreateFromPEMFile(path);
     const char *outpath = "./aux/priv-out.key";
-    QCKeySaveToPEMFile(key, outpath);
+    QNKeySaveToPEMFile(key, outpath);
 }
 
 static bool custom_create_key_test() {
     const char *path = "./aux/priv-c.key";
     const char *pubpath = "./aux/pub-c.key";
-    QCKeyRef pubKey = NULL;
-    QCKeyRef privKey = NULL;
-    QCKeyGeneratePair(kQCDefaultKeyConfig, &privKey, &pubKey);
+    QNKeyRef pubKey = NULL;
+    QNKeyRef privKey = NULL;
+    QNKeyGeneratePair(kQNDefaultKeyConfig, &privKey, &pubKey);
 
-    bool ret1 = QCKeySaveToFile(privKey, path);
-    bool ret2 = QCKeySaveToFile(pubKey, pubpath);
+    bool ret1 = QNKeySaveToFile(privKey, path);
+    bool ret2 = QNKeySaveToFile(pubKey, pubpath);
 
-    QCRelease(privKey);
-    QCRelease(pubKey);
+    QNRelease(privKey);
+    QNRelease(pubKey);
 
     return ret1 && ret2;
 }
@@ -70,28 +70,28 @@ static bool custom_create_key_test() {
 static bool custom_load_key_test() {
     const char *path = "./aux/priv-c.key";
     const char *pubpath = "./aux/pub-c.key";
-    QCKeyRef pubKey = QCKeyCreateFromFile(pubpath);
-    QCKeyRef privKey = QCKeyCreateFromFile(path);
+    QNKeyRef pubKey = QNKeyCreateFromFile(pubpath);
+    QNKeyRef privKey = QNKeyCreateFromFile(path);
 
 
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privKey);
-    QCCipherSetPublicKey(cipher, pubKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privKey);
+    QNCipherSetPublicKey(cipher, pubKey);
 
-    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
-    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    QNArrayRef stream = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QNMessageRef enc = QNCipherEncryptMessage(cipher, stream);
 
-    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+    QNArrayRef array = QNCipherDecryptMessage(cipher, enc);
+    bool ret = QNArrayCompareRaw(array, msg, QNDTByte);
 
-    QCRelease(privKey);
-    QCRelease(pubKey);
-    QCRelease(stream);
-    QCRelease(enc);
-    QCRelease(array);
-    QCRelease(cipher);
+    QNRelease(privKey);
+    QNRelease(pubKey);
+    QNRelease(stream);
+    QNRelease(enc);
+    QNRelease(array);
+    QNRelease(cipher);
 
     return ret;
 }

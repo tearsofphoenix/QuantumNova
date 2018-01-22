@@ -4,22 +4,22 @@
 
 #include "fft-test.h"
 #include "data.h"
-#include "src/QCArrayPrivate.h"
+#include "src/QNArrayPrivate.h"
 #include "src/QNTest.h"
-#include "src/QCObjectPrivate.h"
+#include "src/QNObjectPrivate.h"
 
 static bool fft_test() {
     size_t size = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef array = QCArrayCreateWithDouble(H0, size, true);
-    QCArrayRef fft = QCArrayFFT(array);
-    QCArrayRef real = QCArrayGetRealParts(fft);
-    QCArrayRound(real);
-    bool result = QCArrayCompareRaw(real, kH0FFTReal, QCDTDouble);
+    QNArrayRef array = QNArrayCreateWithDouble(H0, size, true);
+    QNArrayRef fft = QNArrayFFT(array);
+    QNArrayRef real = QNArrayGetRealParts(fft);
+    QNArrayRound(real);
+    bool result = QNArrayCompareRaw(real, kH0FFTReal, QNDTDouble);
 
-    QCRelease(array);
-    QCRelease(fft);
-    QCRelease(real);
+    QNRelease(array);
+    QNRelease(fft);
+    QNRelease(real);
 
     return result;
 }
@@ -27,23 +27,23 @@ static bool fft_test() {
 static bool complex_multiply_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
-    QCArrayRef x = QCArrayFFT(tempH0);
-    QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
-    QCArrayRef y = QCArrayFFT(tempC0);
-    QCArrayRef result = QCArrayComplexMultiply(x, y);
-    QCArraySetCount(result, count);
-    QCArrayRef real = QCArrayGetRealParts(result);
-    QCArrayRound(real);
+    QNArrayRef tempH0 = QNArrayCreateWithDouble(H0, count, true);
+    QNArrayRef x = QNArrayFFT(tempH0);
+    QNArrayRef tempC0 = QNArrayCreateWithDouble(C0, count, true);
+    QNArrayRef y = QNArrayFFT(tempC0);
+    QNArrayRef result = QNArrayComplexMultiply(x, y);
+    QNArraySetCount(result, count);
+    QNArrayRef real = QNArrayGetRealParts(result);
+    QNArrayRound(real);
 
-    bool ret = QCArrayCompareRaw(real, kH0C0Multiply, QCDTDouble);
+    bool ret = QNArrayCompareRaw(real, kH0C0Multiply, QNDTDouble);
 
-    QCRelease(tempH0);
-    QCRelease(tempC0);
-    QCRelease(result);
-    QCRelease(real);
-    QCRelease(x);
-    QCRelease(y);
+    QNRelease(tempH0);
+    QNRelease(tempC0);
+    QNRelease(result);
+    QNRelease(real);
+    QNRelease(x);
+    QNRelease(y);
 
     return ret;
 }
@@ -51,27 +51,27 @@ static bool complex_multiply_test() {
 static bool inverse_fft_test() {
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
-    QCArrayRef x = QCArrayFFT(tempH0);
-    QCArrayRef result = QCArrayInverseFFT(x);
-    QCArrayRound(result);
-    bool ret = QCArrayCompareRaw(result, H0, QCDTDouble);
+    QNArrayRef tempH0 = QNArrayCreateWithDouble(H0, count, true);
+    QNArrayRef x = QNArrayFFT(tempH0);
+    QNArrayRef result = QNArrayInverseFFT(x);
+    QNArrayRound(result);
+    bool ret = QNArrayCompareRaw(result, H0, QNDTDouble);
 
-    QCRelease(tempH0);
-    QCRelease(x);
-    QCRelease(result);
+    QNRelease(tempH0);
+    QNRelease(x);
+    QNRelease(result);
     return ret;
 }
 
 static bool square_sparse_test() {
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
-    QCArrayRef array = QCArrayCreateWithDouble(H0, count, true);
-    QCArrayRef tempH0 = QCArraySquareSparsePoly(array, 1);
-    bool ret = QCArrayCompareRaw(tempH0, kH0Sparse, QCDTDouble);
+    QNArrayRef array = QNArrayCreateWithDouble(H0, count, true);
+    QNArrayRef tempH0 = QNArraySquareSparsePoly(array, 1);
+    bool ret = QNArrayCompareRaw(tempH0, kH0Sparse, QNDTDouble);
 
-    QCRelease(array);
-    QCRelease(tempH0);
+    QNRelease(array);
+    QNRelease(tempH0);
 
     return ret;
 }
@@ -80,22 +80,22 @@ static bool mul_poly_test() {
 
     size_t count = sizeof(H0) / sizeof(H0[0]);
 
-    QCArrayRef tempH0 = QCArrayCreateWithDouble(H0, count, true);
-    QCArrayRef tempC0 = QCArrayCreateWithDouble(C0, count, true);
-    QCArrayRef result = QCArrayMulPoly(tempH0, tempC0);
+    QNArrayRef tempH0 = QNArrayCreateWithDouble(H0, count, true);
+    QNArrayRef tempC0 = QNArrayCreateWithDouble(C0, count, true);
+    QNArrayRef result = QNArrayMulPoly(tempH0, tempC0);
 
-    bool ret = QCArrayCompareRaw(result, kMulPoly, QCDTDouble);
+    bool ret = QNArrayCompareRaw(result, kMulPoly, QNDTDouble);
 
-    QCRelease(tempH0);
-    QCRelease(tempC0);
-    QCRelease(result);
+    QNRelease(tempH0);
+    QNRelease(tempC0);
+    QNRelease(result);
 
     return ret;
 }
 
 static bool exp_poly_test() {
     size_t count = sizeof(kExpInput) / sizeof(kExp20[0]);
-    QCArrayRef tempH0 = QCArrayCreateWithDouble(kExpInput, count, true);
+    QNArrayRef tempH0 = QNArrayCreateWithDouble(kExpInput, count, true);
 
     BN_CTX *bnCTX = BN_CTX_new();
     BIGNUM *base = NULL;
@@ -107,16 +107,16 @@ static bool exp_poly_test() {
     BN_exp(n, base, exp, bnCTX);
     BN_sub(n, n, base);
 
-    QCArrayRef result = QCArrayExpPoly(tempH0, n);
-    bool ret = QCArrayCompareRaw(result, kExp20, QCDTDouble);
+    QNArrayRef result = QNArrayExpPoly(tempH0, n);
+    bool ret = QNArrayCompareRaw(result, kExp20, QNDTDouble);
 
     BN_free(base);
     BN_free(exp);
     BN_free(n);
     BN_CTX_free(bnCTX);
 
-    QCRelease(tempH0);
-    QCRelease(result);
+    QNRelease(tempH0);
+    QNRelease(result);
 
     return ret;
 }

@@ -8,34 +8,34 @@
 #include <stdbool.h>
 
 #include "array-test.h"
-#include "src/QCArray.h"
+#include "src/QNArray.h"
 #include "fft-test.h"
 #include "src/QNTest.h"
 
 static bool sha256_test() {
-    QCByte text1[] = {"abc"};
-    QCByte text2[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
+    QNByte text1[] = {"abc"};
+    QNByte text2[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
 #define SHA256_BLOCK_SIZE 32
-    QCByte hash1[SHA256_BLOCK_SIZE] = {0xba,0x78,0x16,0xbf,0x8f,0x01,0xcf,0xea,0x41,0x41,0x40,0xde,0x5d,0xae,0x22,0x23,
+    QNByte hash1[SHA256_BLOCK_SIZE] = {0xba,0x78,0x16,0xbf,0x8f,0x01,0xcf,0xea,0x41,0x41,0x40,0xde,0x5d,0xae,0x22,0x23,
                                        0xb0,0x03,0x61,0xa3,0x96,0x17,0x7a,0x9c,0xb4,0x10,0xff,0x61,0xf2,0x00,0x15,0xad};
-    QCByte hash2[SHA256_BLOCK_SIZE] = {0x24,0x8d,0x6a,0x61,0xd2,0x06,0x38,0xb8,0xe5,0xc0,0x26,0x93,0x0c,0x3e,0x60,0x39,
+    QNByte hash2[SHA256_BLOCK_SIZE] = {0x24,0x8d,0x6a,0x61,0xd2,0x06,0x38,0xb8,0xe5,0xc0,0x26,0x93,0x0c,0x3e,0x60,0x39,
                                        0xa3,0x3c,0xe4,0x59,0x64,0xff,0x21,0x67,0xf6,0xec,0xed,0xd4,0x19,0xdb,0x06,0xc1};
 
-    QCArrayRef a1 = QCArrayCreateWithByte(text1, strlen(text1), false);
-    QCArrayRef s1 = QCArraySHA256(a1);
+    QNArrayRef a1 = QNArrayCreateWithByte(text1, strlen(text1), false);
+    QNArrayRef s1 = QNArraySHA256(a1);
 
-    bool ret = QCArrayCompareRaw(s1, hash1, QCDTByte);
+    bool ret = QNArrayCompareRaw(s1, hash1, QNDTByte);
 
-    QCArrayRef a2 = QCArrayCreateWithByte(text2, strlen(text2), false);
-    QCArrayRef s2 = QCArraySHA256(a2);
+    QNArrayRef a2 = QNArrayCreateWithByte(text2, strlen(text2), false);
+    QNArrayRef s2 = QNArraySHA256(a2);
 
-    bool ret2 = QCArrayCompareRaw(s2, hash2, QCDTByte);
+    bool ret2 = QNArrayCompareRaw(s2, hash2, QNDTByte);
 
-    QCRelease(a1);
-    QCRelease(a2);
+    QNRelease(a1);
+    QNRelease(a2);
 
-    QCRelease(s1);
-    QCRelease(s2);
+    QNRelease(s1);
+    QNRelease(s2);
 
     return ret && ret2;
 }
@@ -148,16 +148,16 @@ static bool sha512_test() {
     for(size_t i=0; i<NUM_TEST_VECTORS; i++ )
     {
         size_t len = (uint32_t) gTestVectors[i].PlainTextSize ? gTestVectors[i].PlainTextSize : (uint32_t)strlen( gTestVectors[i].PlainText );
-        QCArrayRef array = QCArrayCreateWithByte(gTestVectors[i].PlainText, len, false);
-        QCArrayRef s1 = QCArraySHA512(array);
+        QNArrayRef array = QNArrayCreateWithByte(gTestVectors[i].PlainText, len, false);
+        QNArrayRef s1 = QNArraySHA512(array);
 
-        if( !QCArrayCompareRaw(s1, &gTestVectors[i].Sha512Hash, QCDTByte) ) {
+        if( !QNArrayCompareRaw(s1, &gTestVectors[i].Sha512Hash, QNDTByte) ) {
             printf( "TestSha512 - Test vector %u failed\n", i );
             success = false;
         }
 
-        QCRelease(array);
-        QCRelease(s1);
+        QNRelease(array);
+        QNRelease(s1);
     }
 
     return success;
@@ -165,67 +165,67 @@ static bool sha512_test() {
 
 static bool array_slice_test() {
     int d[] = {1, 2, 3, 4, 5, 6};
-    QCArrayRef array = QCArrayCreateWithInt(d, sizeof(d) / sizeof(d[0]), false);
+    QNArrayRef array = QNArrayCreateWithInt(d, sizeof(d) / sizeof(d[0]), false);
 
-    QCArrayRef s1 = QCArraySlice(array, 0, 3);
+    QNArrayRef s1 = QNArraySlice(array, 0, 3);
     int expected[] = {1, 2, 3};
-    bool ret = QCArrayCompareRaw(s1, expected, QCDTInt);
+    bool ret = QNArrayCompareRaw(s1, expected, QNDTInt);
 
-    QCRelease(array);
-    QCRelease(s1);
+    QNRelease(array);
+    QNRelease(s1);
     return ret;
 }
 
 static bool array_hex_test() {
-    QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
+    QNByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
     const char *hexString = "5eca494f5ab1f3d48e1a37cd3277c6922f476e507ccca2680868944a7331701f91d84e0a628b5192e79db1182899736d";
 
-    QCArrayRef a1 = QCArrayCreateWithByte(stream, sizeof(stream) / sizeof(stream[0]), false);
-    QCArrayRef a2 = QCArrayCreateWithHex(hexString, strlen(hexString));
+    QNArrayRef a1 = QNArrayCreateWithByte(stream, sizeof(stream) / sizeof(stream[0]), false);
+    QNArrayRef a2 = QNArrayCreateWithHex(hexString, strlen(hexString));
 
-    bool ret = QCObjectEqual(a1, a2);
-    QCRelease(a1);
-    QCRelease(a2);
+    bool ret = QNObjectEqual(a1, a2);
+    QNRelease(a1);
+    QNRelease(a2);
     return ret;
 }
 
 static bool base64_test() {
-    QCByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
+    QNByte stream[] = {0x5e, 0xca, 0x49, 0x4f, 0x5a, 0xb1, 0xf3, 0xd4, 0x8e, 0x1a, 0x37, 0xcd, 0x32, 0x77, 0xc6, 0x92,
                        0x2f, 0x47, 0x6e, 0x50, 0x7c, 0xcc, 0xa2, 0x68, 0x08, 0x68, 0x94, 0x4a, 0x73, 0x31, 0x70, 0x1f,
                        0x91, 0xd8, 0x4e, 0x0a, 0x62, 0x8b, 0x51, 0x92, 0xe7, 0x9d, 0xb1, 0x18, 0x28, 0x99, 0x73, 0x6d};
     const char *baseString = "XspJT1qx89SOGjfNMnfGki9HblB8zKJoCGiUSnMxcB+R2E4KYotRkuedsRgomXNt";
 
-    QCArrayRef a1 = QCArrayCreateWithByte(stream, sizeof(stream) / sizeof(stream[0]), false);
-    QCArrayRef a2 = QCArrayCreateWithBase64(baseString, strlen(baseString));
+    QNArrayRef a1 = QNArrayCreateWithByte(stream, sizeof(stream) / sizeof(stream[0]), false);
+    QNArrayRef a2 = QNArrayCreateWithBase64(baseString, strlen(baseString));
 
-    bool ret = QCObjectEqual(a1, a2);
-    QCRelease(a1);
-    QCRelease(a2);
+    bool ret = QNObjectEqual(a1, a2);
+    QNRelease(a1);
+    QNRelease(a2);
     return ret;
 }
 
 static bool pkcs7_test() {
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
-    QCArrayRef array = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
-    QCArrayRef encoded = QCArrayPKCS7Encode(array);
-    QCArrayRef decoded = QCArrayPKCS7Decode(encoded);
-    bool ret = QCObjectEqual(decoded, encoded);
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNArrayRef array = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
+    QNArrayRef encoded = QNArrayPKCS7Encode(array);
+    QNArrayRef decoded = QNArrayPKCS7Decode(encoded);
+    bool ret = QNObjectEqual(decoded, encoded);
 
-    QCRelease(array);
-    QCRelease(encoded);
-    QCRelease(decoded);
+    QNRelease(array);
+    QNRelease(encoded);
+    QNRelease(decoded);
 
     return ret;
 }
 
 static bool log_test() {
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
-    QCArrayRef array = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNArrayRef array = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
     QNLog("%d, %f, %@", 1, 1.1, array);
 
-    QCRelease(array);
+    QNRelease(array);
 
     return true;
 }

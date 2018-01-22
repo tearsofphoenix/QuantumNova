@@ -2,48 +2,48 @@
 // Created by Isaac on 2018/1/12.
 //
 
-#include "QCClass.h"
-#include "QCObjectPrivate.h"
+#include "QNClass.h"
+#include "QNObjectPrivate.h"
 #include <fftw3.h>
 #include <memory.h>
 
-static struct QCClass kBaseClass = {
-        .name = "QCObject",
-        .allocator = QCAllocator,
-        .retain = QCRetain,
-        .release = QCRelease,
+static struct QNClass kBaseClass = {
+        .name = "QNObject",
+        .allocator = QNAllocator,
+        .retain = QNRetain,
+        .release = QNRelease,
         .copy = NULL,
-        .deallocate = QCDeallocate,
+        .deallocate = QNDeallocate,
 };
 
-const QCClassRef kQCBaseClassRef = &kBaseClass;
+const QNClassRef kQNBaseClassRef = &kBaseClass;
 
 
 // for memory leak debug
 
-struct QCMemoryRecord {
+struct QNMemoryRecord {
     const void *p;
     const char *tag;
     size_t size;
 };
 
-typedef struct QCMemoryRecord QCMemoryRecord;
+typedef struct QNMemoryRecord QNMemoryRecord;
 
 #define kMaxCount 48000
 
-static QCMemoryRecord kMemoryRecords[kMaxCount] = {{NULL, 0}};
+static QNMemoryRecord kMemoryRecords[kMaxCount] = {{NULL, 0}};
 
 static bool kNeedRecordMemory = false;
 
-void _QCStartMemoryRecord() {
+void _QNStartMemoryRecord() {
     kNeedRecordMemory = true;
 }
 
-void _QCPrintMemoryLeak() {
+void _QNPrintMemoryLeak() {
     kNeedRecordMemory = false;
     int total = 0;
     for (int i = 0; i < kMaxCount; ++i) {
-        QCMemoryRecord *r = &kMemoryRecords[i];
+        QNMemoryRecord *r = &kMemoryRecords[i];
         if (r->p) {
             total += r->size;
             if (r->tag) {
@@ -56,7 +56,7 @@ void _QCPrintMemoryLeak() {
     printf("total leak: %d bytes.\n", total);
 }
 
-static int _findFirstEmptyCell(QCMemoryRecord *list, size_t count) {
+static int _findFirstEmptyCell(QNMemoryRecord *list, size_t count) {
     for (int i = 0; i < count; ++i) {
         if (!list[i].p) {
             return i;
@@ -65,7 +65,7 @@ static int _findFirstEmptyCell(QCMemoryRecord *list, size_t count) {
     return -1;
 }
 
-static int _findMemoryIndex(QCMemoryRecord *list, size_t count, const void *p) {
+static int _findMemoryIndex(QNMemoryRecord *list, size_t count, const void *p) {
     for (int i = 0; i < count; ++i) {
         if (list[i].p == p) {
             return i;
@@ -74,7 +74,7 @@ static int _findMemoryIndex(QCMemoryRecord *list, size_t count, const void *p) {
     return -1;
 }
 
-void _QCTagMemory(const void *p, const char *tag) {
+void _QNTagMemory(const void *p, const char *tag) {
     if (kNeedRecordMemory) {
         int idx = _findMemoryIndex(kMemoryRecords, kMaxCount, p);
         if (idx != -1) {
@@ -85,7 +85,7 @@ void _QCTagMemory(const void *p, const char *tag) {
     }
 }
 
-void *QCAllocator(size_t size) {
+void *QNAllocator(size_t size) {
     void *mem = fftw_malloc(size);
     memset(mem, 0, size);
     if (kNeedRecordMemory) {
@@ -98,7 +98,7 @@ void *QCAllocator(size_t size) {
     return mem;
 }
 
-void QCDeallocate(const void *p) {
+void QNDeallocate(const void *p) {
     if (kNeedRecordMemory) {
         int idx = _findMemoryIndex(kMemoryRecords, kMaxCount, p);
         if (idx != -1) {

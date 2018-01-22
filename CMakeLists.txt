@@ -19,6 +19,3 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 configure_file(QuantumNova.h QuantumNova.h)
-
-enable_testing()
-

@@ -5,212 +5,212 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <memory.h>
-#include <src/QCKey.h>
-#include <src/QCCipherPrivate.h>
-#include <src/QCObjectPrivate.h>
+#include <src/QNKey.h>
+#include <src/QNCipherPrivate.h>
+#include <src/QNObjectPrivate.h>
 #include "cipher-test.h"
-#include "src/QCMessagePrivate.h"
-#include "src/QCKeyPrivate.h"
+#include "src/QNMessagePrivate.h"
+#include "src/QNKeyPrivate.h"
 #include "src/QNTest.h"
 #include "src/QNSymmetricCipher.h"
 #include "data.h"
 
-static QN_STRONG QCKeyRef _getPrivateKey() {
-    QCKeyConfig config = kQCDefaultKeyConfig;
+static QN_STRONG QNKeyRef _getPrivateKey() {
+    QNKeyConfig config = kQNDefaultKeyConfig;
     size_t length = config.length;
-    QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);
-    QCArrayRef h1 = QCArrayCreateWithDouble(H1, length, true);
-    QCArrayRef h1inv = QCArrayCreateWithDouble(H1_inv, length, true);
+    QNArrayRef h0 = QNArrayCreateWithDouble(H0, length, true);
+    QNArrayRef h1 = QNArrayCreateWithDouble(H1, length, true);
+    QNArrayRef h1inv = QNArrayCreateWithDouble(H1_inv, length, true);
 
-    QCKeyRef privateKey = QCKeyCreatePrivate(h0, h1, h1inv, config);
+    QNKeyRef privateKey = QNKeyCreatePrivate(h0, h1, h1inv, config);
 
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(h1inv);
+    QNRelease(h0);
+    QNRelease(h1);
+    QNRelease(h1inv);
 
     return privateKey;
 }
 
 static bool cipher_syndrome_test() {
-    QCKeyConfig config = kQCDefaultKeyConfig;
+    QNKeyConfig config = kQNDefaultKeyConfig;
     size_t length = config.length;
 
-    QCKeyRef privateKey = _getPrivateKey();
+    QNKeyRef privateKey = _getPrivateKey();
 
-    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
-    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
+    QNArrayRef c0 = QNArrayCreateWithDouble(C0, length, true);
+    QNArrayRef c1 = QNArrayCreateWithDouble(C1, length, true);
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privateKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privateKey);
 
-    QCArrayRef result = QCCipherSyndrome(cipher, c0, c1);
-    bool ret = QCArrayCompareRaw(result, kSyndrome, QCDTDouble);
+    QNArrayRef result = QNCipherSyndrome(cipher, c0, c1);
+    bool ret = QNArrayCompareRaw(result, kSyndrome, QNDTDouble);
 
-    QCRelease(privateKey);
-    QCRelease(c0);
-    QCRelease(c1);
-    QCRelease(result);
-    QCRelease(cipher);
+    QNRelease(privateKey);
+    QNRelease(c0);
+    QNRelease(c1);
+    QNRelease(result);
+    QNRelease(cipher);
 
     return ret;
 }
 
 static bool decrypt_test() {
-    QCKeyConfig config = kQCDefaultKeyConfig;
+    QNKeyConfig config = kQNDefaultKeyConfig;
     size_t length = config.length;
 
-    QCKeyRef privateKey = _getPrivateKey();
+    QNKeyRef privateKey = _getPrivateKey();
 
-    QCArrayRef c0 = QCArrayCreateWithDouble(C0, length, true);
-    QCArrayRef c1 = QCArrayCreateWithDouble(C1, length, true);
+    QNArrayRef c0 = QNArrayCreateWithDouble(C0, length, true);
+    QNArrayRef c1 = QNArrayCreateWithDouble(C1, length, true);
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privateKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privateKey);
 
-    QCCipherDecrypt(cipher, c0, c1);
-    QCArrayRef result = c0;
-    bool ret = QCArrayCompareRaw(result, kQCMDPCDecrypt, QCDTDouble);
+    QNCipherDecrypt(cipher, c0, c1);
+    QNArrayRef result = c0;
+    bool ret = QNArrayCompareRaw(result, kQNMDPCDecrypt, QNDTDouble);
 
-    QCRelease(privateKey);
-    QCRelease(c0);
-    QCRelease(c1);
-    QCRelease(cipher);
+    QNRelease(privateKey);
+    QNRelease(c0);
+    QNRelease(c1);
+    QNRelease(cipher);
 
     return ret;
 }
 
 static bool encrypt_test() {
-    QCKeyConfig config = kQCDefaultKeyConfig;
+    QNKeyConfig config = kQNDefaultKeyConfig;
     size_t length = config.length;
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
-    QCKeyRef privateKey = _getPrivateKey();
+    QNKeyRef privateKey = _getPrivateKey();
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privateKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privateKey);
 
-    QCArrayRef g = QCArrayCreateWithDouble(G, length, true);
-    QCKeyRef publicKey = QCKeyCreatePublic(g, config);
-    QCCipherSetPublicKey(cipher, publicKey);
+    QNArrayRef g = QNArrayCreateWithDouble(G, length, true);
+    QNKeyRef publicKey = QNKeyCreatePublic(g, config);
+    QNCipherSetPublicKey(cipher, publicKey);
 
-    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
-    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    QNArrayRef stream = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QNMessageRef enc = QNCipherEncryptMessage(cipher, stream);
 
-    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+    QNArrayRef array = QNCipherDecryptMessage(cipher, enc);
+    bool ret = QNArrayCompareRaw(array, msg, QNDTByte);
 
-    QCRelease(g);
-    QCRelease(privateKey);
-    QCRelease(stream);
-    QCRelease(enc);
-    QCRelease(array);
-    QCRelease(publicKey);
-    QCRelease(cipher);
+    QNRelease(g);
+    QNRelease(privateKey);
+    QNRelease(stream);
+    QNRelease(enc);
+    QNRelease(array);
+    QNRelease(publicKey);
+    QNRelease(cipher);
 
     return ret;
 }
 
 static bool aes_cbc_test()
 {
-    QCByte plaintext[1][32] = {
+    QNByte plaintext[1][32] = {
             {0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51}
     };
-    QCByte ciphertext[1][32] = {
+    QNByte ciphertext[1][32] = {
             {0xf5,0x8c,0x4c,0x04,0xd6,0xe5,0xf1,0xba,0x77,0x9e,0xab,0xfb,0x5f,0x7b,0xfb,0xd6,0x9c,0xfc,0x4e,0x96,0x7e,0xdb,0x80,0x8d,0x67,0x9f,0x77,0x7b,0xc6,0x70,0x2c,0x7d}
     };
-    QCByte iv[1][16] = {
+    QNByte iv[1][16] = {
             {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f}
     };
-    QCByte key[1][32] = {
+    QNByte key[1][32] = {
             {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4}
     };
 
-    QCArrayRef message = QCArrayCreateWithByte(plaintext[0], 32, false);
-    QCArrayRef keyArray = QCArrayCreateWithByte(key[0], 32, false);
-    QCArrayRef ivArray = QCArrayCreateWithByte(iv[0], 16, false);
+    QNArrayRef message = QNArrayCreateWithByte(plaintext[0], 32, false);
+    QNArrayRef keyArray = QNArrayCreateWithByte(key[0], 32, false);
+    QNArrayRef ivArray = QNArrayCreateWithByte(iv[0], 16, false);
 
     QNSymmetricCipherRef aesCipher = QNGetAESCipher();
 
-    QCArrayRef ciphered = aesCipher->encrypt(message, keyArray, ivArray);
+    QNArrayRef ciphered = aesCipher->encrypt(message, keyArray, ivArray);
 
-    bool ret1 = QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte);
+    bool ret1 = QNArrayCompareRaw(ciphered, ciphertext[0], QNDTByte);
 
-    QCArrayRef plain = aesCipher->decrypt(ciphered, keyArray, ivArray);
+    QNArrayRef plain = aesCipher->decrypt(ciphered, keyArray, ivArray);
 
-    bool ret2 = QCObjectEqual(plain, message);
+    bool ret2 = QNObjectEqual(plain, message);
 
-    QCRelease(message);
-    QCRelease(keyArray);
-    QCRelease(ivArray);
-    QCRelease(plain);
-    QCRelease(ciphered);
+    QNRelease(message);
+    QNRelease(keyArray);
+    QNRelease(ivArray);
+    QNRelease(plain);
+    QNRelease(ciphered);
 
     return ret1 && ret2;
 }
 
 static bool salsa20_test()
 {
-    QCByte plaintext[1][32] = {
+    QNByte plaintext[1][32] = {
             {0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51}
     };
-    QCByte ciphertext[1][32] = {
+    QNByte ciphertext[1][32] = {
             {0xf1, 0xfb, 0xe3, 0xa7, 0x0f, 0xef, 0xfc, 0x56, 0x5d, 0x4b, 0x26, 0xe4, 0x8a, 0x7c, 0x2e, 0x27, 0xbb, 0x20, 0x7e, 0x25, 0xb8, 0x08, 0x81, 0x62, 0xc4, 0x5a, 0xcf,
                     0x10, 0x65, 0xfc, 0xd5, 0xe2}
     };
-    QCByte iv[1][16] = {
+    QNByte iv[1][16] = {
             {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f}
     };
-    QCByte key[1][32] = {
+    QNByte key[1][32] = {
             {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4}
     };
 
-    QCArrayRef message = QCArrayCreateWithByte(plaintext[0], 32, false);
-    QCArrayRef keyArray = QCArrayCreateWithByte(key[0], 32, false);
-    QCArrayRef ivArray = QCArrayCreateWithByte(iv[0], 16, false);
+    QNArrayRef message = QNArrayCreateWithByte(plaintext[0], 32, false);
+    QNArrayRef keyArray = QNArrayCreateWithByte(key[0], 32, false);
+    QNArrayRef ivArray = QNArrayCreateWithByte(iv[0], 16, false);
 
     QNSymmetricCipherRef cipher = QNGetSalsa20Cipher();
 
-    QCArrayRef ciphered = cipher->encrypt(message, keyArray, ivArray);
+    QNArrayRef ciphered = cipher->encrypt(message, keyArray, ivArray);
 
-    bool ret1 = QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte);
+    bool ret1 = QNArrayCompareRaw(ciphered, ciphertext[0], QNDTByte);
 
-    QCArrayRef plain = cipher->decrypt(ciphered, keyArray, ivArray);
+    QNArrayRef plain = cipher->decrypt(ciphered, keyArray, ivArray);
 
-    bool ret2 = QCObjectEqual(plain, message);
+    bool ret2 = QNObjectEqual(plain, message);
 
-    QCRelease(message);
-    QCRelease(keyArray);
-    QCRelease(ivArray);
-    QCRelease(plain);
-    QCRelease(ciphered);
+    QNRelease(message);
+    QNRelease(keyArray);
+    QNRelease(ivArray);
+    QNRelease(plain);
+    QNRelease(ciphered);
 
     return ret1 && ret2;
 }
 
 static bool mac_test() {
-    QCByte message[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
-    QCByte token[] = {0xee, 0xc7, 0xf5, 0xa7, 0x9b, 0x1b, 0x42, 0x2a, 0x7c, 0x32, 0xe0, 0xe4, 0xbe, 0xcc, 0x50, 0x7f,
+    QNByte message[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNByte token[] = {0xee, 0xc7, 0xf5, 0xa7, 0x9b, 0x1b, 0x42, 0x2a, 0x7c, 0x32, 0xe0, 0xe4, 0xbe, 0xcc, 0x50, 0x7f,
                       0x66, 0x9f, 0x88, 0x0a, 0x86, 0x3b, 0xbb, 0x71, 0xb7, 0xe7, 0xd0, 0x81, 0x43, 0x54, 0xec, 0xab,
                       0x1e, 0x36, 0x44, 0x51, 0xc4, 0x7d, 0x91, 0xcf, 0x3d, 0xf2, 0x92, 0xe4, 0xc6, 0x49, 0xb5, 0xcd,
                       0xe6, 0x89, 0x0a, 0xf5, 0x30, 0x49, 0xd1, 0xe7, 0x5c, 0xf8, 0x26, 0x72, 0x01, 0x1f, 0x24, 0x99};
-    QCByte keyB[] = {0x7d, 0x25, 0x0b, 0x7b, 0x25, 0xc4, 0xdf, 0x9a, 0xe1, 0x1e, 0x0f, 0xab, 0xea, 0xa5, 0x41, 0x7a,
+    QNByte keyB[] = {0x7d, 0x25, 0x0b, 0x7b, 0x25, 0xc4, 0xdf, 0x9a, 0xe1, 0x1e, 0x0f, 0xab, 0xea, 0xa5, 0x41, 0x7a,
                      0x70, 0x99, 0x8f, 0x16, 0x03, 0x4a, 0x02, 0xca, 0x27, 0xd1, 0x4a, 0x93, 0xe0, 0xc2, 0x87, 0x5c};
-    QCByte mac[] = {0xc4, 0x70, 0xe4, 0x73, 0xc6, 0x2e, 0xfb, 0xfe, 0x62, 0x70, 0x8d, 0x2e, 0x51, 0xa2, 0x43, 0x51,
+    QNByte mac[] = {0xc4, 0x70, 0xe4, 0x73, 0xc6, 0x2e, 0xfb, 0xfe, 0x62, 0x70, 0x8d, 0x2e, 0x51, 0xa2, 0x43, 0x51,
                     0x97, 0xce, 0xdf, 0x9e, 0x95, 0x73, 0xd0, 0xf0, 0x6f, 0xb0, 0x79, 0x18, 0xb1, 0x97, 0x69, 0x35};
-    QCArrayRef m = QCArrayCreateWithByte(message, sizeof(message), true);
-    QCArrayRef t = QCArrayCreateWithByte(token, sizeof(token), true);
-    QCArrayRef k = QCArrayCreateWithByte(keyB, sizeof(keyB), true);
-    QCArrayAppend(m, t);
-    QCArrayAppend(m, k);
+    QNArrayRef m = QNArrayCreateWithByte(message, sizeof(message), true);
+    QNArrayRef t = QNArrayCreateWithByte(token, sizeof(token), true);
+    QNArrayRef k = QNArrayCreateWithByte(keyB, sizeof(keyB), true);
+    QNArrayAppend(m, t);
+    QNArrayAppend(m, k);
 
-    QCArrayRef h = QCArraySHA256(m);
+    QNArrayRef h = QNArraySHA256(m);
 
-    bool ret = QCArrayCompareRaw(h, mac, QCDTByte);
+    bool ret = QNArrayCompareRaw(h, mac, QNDTByte);
 
-    QCRelease(m);
-    QCRelease(t);
-    QCRelease(k);
-    QCRelease(h);
+    QNRelease(m);
+    QNRelease(t);
+    QNRelease(k);
+    QNRelease(h);
 
     return ret;
 }
@@ -219,68 +219,68 @@ static bool file_test() {
     const char *privateKeyPath = "./aux/priv.key";
     const char *publicKeyPath = "./aux/pub.key";
 
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
-    QCKeyRef privateKey = QCKeyCreateFromPEMFile(privateKeyPath);
-    QCKeyRef publicKey = QCKeyCreateFromPEMFile(publicKeyPath);
+    QNKeyRef privateKey = QNKeyCreateFromPEMFile(privateKeyPath);
+    QNKeyRef publicKey = QNKeyCreateFromPEMFile(publicKeyPath);
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privateKey);
-    QCCipherSetPublicKey(cipher, publicKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privateKey);
+    QNCipherSetPublicKey(cipher, publicKey);
 
-    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
-    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    QNArrayRef stream = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QNMessageRef enc = QNCipherEncryptMessage(cipher, stream);
 
-    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+    QNArrayRef array = QNCipherDecryptMessage(cipher, enc);
+    bool ret = QNArrayCompareRaw(array, msg, QNDTByte);
 
-    QCRelease(privateKey);
-    QCRelease(publicKey);
-    QCRelease(stream);
-    QCRelease(enc);
-    QCRelease(array);
-    QCRelease(cipher);
+    QNRelease(privateKey);
+    QNRelease(publicKey);
+    QNRelease(stream);
+    QNRelease(enc);
+    QNRelease(array);
+    QNRelease(cipher);
 
     return ret;
 }
 
-static bool _key_test(QCKeyConfig config1) {
-    QCKeyRef privKey = NULL;
-    QCKeyRef pubKey = NULL;
-    QCKeyGeneratePair(config1, &privKey, &pubKey);
+static bool _key_test(QNKeyConfig config1) {
+    QNKeyRef privKey = NULL;
+    QNKeyRef pubKey = NULL;
+    QNKeyGeneratePair(config1, &privKey, &pubKey);
 
-    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QNByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
 
-    QCCipherRef cipher = QCCipherCreate();
-    QCCipherSetPrivateKey(cipher, privKey);
-    QCCipherSetPublicKey(cipher, pubKey);
+    QNCipherRef cipher = QNCipherCreate();
+    QNCipherSetPrivateKey(cipher, privKey);
+    QNCipherSetPublicKey(cipher, pubKey);
 
-    QCArrayRef stream = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
-    QCMessageRef enc = QCCipherEncryptMessage(cipher, stream);
+    QNArrayRef stream = QNArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), true);
+    QNMessageRef enc = QNCipherEncryptMessage(cipher, stream);
 
-    QCArrayRef array = QCCipherDecryptMessage(cipher, enc);
-    bool ret = QCArrayCompareRaw(array, msg, QCDTByte);
+    QNArrayRef array = QNCipherDecryptMessage(cipher, enc);
+    bool ret = QNArrayCompareRaw(array, msg, QNDTByte);
 
-    QCRelease(privKey);
-    QCRelease(stream);
-    QCRelease(enc);
-    QCRelease(array);
-    QCRelease(pubKey);
-    QCRelease(cipher);
+    QNRelease(privKey);
+    QNRelease(stream);
+    QNRelease(enc);
+    QNRelease(array);
+    QNRelease(pubKey);
+    QNRelease(cipher);
 
     return ret;
 }
 
 static bool key_pair_test() {
-    return _key_test(kQCDefaultKeyConfig);
+    return _key_test(kQNDefaultKeyConfig);
 }
 
 static bool key_128bit_test() {
-    return _key_test(kQC128BitKeyConfig);
+    return _key_test(kQN128BitKeyConfig);
 }
 
 static bool key_256bit_test() {
-    return _key_test(kQC256BitKeyConfig);
+    return _key_test(kQN256BitKeyConfig);
 }
 
 void cipher_test() {

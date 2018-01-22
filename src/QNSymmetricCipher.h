@@ -2,15 +2,15 @@
 // Created by Isaac on 2018/1/22.
 //
 
-#ifndef PQC_CRYPTO_QNSYMMETRICCIPHER_H
-#define PQC_CRYPTO_QNSYMMETRICCIPHER_H
+#ifndef QN_QNSYMMETRICCIPHER_H
+#define QN_QNSYMMETRICCIPHER_H
 
-#include "QCClass.h"
-#include "QCArray.h"
+#include "QNClass.h"
+#include "QNArray.h"
 
-typedef QN_STRONG QCArrayRef (* QNSymmetricEncryptFunc)(QCArrayRef plainText, QCArrayRef key, QCArrayRef iv);
+typedef QN_STRONG QNArrayRef (* QNSymmetricEncryptFunc)(QNArrayRef plainText, QNArrayRef key, QNArrayRef iv);
 
-typedef QN_STRONG QCArrayRef (* QNSymmetricDecryptFunc)(QCArrayRef data, QCArrayRef key, QCArrayRef iv);
+typedef QN_STRONG QNArrayRef (* QNSymmetricDecryptFunc)(QNArrayRef data, QNArrayRef key, QNArrayRef iv);
 
 struct QNSymmetricCipher {
     QNSymmetricEncryptFunc encrypt;
@@ -23,4 +23,4 @@ extern QNSymmetricCipherRef QNGetAESCipher();
 
 extern QNSymmetricCipherRef QNGetSalsa20Cipher();
 
-#endif //PQC_CRYPTO_QNSYMMETRICCIPHER_H
+#endif //QN_QNSYMMETRICCIPHER_H

@@ -7,21 +7,21 @@
 #include "cipher-test.h"
 #include "array-test.h"
 #include "key-test.h"
-#include "src/QCObjectPrivate.h"
+#include "src/QNObjectPrivate.h"
 
 int main() {
 
-    _QCStartMemoryRecord();
+    _QNStartMemoryRecord();
 
-//    fft_test_all();
+    fft_test_all();
 
-//    cipher_test();
+    cipher_test();
 
     array_test();
 
 //    key_test();
 
-    _QCPrintMemoryLeak();
+    _QNPrintMemoryLeak();
 
     return 0;
 }

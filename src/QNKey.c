@@ -2,10 +2,10 @@
 // Created by Isaac on 2018/1/11.
 //
 
-#include "QCKey.h"
-#include "QCKeyPrivate.h"
+#include "QNKey.h"
+#include "QNKeyPrivate.h"
 #include "QNRandom.h"
-#include "QCArrayPrivate.h"
+#include "QNArrayPrivate.h"
 #include <tomcrypt.h>
 #include <math.h>
 
@@ -15,13 +15,13 @@ static const char *kPublicKeyTag = "QNPBK";
 /*
  * 80bit security
  */
-QCKeyConfig kQCDefaultKeyConfig = {
+QNKeyConfig kQNDefaultKeyConfig = {
         .length = 4801,
         .weight = 45,
         .error = 42
 };
 
-QCKeyConfig kQC128BitKeyConfig = {
+QNKeyConfig kQN128BitKeyConfig = {
         .length = 9857,
         .weight = 70,
         .error = 67,
@@ -30,99 +30,99 @@ QCKeyConfig kQC128BitKeyConfig = {
 /*
  * 256bit security key config
  */
-QCKeyConfig kQC256BitKeyConfig = {
+QNKeyConfig kQN256BitKeyConfig = {
         .length = 32771,
         .weight = 135,
         .error = 132,
 };
 
-static void QCKeyDeallocate(QCObjectRef obj);
-static QCKeyRef QCKeyCopy(QCKeyRef key);
-static void QCKeyPrint(QCKeyRef key);
-static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2);
+static void QNKeyDeallocate(QNObjectRef obj);
+static QNKeyRef QNKeyCopy(QNKeyRef key);
+static void QNKeyPrint(QNKeyRef key);
+static bool QNKeyEqual(QNKeyRef key1, QNKeyRef key2);
 
-static struct QCClass kQCKeyClass = {
-        .name = "QCKey",
-        .allocator = QCAllocator,
-        .size = sizeof(struct QCKey),
-        .deallocate = QCKeyDeallocate,
-        .copy = QCKeyCopy,
-        .print = QCKeyPrint,
-        .equal = QCKeyEqual
+static struct QNClass kQNKeyClass = {
+        .name = "QNKey",
+        .allocator = QNAllocator,
+        .size = sizeof(struct QNKey),
+        .deallocate = QNKeyDeallocate,
+        .copy = QNKeyCopy,
+        .print = QNKeyPrint,
+        .equal = QNKeyEqual
 };
 
-QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config) {
-    QCKeyRef key = QCAllocate(&kQCKeyClass);
-    key->h0 = QCRetain(h0);
-    key->h1 = QCRetain(h1);
-    key->h1inv = QCRetain(h1inv);
+QNKeyRef QNKeyCreatePrivate(QNArrayRef h0, QNArrayRef h1, QNArrayRef h1inv, QNKeyConfig config) {
+    QNKeyRef key = QNAllocate(&kQNKeyClass);
+    key->h0 = QNRetain(h0);
+    key->h1 = QNRetain(h1);
+    key->h1inv = QNRetain(h1inv);
     key->length = config.length;
     key->weight = config.weight;
     key->error = config.error;
     return key;
 }
 
-QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config) {
-    QCKeyRef key = QCAllocate(&kQCKeyClass);
-    key->g = QCRetain(g);
+QNKeyRef QNKeyCreatePublic(QNArrayRef g, QNKeyConfig config) {
+    QNKeyRef key = QNAllocate(&kQNKeyClass);
+    key->g = QNRetain(g);
     key->length = config.length;
     key->weight = config.weight;
     key->error = config.error;
     return key;
 }
 
-static QCKeyRef QCKeyCopy(QCKeyRef key) {
+static QNKeyRef QNKeyCopy(QNKeyRef key) {
     if (key) {
-        QCKeyRef copy = key->isa->allocator(sizeof(*key));
+        QNKeyRef copy = key->isa->allocator(sizeof(*key));
         copy->length = key->length;
         copy->weight = key->weight;
         copy->error = key->error;
-        copy->h0 = (QCArrayRef)QCObjectCopy(key->h0);
-        copy->h1 = (QCArrayRef)QCObjectCopy(key->h1);
-        copy->h1inv = (QCArrayRef)QCObjectCopy(key->h1inv);
-        copy->g = (QCArrayRef)QCObjectCopy(key->g);
+        copy->h0 = (QNArrayRef)QNObjectCopy(key->h0);
+        copy->h1 = (QNArrayRef)QNObjectCopy(key->h1);
+        copy->h1inv = (QNArrayRef)QNObjectCopy(key->h1inv);
+        copy->g = (QNArrayRef)QNObjectCopy(key->g);
         return copy;
     }
     return NULL;
 }
 
-static void QCKeyDeallocate(QCObjectRef obj) {
-    QCKeyRef key = obj;
+static void QNKeyDeallocate(QNObjectRef obj) {
+    QNKeyRef key = obj;
     if (key) {
-        QCRelease(key->h0);
-        QCRelease(key->h1);
-        QCRelease(key->h1inv);
-        QCRelease(key->g);
-        QCDeallocate(key);
+        QNRelease(key->h0);
+        QNRelease(key->h1);
+        QNRelease(key->h1inv);
+        QNRelease(key->g);
+        QNDeallocate(key);
     }
 }
 
-static void QCKeyPrint(QCKeyRef key) {
+static void QNKeyPrint(QNKeyRef key) {
     if (key) {
         if (key->g) {
-            printf("<QCPublicKey length: %d weight: %d error: %d>", key->length, key->weight, key->error);
+            printf("<QNPublicKey length: %d weight: %d error: %d>", key->length, key->weight, key->error);
         } else {
-            printf("<QCPrivateKey length: %d weight: %d error: %d>", key->length, key->weight, key->error);
+            printf("<QNPrivateKey length: %d weight: %d error: %d>", key->length, key->weight, key->error);
         }
     }
 }
 
-static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2) {
+static bool QNKeyEqual(QNKeyRef key1, QNKeyRef key2) {
     if (key1 && key2 && key1->isa == key2->isa) {
         return key1->length == key2->length
                && key1->weight == key2->weight
                && key1->error == key2->error
-               && QCObjectEqual(key1->h0, key2->h0)
-               && QCObjectEqual(key1->h1, key2->h1)
-               && QCObjectEqual(key1->h1inv, key2->h1inv)
-               && QCObjectEqual(key1->g, key2->g);
+               && QNObjectEqual(key1->h0, key2->h0)
+               && QNObjectEqual(key1->h1, key2->h1)
+               && QNObjectEqual(key1->h1inv, key2->h1inv)
+               && QNObjectEqual(key1->g, key2->g);
     }
     return false;
 }
 
-void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey) {
-    QCArrayRef h0 = QNRandomWeightVector(config.length, config.weight);
-    QCArrayRef h1 = QNRandomWeightVector(config.length, config.weight);
+void QNKeyGeneratePair(QNKeyConfig config, QNKeyRef *privateKey, QNKeyRef *publicKey) {
+    QNArrayRef h0 = QNRandomWeightVector(config.length, config.weight);
+    QNArrayRef h1 = QNRandomWeightVector(config.length, config.weight);
 
     BN_CTX *bnCTX = BN_CTX_new();
     BIGNUM *base = NULL;
@@ -134,51 +134,51 @@ void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publi
     BN_exp(n, base, exp, bnCTX);
     BN_sub(n, n, base);
 
-    QCArrayRef h1inv = QCArrayExpPoly(h1, n);
+    QNArrayRef h1inv = QNArrayExpPoly(h1, n);
 
     BN_free(base);
     BN_free(exp);
     BN_free(n);
     BN_CTX_free(bnCTX);
 
-    QCKeyRef privKey = QCKeyCreatePrivate(h0, h1, h1inv, config);
+    QNKeyRef privKey = QNKeyCreatePrivate(h0, h1, h1inv, config);
 
-    QCRelease(h0);
-    QCRelease(h1);
-    QCRelease(h1inv);
+    QNRelease(h0);
+    QNRelease(h1);
+    QNRelease(h1inv);
 
     *privateKey = privKey;
 
-    QCArrayRef g = QCArrayMulPoly(h0, h1inv);
-    QCKeyRef pubKey = QCKeyCreatePublic(g, config);
+    QNArrayRef g = QNArrayMulPoly(h0, h1inv);
+    QNKeyRef pubKey = QNKeyCreatePublic(g, config);
 
-    QCRelease(g);
+    QNRelease(g);
 
     *publicKey = pubKey;
 }
 
-QCArrayRef _decodeBitString(ltc_asn1_list *node) {
-    QCByte buf[kQCDefaultKeyConfig.length];
+QNArrayRef _decodeBitString(ltc_asn1_list *node) {
+    QNByte buf[kQNDefaultKeyConfig.length];
     size_t size = node->size;
     memcpy(buf, node->data, size);
-    return QCArrayCreateWithByte(buf, size, true);
+    return QNArrayCreateWithByte(buf, size, true);
 }
 
-QCArrayRef _decodeOCTString(ltc_asn1_list *node) {
-    QCByte buf[kQCDefaultKeyConfig.length];
+QNArrayRef _decodeOCTString(ltc_asn1_list *node) {
+    QNByte buf[kQNDefaultKeyConfig.length];
     size_t size = node->size;
     memcpy(buf, node->data, size);
-    return QCArrayCreateWithByte(buf, size, true);
+    return QNArrayCreateWithByte(buf, size, true);
 }
 
-static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
+static QNKeyRef _parsePrivateKeyFile(const QNByte *data, size_t length) {
 
     ltc_asn1_list *decoded_list;
     size_t len;
     int ret = der_decode_sequence_flexi(data, &len, &decoded_list);
-    QCArrayRef h0 = NULL;
-    QCArrayRef h1 = NULL;
-    QCArrayRef h1inv = NULL;
+    QNArrayRef h0 = NULL;
+    QNArrayRef h1 = NULL;
+    QNArrayRef h1inv = NULL;
 
     if (ret != CRYPT_OK) {
         return NULL;
@@ -192,22 +192,22 @@ static QCKeyRef _parsePrivateKeyFile(const QCByte *data, size_t length) {
         node = node->next;
         h1inv = _decodeBitString(node);
 
-        QCKeyRef privateKey = QCKeyCreatePrivate(h0, h1, h1inv, kQCDefaultKeyConfig);
+        QNKeyRef privateKey = QNKeyCreatePrivate(h0, h1, h1inv, kQNDefaultKeyConfig);
 
         der_sequence_free(decoded_list);
 
-        QCRelease(h0);
-        QCRelease(h1);
-        QCRelease(h1inv);
+        QNRelease(h0);
+        QNRelease(h1);
+        QNRelease(h1inv);
         return privateKey;
     }
 }
 
-static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
+static QNKeyRef _parsePublicKeyFile(const QNByte *data, size_t length) {
     ltc_asn1_list *decoded_list;
     size_t len;
     int ret = der_decode_sequence_flexi(data, &len, &decoded_list);
-    QCArrayRef g = NULL;
+    QNArrayRef g = NULL;
 
     if (ret != CRYPT_OK) {
         return NULL;
@@ -217,8 +217,8 @@ static QCKeyRef _parsePublicKeyFile(const QCByte *data, size_t length) {
         g = _decodeBitString(node);
     }
 
-    QCKeyRef key = QCKeyCreatePublic(g, kQCDefaultKeyConfig);
-    QCRelease(g);
+    QNKeyRef key = QNKeyCreatePublic(g, kQNDefaultKeyConfig);
+    QNRelease(g);
     der_sequence_free(decoded_list);
 
     return key;
@@ -233,15 +233,15 @@ bool _isKindOfFile(const char *fileContent, const char *label) {
     return strstr(fileContent, label) != NULL;
 }
 
-QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label) {
+QNByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label) {
     char begin[64] = {'\0'};
     sprintf(begin, kBeginTemplate, label);
     char end[64] = {'\0'};
     sprintf(end, kEndTemplate, label);
 
     size_t bufferSize = (fileLength - strlen(begin) - strlen(end));
-    size_t resultSize = sizeof(QCByte) * bufferSize;
-    QCByte *result = QCAllocator(resultSize + 1);
+    size_t resultSize = sizeof(QNByte) * bufferSize;
+    QNByte *result = QNAllocator(resultSize + 1);
     result[resultSize] = '\0';
     memcpy(result, fileContent + strlen(begin), resultSize);
 
@@ -251,14 +251,14 @@ QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *out
     return result;
 }
 
-QCByte *_readFileContent(const char *path, size_t *outLength) {
+QNByte *_readFileContent(const char *path, size_t *outLength) {
 
     FILE *fileptr = fopen(path, "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
     size_t filelen = (size_t)ftell(fileptr);             // Get the current byte offset in the file
     rewind(fileptr);                      // Jump back to the beginning of the file
 
-    QCByte *buffer = QCAllocator((filelen + 1) * sizeof(QCByte)); // Enough memory for file + \0
+    QNByte *buffer = QNAllocator((filelen + 1) * sizeof(QNByte)); // Enough memory for file + \0
 
     char * line = NULL;
     size_t len = 0;
@@ -270,7 +270,7 @@ QCByte *_readFileContent(const char *path, size_t *outLength) {
         total += read - 1;
     }
     if (line) {
-        QCDeallocate(line);
+        QNDeallocate(line);
     }
 
     if (outLength) {
@@ -282,38 +282,38 @@ QCByte *_readFileContent(const char *path, size_t *outLength) {
     return buffer;
 }
 
-QCKeyRef QCKeyCreateFromPEMFile(const char* filePath) {
+QNKeyRef QNKeyCreateFromPEMFile(const char* filePath) {
     size_t length = 0;
-    QCByte *data = _readFileContent(filePath, &length);
+    QNByte *data = _readFileContent(filePath, &length);
 
     if (_isKindOfFile(data, kPrivateKeyLabel)) {
-        QCByte *trimmed = _trimFileContent(data, length, &length, kPrivateKeyLabel);
-        QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
+        QNByte *trimmed = _trimFileContent(data, length, &length, kPrivateKeyLabel);
+        QNArrayRef array = QNArrayCreateWithBase64(trimmed, length);
 
-        QCDeallocate(data);
-        QCDeallocate(trimmed);
+        QNDeallocate(data);
+        QNDeallocate(trimmed);
 
-        QCKeyRef key =_parsePrivateKeyFile(array->data, array->count);
-        QCRelease(array);
+        QNKeyRef key =_parsePrivateKeyFile(array->data, array->count);
+        QNRelease(array);
         return key;
     } else if (_isKindOfFile(data, kPublicKeyLabel)) {
-        QCByte *trimmed = _trimFileContent(data, length, &length, kPublicKeyLabel);
-        QCArrayRef array = QCArrayCreateWithBase64(trimmed, length);
+        QNByte *trimmed = _trimFileContent(data, length, &length, kPublicKeyLabel);
+        QNArrayRef array = QNArrayCreateWithBase64(trimmed, length);
 
-        QCDeallocate(data);
-        QCDeallocate(trimmed);
+        QNDeallocate(data);
+        QNDeallocate(trimmed);
 
-        QCKeyRef key =_parsePublicKeyFile(array->data, array->count);
-        QCRelease(array);
+        QNKeyRef key =_parsePublicKeyFile(array->data, array->count);
+        QNRelease(array);
         return key;
     }
     return NULL;
 }
 
 
-static void _savePrivateKeyToPath(QCKeyRef key, const char *path) {
+static void _savePrivateKeyToPath(QNKeyRef key, const char *path) {
     size_t count = key->h0->count + key->h1->count + key->h1inv->count;
-    QCByte *buffer = _QCMallocData(QCDTByte, count, NULL);
+    QNByte *buffer = _QNMallocData(QNDTByte, count, NULL);
     size_t idx = 0;
     size_t total = 0;
     der_encode_bit_string(key->h0->data, key->h0->count, buffer, &idx);
@@ -322,7 +322,7 @@ static void _savePrivateKeyToPath(QCKeyRef key, const char *path) {
     total += idx;
     der_encode_bit_string(key->h1inv->data, key->h1inv->count, buffer + total, &idx);
     total += idx;
-    const char *b64string = QCEncodeBase64(buffer, total);
+    const char *b64string = QNEncodeBase64(buffer, total);
 
     FILE * fp;
     fp = fopen (path, "a");
@@ -336,13 +336,13 @@ static void _savePrivateKeyToPath(QCKeyRef key, const char *path) {
     /* close the file*/
     fclose (fp);
 
-    QCDeallocate(buffer);
+    QNDeallocate(buffer);
 }
 
 
-static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
+static void _savePublicKeyToPath(QNKeyRef key, const char *path) {
     size_t count = key->h0->count + key->h1->count + key->h1inv->count;
-    QCByte *buffer = _QCMallocData(QCDTByte, count, NULL);
+    QNByte *buffer = _QNMallocData(QNDTByte, count, NULL);
     size_t idx = 0;
     size_t total = 0;
     der_encode_bit_string(key->h0->data, key->h0->count, buffer, &idx);
@@ -351,7 +351,7 @@ static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
     total += idx;
     der_encode_bit_string(key->h1inv->data, key->h1inv->count, buffer + total, &idx);
     total += idx;
-    const char *b64string = QCEncodeBase64(buffer, total);
+    const char *b64string = QNEncodeBase64(buffer, total);
 
     FILE * fp;
     fp = fopen (path, "a");
@@ -365,10 +365,10 @@ static void _savePublicKeyToPath(QCKeyRef key, const char *path) {
     /* close the file*/
     fclose (fp);
 
-    QCDeallocate(buffer);
+    QNDeallocate(buffer);
 }
 
-void QCKeySaveToPEMFile(QCKeyRef key, const char *path) {
+void QNKeySaveToPEMFile(QNKeyRef key, const char *path) {
     if (key && path) {
         if (key->h0) {
             // is private key
@@ -383,7 +383,7 @@ void QCKeySaveToPEMFile(QCKeyRef key, const char *path) {
 /*
  * custom save & parse
  */
-bool QCKeySaveToFile(QCKeyRef key, const char *path) {
+bool QNKeySaveToFile(QNKeyRef key, const char *path) {
     FILE *f = fopen(path, "wb");
     const char *tag = NULL;
     if (key->g) {
@@ -395,7 +395,7 @@ bool QCKeySaveToFile(QCKeyRef key, const char *path) {
         fwrite(&key->weight, sizeof(size_t), 1, f);
         fwrite(&key->error, sizeof(size_t), 1, f);
 
-        QCArraySaveToFile(key->g, f);
+        QNArraySaveToFile(key->g, f);
     } else {
         tag = kPrivateKeyTag;
         fwrite(tag, sizeof(char), strlen(tag), f);
@@ -404,19 +404,19 @@ bool QCKeySaveToFile(QCKeyRef key, const char *path) {
         fwrite(&key->weight, sizeof(size_t), 1, f);
         fwrite(&key->error, sizeof(size_t), 1, f);
 
-        QCArraySaveToFile(key->h0, f);
-        QCArraySaveToFile(key->h1, f);
-        QCArraySaveToFile(key->h1inv, f);
+        QNArraySaveToFile(key->h0, f);
+        QNArraySaveToFile(key->h1, f);
+        QNArraySaveToFile(key->h1inv, f);
     }
 
     fclose(f);
     return true;
 }
 
-QCKeyRef QCKeyCreateFromFile(const char *path) {
+QNKeyRef QNKeyCreateFromFile(const char *path) {
     FILE *f = fopen(path, "rb");
     size_t len = 5;
-    const char *tag = QCAllocator(sizeof(char) * (5 + 1));
+    const char *tag = QNAllocator(sizeof(char) * (5 + 1));
     fread(tag, sizeof(char), len, f);
     if (strcmp(tag, kPrivateKeyTag) == 0) {
 
@@ -428,18 +428,18 @@ QCKeyRef QCKeyCreateFromFile(const char *path) {
         fread(&error, sizeof(size_t), 1, f);
 
         // private key
-        QCArrayRef h0 = QCArrayFromFile(f);
-        QCArrayRef h1 = QCArrayFromFile(f);
-        QCArrayRef h1inv = QCArrayFromFile(f);
+        QNArrayRef h0 = QNArrayFromFile(f);
+        QNArrayRef h1 = QNArrayFromFile(f);
+        QNArrayRef h1inv = QNArrayFromFile(f);
 
-        QCKeyConfig config = {length, weight, error};
-        QCKeyRef key = QCKeyCreatePrivate(h0, h1, h1inv, config);
-        QCRelease(h0);
-        QCRelease(h1);
-        QCRelease(h1inv);
+        QNKeyConfig config = {length, weight, error};
+        QNKeyRef key = QNKeyCreatePrivate(h0, h1, h1inv, config);
+        QNRelease(h0);
+        QNRelease(h1);
+        QNRelease(h1inv);
 
         fclose(f);
-        QCDeallocate(tag);
+        QNDeallocate(tag);
 
         return key;
     } else {
@@ -451,14 +451,14 @@ QCKeyRef QCKeyCreateFromFile(const char *path) {
         size_t error = 0;
         fread(&error, sizeof(size_t), 1, f);
 
-        QCArrayRef g = QCArrayFromFile(f);
+        QNArrayRef g = QNArrayFromFile(f);
 
-        QCKeyConfig config = {length, weight, error};
-        QCKeyRef pubkey = QCKeyCreatePublic(g, config);
-        QCRelease(g);
+        QNKeyConfig config = {length, weight, error};
+        QNKeyRef pubkey = QNKeyCreatePublic(g, config);
+        QNRelease(g);
 
         fclose(f);
-        QCDeallocate(tag);
+        QNDeallocate(tag);
 
         return pubkey;
     }

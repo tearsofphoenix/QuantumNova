@@ -2,8 +2,8 @@
 // Created by Isaac on 2018/1/18.
 //
 
-#ifndef PQC_CRYPTO_QNTEST_H
-#define PQC_CRYPTO_QNTEST_H
+#ifndef QN_QNTEST_H
+#define QN_QNTEST_H
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -28,4 +28,4 @@ extern void QNTestRun(QNTestRef test);
                            } while(0)
 #endif
 
-#endif //PQC_CRYPTO_QNTEST_H
+#endif //QN_QNTEST_H

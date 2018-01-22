@@ -4,9 +4,9 @@ elseif(UNIX)
     link_directories(/usr/lib)
 endif (APPLE)
 
-add_library(qcrypto QCArray.c QCArray.h QCArrayPrivate.h QCArrayPrivate.c QNRandom.c QNRandom.h QCKey.c QCKey.h QCKeyPrivate.h
-        QCCipher.c QCCipher.h QCInt32Array.c QCInt32Array.h QCDoubleArray.c QCDoubleArray.h QCClass.c QCClass.h
-        QCObject.c QCObject.h QCObjectPrivate.h QCCipherPrivate.h QCByteArray.c QCByteArray.h QCMessage.c QCMessage.h QCMessagePrivate.h
+add_library(qcrypto QNArray.c QNArray.h QNArrayPrivate.h QNArrayPrivate.c QNRandom.c QNRandom.h QNKey.c QNKey.h QNKeyPrivate.h
+        QNCipher.c QNCipher.h QNInt32Array.c QNInt32Array.h QNDoubleArray.c QNDoubleArray.h QNClass.c QNClass.h
+        QNObject.c QNObject.h QNObjectPrivate.h QNCipherPrivate.h QNByteArray.c QNByteArray.h QNMessage.c QNMessage.h QNMessagePrivate.h
         QNTest.c QNTest.h QNSymmetricCipher.c QNSymmetricCipher.h vendor/salsa20.c vendor/salsa20.h)
 
 
