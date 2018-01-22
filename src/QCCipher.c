@@ -26,6 +26,7 @@ static struct QCClass kQCCipherClass = {
 
 QCCipherRef QCCipherCreate(void) {
     QCCipherRef cipher = QCAllocate(&kQCCipherClass);
+    cipher->symmetricCipher = QNGetAESCipher(); // default is AES
     cipher->saltA = QCArrayCreateWithByte(kSaltA, strlen(kSaltA), false);
     cipher->saltB = QCArrayCreateWithByte(kSaltB, strlen(kSaltB), false);
     cipher->ivSalt = QCArrayCreateWithByte(kIVSalt, strlen(kIVSalt), false);
@@ -306,61 +307,6 @@ static void QCCipherDeallocate(QCObjectRef object) {
     }
 }
 
-QCArrayRef QCCipherSymmetricEncrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-    QCArrayRef padded = QCArrayPKCS7Encode(message);
-
-    size_t messageSize = padded->count;
-    QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
-
-    register_cipher(&aes_desc);
-    symmetric_CBC cbc;
-    int cipher_idx = find_cipher("aes");
-    /* encode the block */
-    int ret = cbc_start(cipher_idx, iv->data, key->data, key->count, 0, &cbc);
-    if (ret != CRYPT_OK) {
-        printf("cbc start failed!\n");
-        return NULL;
-    }
-    ret = cbc_encrypt(padded->data, out, messageSize * sizeof(QCByte), &cbc);
-    if (ret != CRYPT_OK) {
-        printf("cbc encrypt failed!\n");
-        return NULL;
-    }
-
-    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
-    array->needfree = true;
-
-    QCRelease(padded);
-
-    return array;
-}
-
-QCArrayRef QCCipherSymmetricDecrypt(QCCipherRef cipher, QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
-    size_t messageSize = message->count;
-    QCByte *out = cipher->isa->allocator(messageSize * sizeof(QCByte));
-
-    register_cipher(&aes_desc);
-    symmetric_CBC cbc;
-    int cipher_idx = find_cipher("aes");
-
-    int ret = cbc_start(cipher_idx, iv->data, key->data, key->count, 0, &cbc);
-    if (ret != CRYPT_OK) {
-        printf("cbc start failed!\n");
-        return NULL;
-    }
-    ret = cbc_decrypt(message->data, out, messageSize * sizeof(QCByte), &cbc);
-    if (ret != CRYPT_OK) {
-        printf("cbc decrypt failed!\n");
-        return NULL;
-    }
-    QCArrayRef array = QCArrayCreateWithByte(out, messageSize, false);
-    array->needfree = true;
-
-    QCArrayRef ref = QCArrayPKCS7Decode(array);
-    QCRelease(array);
-    return ref;
-}
-
 QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCKeyRef publicKey = cipher->publicKey;
     QCArrayRef randomized = QCRandomVector(publicKey->length);
@@ -383,7 +329,7 @@ QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCArrayRef pc = QCArrayCreateCopy(plainData);
     QCArrayAppend(pc, mac);
 
-    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, pc, keyA, iv);
+    QCArrayRef ciphered = cipher->symmetricCipher->encrypt(pc, keyA, iv);
 
     QCMessageRef message = QCMessageCreate(c0, c1, ciphered);
 
@@ -418,7 +364,7 @@ QCArrayRef QCCipherDecryptMessage(QCCipherRef cipher, QCMessageRef message) {
     QCArrayRef decrypted_iv = _getIV(decrypted_token, cipher->ivSalt);
 
     // decrypt ciphertext and derive mac
-    QCArrayRef sem = QCCipherSymmetricDecrypt(cipher, message->sym, decrypted_keyA, decrypted_iv);
+    QCArrayRef sem = cipher->symmetricCipher->decrypt(message->sym, decrypted_keyA, decrypted_iv);
     size_t count = sem->count;
     QCArrayRef decrypted_message = QCArraySlice(sem, 0, count - 32);
     QCArrayRef decrypted_mac = QCArraySlice(sem, count - 32, count);

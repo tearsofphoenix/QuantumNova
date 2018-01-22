@@ -12,6 +12,7 @@
 #include "src/QCMessagePrivate.h"
 #include "src/QCKeyPrivate.h"
 #include "src/QNTest.h"
+#include "src/QNSymmetricCipher.h"
 #include "data.h"
 
 static QC_STRONG QCKeyRef _getPrivateKey() {
@@ -164,11 +165,13 @@ static bool aes_cbc_test()
     QCArrayRef keyArray = QCArrayCreateWithByte(key[0], 32, false);
     QCArrayRef ivArray = QCArrayCreateWithByte(iv[0], 16, false);
 
-    QCArrayRef ciphered = QCCipherSymmetricEncrypt(cipher, message, keyArray, ivArray);
+    QNSymmetricCipherRef aesCipher = QNGetAESCipher();
+
+    QCArrayRef ciphered = aesCipher->encrypt(message, keyArray, ivArray);
 
     bool ret1 = QCArrayCompareRaw(ciphered, ciphertext[0], QCDTByte);
 
-    QCArrayRef plain = QCCipherSymmetricDecrypt(cipher, ciphered, keyArray, ivArray);
+    QCArrayRef plain = aesCipher->decrypt(ciphered, keyArray, ivArray);
 
     bool ret2 = QCObjectEqual(plain, message);
 
