@@ -13,8 +13,6 @@ static struct QNClass kQNArrayClass = {
         .copy = NULL
 };
 
-const QNClassRef kQNArrayClassRef = &kQNArrayClass;
-
 void *_QNMallocData(QNArrayDataType type, size_t count, size_t *outsize) {
     size_t size = 0;
     switch (type) {
@@ -65,7 +63,7 @@ double QNArrayValueAt(QNArrayRef array, int index) {
 
 int QNArrayGetNonZeroCount(QNArrayRef array) {
     if (array) {
-        return array->count - ((QNArrayClassRef)array->isa)->zero(array);
+        return (int)(array->count - ((QNArrayClassRef)array->isa)->zero(array));
     }
     return 0;
 }
@@ -129,11 +127,11 @@ QNArrayRef QNArrayGetNoZeroIndices(QNArrayRef array) {
 
 int QNArrayFindIndex(QNArrayRef array, int value) {
     if (array) {
-        int count = array->count;
+        size_t count = array->count;
         int *data = array->data;
-        for (int i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             if (data[i] == value) {
-                return i;
+                return (int)i;
             }
         }
     }

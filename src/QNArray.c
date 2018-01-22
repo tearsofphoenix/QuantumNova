@@ -10,7 +10,7 @@
 #include <fftw3.h>
 #include <math.h>
 
-QNArrayRef QNArrayCreate(int count) {
+QNArrayRef QNArrayCreate(size_t count) {
     return QNArrayCreateWithDouble(NULL, count, true);
 }
 
@@ -120,7 +120,7 @@ QNArrayRef QNArrayFFT(QNArrayRef array) {
         size_t count = array->count;
         double *out = fftw_malloc((count + 2) * sizeof(double));
 
-        fftw_plan plan = fftw_plan_dft_r2c_1d(count, array->data, (void *)out, FFTW_ESTIMATE);
+        fftw_plan plan = fftw_plan_dft_r2c_1d((int)count, array->data, (void *)out, FFTW_ESTIMATE);
         fftw_execute(plan);
         fftw_destroy_plan(plan);
 
@@ -138,7 +138,7 @@ QNArrayRef QNArrayInverseFFT(QNArrayRef array) {
         double *out = fftw_malloc(realCount * sizeof(double));
 
         QNArrayMultiply(array, 1.0 / realCount);
-        fftw_plan plan = fftw_plan_dft_c2r_1d(realCount, array->data, out, FFTW_ESTIMATE);
+        fftw_plan plan = fftw_plan_dft_c2r_1d((int)realCount, array->data, out, FFTW_ESTIMATE);
         fftw_execute(plan);
         fftw_destroy_plan(plan);
 

@@ -22,7 +22,7 @@ typedef struct QNArray * QNArrayRef;
 /*
  *  create an array with `count`, zero filled
  */
-extern QN_STRONG QNArrayRef QNArrayCreate(int count);
+extern QN_STRONG QNArrayRef QNArrayCreate(size_t count);
 
 /*
  * create QNArray from double array

@@ -49,6 +49,8 @@ typedef struct {
 } QNLoopContext;
 
 static void _h0LoopFunc(int num, int index, const void *ctx) {
+    (void)index;
+
     const QNLoopContext *c = ctx;
     QNArrayRef synd = c->synd;
     size_t kBL = c->kBL;
@@ -73,6 +75,8 @@ typedef struct {
 } QNBlockLoopContext;
 
 static void _blockLoopFunc(int dj, int index, const void *ctx) {
+    (void)index;
+
     int j = dj;
     const QNBlockLoopContext *c = ctx;
 
@@ -119,15 +123,15 @@ static void _decrypt(QNKeyRef privateKey, QNArrayRef c0, QNArrayRef c1) {
     size_t kBL = privateKey->length;
     QNArrayRef unsat_H0 = QNArrayCreateWithInt(NULL, kBL, true);
 
-    QNLoopContext ctx;
-    ctx.synd = synd;
-    ctx.array = unsat_H0;
-    ctx.kBL = kBL;
-    QNArrayForeach(H0_ind, _h0LoopFunc, &ctx);
+    QNLoopContext ctx0;
+    ctx0.synd = synd;
+    ctx0.array = unsat_H0;
+    ctx0.kBL = kBL;
+    QNArrayForeach(H0_ind, _h0LoopFunc, &ctx0);
 
     QNArrayRef unsat_H1 = QNArrayCreateWithInt(NULL, kBL, true);
-    ctx.array = unsat_H1;
-    QNArrayForeach(H1_ind, _h0LoopFunc, &ctx);
+    ctx0.array = unsat_H1;
+    QNArrayForeach(H1_ind, _h0LoopFunc, &ctx0);
 
     int rounds = 10;
     int delta = 5;
@@ -213,8 +217,6 @@ static void _decrypt(QNKeyRef privateKey, QNArrayRef c0, QNArrayRef c1) {
     QNRelease(H0_ind);
     QNRelease(H1_ind);
     QNRelease(synd);
-
-    return; // c0
 }
 
 static struct QNAsymmetricCipher kCipher = {
