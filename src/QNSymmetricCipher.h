@@ -14,7 +14,7 @@ typedef QN_STRONG QNArrayRef (* QNSymmetricDecryptFunc)(QNArrayRef data, QNArray
 
 struct QNSymmetricCipher {
     QNSymmetricEncryptFunc encrypt;
-    QNSymmetricEncryptFunc decrypt;
+    QNSymmetricDecryptFunc decrypt;
 };
 
 typedef struct QNSymmetricCipher* QNSymmetricCipherRef;

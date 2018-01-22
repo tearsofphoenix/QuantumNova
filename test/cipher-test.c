@@ -40,17 +40,14 @@ static bool cipher_syndrome_test() {
     QNArrayRef c0 = QNArrayCreateWithDouble(C0, length, true);
     QNArrayRef c1 = QNArrayCreateWithDouble(C1, length, true);
 
-    QNCipherRef cipher = QNCipherCreate();
-    QNCipherSetPrivateKey(cipher, privateKey);
-
-    QNArrayRef result = QNCipherSyndrome(cipher, c0, c1);
+    QNAsymmetricCipherRef asymmetricCipher = QNGetAsymmetricCipher();
+    QNArrayRef result = asymmetricCipher->syndrome(privateKey, c0, c1);
     bool ret = QNArrayCompareRaw(result, kSyndrome, QNDTDouble);
 
     QNRelease(privateKey);
     QNRelease(c0);
     QNRelease(c1);
     QNRelease(result);
-    QNRelease(cipher);
 
     return ret;
 }
@@ -67,7 +64,8 @@ static bool decrypt_test() {
     QNCipherRef cipher = QNCipherCreate();
     QNCipherSetPrivateKey(cipher, privateKey);
 
-    QNCipherDecrypt(cipher, c0, c1);
+    QNAsymmetricCipherRef asymmetricCipher = QNGetAsymmetricCipher();
+    asymmetricCipher->decrypt(privateKey, c0, c1);
     QNArrayRef result = c0;
     bool ret = QNArrayCompareRaw(result, kQNMDPCDecrypt, QNDTDouble);
 

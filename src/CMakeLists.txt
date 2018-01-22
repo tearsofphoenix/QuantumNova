@@ -7,7 +7,7 @@ endif (APPLE)
 add_library(qcrypto QNArray.c QNArray.h QNArrayPrivate.h QNArrayPrivate.c QNRandom.c QNRandom.h QNKey.c QNKey.h QNKeyPrivate.h
         QNCipher.c QNCipher.h QNInt32Array.c QNInt32Array.h QNDoubleArray.c QNDoubleArray.h QNClass.c QNClass.h
         QNObject.c QNObject.h QNObjectPrivate.h QNCipherPrivate.h QNByteArray.c QNByteArray.h QNMessage.c QNMessage.h QNMessagePrivate.h
-        QNTest.c QNTest.h QNSymmetricCipher.c QNSymmetricCipher.h vendor/salsa20.c vendor/salsa20.h)
+        QNTest.c QNTest.h QNSymmetricCipher.c QNSymmetricCipher.h vendor/salsa20.c vendor/salsa20.h QNAsymmetricCipher.c QNAsymmetricCipher.h)
 
 
 if (APPLE)

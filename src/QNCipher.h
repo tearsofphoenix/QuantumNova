@@ -38,21 +38,6 @@ extern void QNCipherSetPrivateKey(QNCipherRef cipher, QNKeyRef privateKey);
 extern void QNCipherSetPublicKey(QNCipherRef cipher, QNKeyRef publicKey);
 
 /*
- * do asymmetric encrypt on message, result: [u, v]
- */
-extern void QNCipherEncrypt(QNCipherRef cipher, QNArrayRef random, QNArrayRef *u, QNArrayRef *v);
-
-/*
- * syndrome c0 & c1
- */
-extern QN_STRONG QNArrayRef QNCipherSyndrome(QNCipherRef cipher, QNArrayRef c0, QNArrayRef c1);
-
-/*
- * asymmetric decrypt on c0 & c1
- */
-extern void QNCipherDecrypt(QNCipherRef cipher, QNArrayRef c0, QNArrayRef c1);
-
-/*
  * encrypt message with publicKey
  */
 extern QN_STRONG QNMessageRef QNCipherEncryptMessage(QNCipherRef cipher, QNArrayRef plainData);

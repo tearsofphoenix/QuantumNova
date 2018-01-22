@@ -7,10 +7,12 @@
 
 #include "QNCipher.h"
 #include "QNSymmetricCipher.h"
+#include "QNAsymmetricCipher.h"
 
 struct QNCipher {
     QNOBJECTFIELDS
     QNSymmetricCipherRef symmetricCipher;
+    QNAsymmetricCipherRef asymmetricCipher;
     QNKeyRef privateKey;
     QNKeyRef publicKey;
     QNArrayRef saltA;
