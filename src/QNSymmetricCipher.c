@@ -11,7 +11,7 @@
 /*
  * symmetric encrypt (current AES-CBC)
  */
-static QC_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+static QN_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     QCArrayRef padded = QCArrayPKCS7Encode(message);
 
     size_t messageSize = padded->count;
@@ -43,7 +43,7 @@ static QC_STRONG QCArrayRef QNAESEncrypt(QCArrayRef message, QCArrayRef key, QCA
 /*
  * symmetric decrypt (current AES-CBC)
  */
-static QC_STRONG QCArrayRef QNAESDecrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+static QN_STRONG QCArrayRef QNAESDecrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     size_t messageSize = message->count;
     QCByte *out = message->isa->allocator(messageSize * sizeof(QCByte));
 
@@ -79,7 +79,7 @@ QNSymmetricCipherRef QNGetAESCipher() {
 }
 
 // salsa20 cipher
-static QC_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+static QN_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
 //    QCArrayRef padded = QCArrayPKCS7Encode(message);
     QCArrayRef copy = QCArrayCreateCopy(message);
     size_t size = QCArrayGetSize(copy);
@@ -95,7 +95,7 @@ static QC_STRONG QCArrayRef QNSalsa20Encrypt(QCArrayRef message, QCArrayRef key,
 /*
  * symmetric decrypt (current AES-CBC)
  */
-static QC_STRONG QCArrayRef QNSalsa20Decrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
+static QN_STRONG QCArrayRef QNSalsa20Decrypt(QCArrayRef message, QCArrayRef key, QCArrayRef iv) {
     QCArrayRef copy = QCArrayCreateCopy(message);
     size_t size = QCArrayGetSize(copy);
     enum s20_status_t status = s20_crypt(key->data, S20_KEYLEN_256, iv->data, 0, copy->data, size);

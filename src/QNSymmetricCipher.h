@@ -8,9 +8,9 @@
 #include "QCClass.h"
 #include "QCArray.h"
 
-typedef QC_STRONG QCArrayRef (* QNSymmetricEncryptFunc)(QCArrayRef plainText, QCArrayRef key, QCArrayRef iv);
+typedef QN_STRONG QCArrayRef (* QNSymmetricEncryptFunc)(QCArrayRef plainText, QCArrayRef key, QCArrayRef iv);
 
-typedef QC_STRONG QCArrayRef (* QNSymmetricDecryptFunc)(QCArrayRef data, QCArrayRef key, QCArrayRef iv);
+typedef QN_STRONG QCArrayRef (* QNSymmetricDecryptFunc)(QCArrayRef data, QCArrayRef key, QCArrayRef iv);
 
 struct QNSymmetricCipher {
     QNSymmetricEncryptFunc encrypt;

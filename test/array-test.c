@@ -220,6 +220,16 @@ static bool pkcs7_test() {
     return ret;
 }
 
+static bool log_test() {
+    QCByte msg[] = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x0a};
+    QCArrayRef array = QCArrayCreateWithByte(msg, sizeof(msg) / sizeof(msg[0]), false);
+    QNLog("%d, %f, %@", 1, 1.1, array);
+
+    QCRelease(array);
+
+    return true;
+}
+
 void array_test() {
 
     QNT("sha256", "", sha256_test, 1);
@@ -233,4 +243,6 @@ void array_test() {
     QNT("array-base64", "", base64_test, 1);
 
     QNT("array-pkcs7", "", pkcs7_test, 1);
+
+    QNT("log", NULL, log_test, 1);
 }

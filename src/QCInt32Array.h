@@ -9,8 +9,8 @@
 
 typedef void (* QCInt32LoopFunc)(int value, size_t idx, const void *ctx);
 
-extern const QC_STRONG QCArrayRef QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy);
+extern const QN_STRONG QCArrayRef QCInt32ArrayCreate(const void *initData, size_t count, bool needCopy);
 
-extern QC_STRONG QCArrayRef QCInt32ArrayFromFile(FILE *fp);
+extern QN_STRONG QCArrayRef QCInt32ArrayFromFile(FILE *fp);
 
 #endif //PQC_CRYPTO_QCINT32ARRAY_H

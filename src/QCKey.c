@@ -4,7 +4,7 @@
 
 #include "QCKey.h"
 #include "QCKeyPrivate.h"
-#include "QCRandom.h"
+#include "QNRandom.h"
 #include "QCArrayPrivate.h"
 #include <tomcrypt.h>
 #include <math.h>
@@ -121,8 +121,8 @@ static bool QCKeyEqual(QCKeyRef key1, QCKeyRef key2) {
 }
 
 void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef *publicKey) {
-    QCArrayRef h0 = QCRandomWeightVector(config.length, config.weight);
-    QCArrayRef h1 = QCRandomWeightVector(config.length, config.weight);
+    QCArrayRef h0 = QNRandomWeightVector(config.length, config.weight);
+    QCArrayRef h1 = QNRandomWeightVector(config.length, config.weight);
 
     BN_CTX *bnCTX = BN_CTX_new();
     BIGNUM *base = NULL;

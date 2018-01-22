@@ -2,6 +2,10 @@
 // Created by Isaac on 2018/1/12.
 //
 
+#include <memory.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include "QCObject.h"
 #include "QCObjectPrivate.h"
 
@@ -79,4 +83,50 @@ void QCObjectPrint(QCObjectRef obj) {
     if (object) {
         object->isa->print(object);
     }
+}
+
+void QNLog(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    size_t len = strlen(fmt);
+    for (int i = 0; i < len; ++i) {
+        char c = fmt[i];
+        switch (c) {
+            case '%': {
+                ++i;
+                char next = fmt[i];
+                switch (next) {
+                    case '%': {
+                        printf("%%");
+                        break;
+                    }
+                    case 'd': {
+                        int d = va_arg(ap, int);
+                        printf("%d", d);
+                        break;
+                    }
+                    case 'f': {
+                        double d = va_arg(ap, double);
+                        printf("%f", d);
+                        break;
+                    }
+                    case '@': {
+                        QCObjectRef obj = va_arg(ap, QCObjectRef);
+                        QCObjectPrint(obj);
+                        break;
+                    }
+                    default: {
+                        // ignore
+                        break;
+                    }
+                }
+                break;
+            }
+            default: {
+                printf("%c", c);
+                break;
+            }
+        }
+    }
+    va_end(ap);
 }

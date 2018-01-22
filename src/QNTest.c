@@ -23,6 +23,7 @@ void QNTestRun(QNTestRef test) {
         const QNTestFunc func = test->func;
         if (test->loopCount > 0 && func) {
             printf(KBLU "| will loop %d times \n", test->loopCount);
+            printf(KNRM);
             bool success = true;
             clock_t start = clock();
             for (size_t i = 0; i < test->loopCount; ++i) {

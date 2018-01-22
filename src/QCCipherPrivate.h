@@ -18,6 +18,6 @@ struct QCCipher {
     QCArrayRef ivSalt;
 };
 
-extern QC_STRONG QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key);
+extern QN_STRONG QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key);
 
 #endif //PQC_CRYPTO_QCCIPHERPRIVATE_H

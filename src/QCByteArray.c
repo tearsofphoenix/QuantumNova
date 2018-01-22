@@ -155,7 +155,7 @@ static int Base64Decode(char* b64message, unsigned char** buffer, size_t* length
     return (0); //success
 }
 
-QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length) {
+QN_STRONG const char *QCEncodeBase64(QCByte *data, size_t length) {
     if (data && length > 0) {
         size_t size = (length * 4) / 3 + 4;
         char *result = QCAllocator(size * sizeof(char));

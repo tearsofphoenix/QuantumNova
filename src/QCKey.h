@@ -40,7 +40,7 @@ extern void QCKeyGeneratePair(QCKeyConfig config, QCKeyRef *privateKey, QCKeyRef
 /*
  * load key from PEM format file
  */
-extern QC_STRONG QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
+extern QN_STRONG QCKeyRef QCKeyCreateFromPEMFile(const char* filePath);
 
 /*
  * save key to file (PEM format)

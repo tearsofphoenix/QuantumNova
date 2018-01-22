@@ -29,23 +29,23 @@ struct QCKey {
 /*
  * create private key from arrays
  */
-extern QC_STRONG QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
+extern QN_STRONG QCKeyRef QCKeyCreatePrivate(QCArrayRef h0, QCArrayRef h1, QCArrayRef h1inv, QCKeyConfig config);
 
 /*
  * create public key from arrays
  */
-extern QC_STRONG QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
+extern QN_STRONG QCKeyRef QCKeyCreatePublic(QCArrayRef g, QCKeyConfig config);
 
 
 extern bool _isKindOfFile(const char *fileContent, const char *label);
 
-extern QC_STRONG QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label);
+extern QN_STRONG QCByte *_trimFileContent(const char *fileContent, size_t fileLength, size_t *outLength, const char *label);
 
-extern QC_STRONG QCByte *_readFileContent(const char *path, size_t *outLength);
+extern QN_STRONG QCByte *_readFileContent(const char *path, size_t *outLength);
 
-extern QC_STRONG QCArrayRef _decodeBitString(ltc_asn1_list *node);
+extern QN_STRONG QCArrayRef _decodeBitString(ltc_asn1_list *node);
 
-extern QC_STRONG QCArrayRef _decodeOCTString(ltc_asn1_list *node);
+extern QN_STRONG QCArrayRef _decodeOCTString(ltc_asn1_list *node);
 
 /*
  * save key to file (base64 format)

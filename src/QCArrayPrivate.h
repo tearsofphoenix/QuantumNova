@@ -186,7 +186,7 @@ static size_t CLASS ## GetSize(QCArrayRef array) { \
 
 #endif
 
-extern QC_STRONG const char *QCEncodeBase64(QCByte *data, size_t length);
+extern QN_STRONG const char *QCEncodeBase64(QCByte *data, size_t length);
 
 /*
  * free array's data

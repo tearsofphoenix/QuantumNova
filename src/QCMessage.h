@@ -7,6 +7,6 @@
 
 typedef struct QCMessage *QCMessageRef;
 
-extern QC_STRONG QCMessageRef QCMessageCreateFromPEMFile(const char *path);
+extern QN_STRONG QCMessageRef QCMessageCreateFromPEMFile(const char *path);
 
 #endif //PQC_CRYPTO_QCMESSAGE_H

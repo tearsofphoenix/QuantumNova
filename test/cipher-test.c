@@ -15,7 +15,7 @@
 #include "src/QNSymmetricCipher.h"
 #include "data.h"
 
-static QC_STRONG QCKeyRef _getPrivateKey() {
+static QN_STRONG QCKeyRef _getPrivateKey() {
     QCKeyConfig config = kQCDefaultKeyConfig;
     size_t length = config.length;
     QCArrayRef h0 = QCArrayCreateWithDouble(H0, length, true);

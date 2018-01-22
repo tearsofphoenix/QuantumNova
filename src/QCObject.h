@@ -20,16 +20,18 @@ struct _QCObject {
 
 typedef const void * QCObjectRef;
 
-extern QC_STRONG QCObjectRef QCAllocate(QCClassRef classRef);
+extern QN_STRONG QCObjectRef QCAllocate(QCClassRef classRef);
 
-extern QC_STRONG QCObjectRef QCRetain(QCObjectRef object);
+extern QN_STRONG QCObjectRef QCRetain(QCObjectRef object);
 
 extern void QCRelease(QCObjectRef object);
 
-extern QC_STRONG QCObjectRef QCObjectCopy(QCObjectRef object);
+extern QN_STRONG QCObjectRef QCObjectCopy(QCObjectRef object);
 
 extern bool QCObjectEqual(QCObjectRef object, QCObjectRef other);
 
 extern void QCObjectPrint(QCObjectRef object);
+
+extern void QNLog(const char *fmt, ...);
 
 #endif //PQC_CRYPTO_QCOBJECT_H

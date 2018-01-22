@@ -4,7 +4,7 @@
 
 #include "QCCipher.h"
 #include "QCKeyPrivate.h"
-#include "QCRandom.h"
+#include "QNRandom.h"
 #include "QCArrayPrivate.h"
 #include "QCCipherPrivate.h"
 #include "QCMessagePrivate.h"
@@ -56,13 +56,13 @@ void QCCipherEncrypt(QCCipherRef cipher, QCArrayRef random, QCArrayRef *u, QCArr
     QCKeyRef publicKey = cipher->publicKey;
     QCArrayRef temp = QCArrayMulPoly(publicKey->g, random);
 
-    QCArrayRef t = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
+    QCArrayRef t = QNRandomWeightVector(publicKey->length, publicKey->error + QNRandomFlipCoin());
     QCArrayAddArray(temp, t);
     QCArrayMod(temp, 2);
 
     QCRelease(t);
 
-    QCArrayRef t2 = QCRandomWeightVector(publicKey->length, publicKey->error + QCRandomFlipCoin());
+    QCArrayRef t2 = QNRandomWeightVector(publicKey->length, publicKey->error + QNRandomFlipCoin());
     QCArrayRef copy = QCArrayCreateCopy(random);
     QCArrayAddArray(copy, t2);
     QCArrayMod(copy, 2);
@@ -263,7 +263,7 @@ void QCCipherDecrypt(QCCipherRef cipher, QCArrayRef c0, QCArrayRef c1) {
     return; // c0
 }
 
-static QC_STRONG QCArrayRef _sha256Contact(QCArrayRef a1, QCArrayRef a2, QCArrayRef a3) {
+static QN_STRONG QCArrayRef _sha256Contact(QCArrayRef a1, QCArrayRef a2, QCArrayRef a3) {
     QCArrayRef data = QCArrayCreateCopy(a1);
     if (a2) {
         QCArrayAppend(data, a2);
@@ -277,11 +277,11 @@ static QC_STRONG QCArrayRef _sha256Contact(QCArrayRef a1, QCArrayRef a2, QCArray
 }
 
 //
-QC_STRONG QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
+QN_STRONG QCArrayRef QCCipherGenerateMAC(QCArrayRef message, QCArrayRef token, QCArrayRef key) {
     return _sha256Contact(message, token, key);
 }
 
-static QC_STRONG QCArrayRef  _getIV(QCArrayRef token, QCArrayRef salt) {
+static QN_STRONG QCArrayRef  _getIV(QCArrayRef token, QCArrayRef salt) {
     QCArrayRef data = QCArrayCreateCopy(token);
     if (salt) {
         QCArrayAppend(data, salt);
@@ -309,7 +309,7 @@ static void QCCipherDeallocate(QCObjectRef object) {
 
 QCMessageRef QCCipherEncryptMessage(QCCipherRef cipher, QCArrayRef plainData) {
     QCKeyRef publicKey = cipher->publicKey;
-    QCArrayRef randomized = QCRandomVector(publicKey->length);
+    QCArrayRef randomized = QNRandomVector(publicKey->length);
     QCArrayRef token = QCArrayPack(randomized);
 
     // derive keys

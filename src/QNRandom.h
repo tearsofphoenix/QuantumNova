@@ -10,16 +10,16 @@
 /*
  * vector of `count`, contains randomly 0/1
  */
-extern QC_STRONG QCArrayRef QCRandomVector(size_t count);
+extern QN_STRONG QCArrayRef QNRandomVector(size_t count);
 
 /*
  * vector of `count`, `weight` of it is 1
  */
-extern QC_STRONG QCArrayRef QCRandomWeightVector(size_t count, size_t weight);
+extern QN_STRONG QCArrayRef QNRandomWeightVector(size_t count, size_t weight);
 
 /*
  * return 0 or 1
  */
-extern int QCRandomFlipCoin();
+extern int QNRandomFlipCoin();
 
 #endif //PQC_CRYPTO_QCRANDOM_H

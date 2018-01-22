@@ -3,7 +3,7 @@
 //
 
 #include <stdlib.h>
-#include "QCRandom.h"
+#include "QNRandom.h"
 #include "QCObject.h"
 
 static int getRandomInt(int min, int max) {
@@ -11,7 +11,7 @@ static int getRandomInt(int min, int max) {
     return (int)random() % delta + min; //The maximum is exclusive and the minimum is inclusive
 }
 
-QCArrayRef QCRandomVector(size_t count) {
+QCArrayRef QNRandomVector(size_t count) {
     QCArrayRef vector = QCArrayCreate(count);
     for (int i = 0; i < count; ++i) {
         QCArraySetValueAt(vector, i, getRandomInt(0, 2));
@@ -19,7 +19,7 @@ QCArrayRef QCRandomVector(size_t count) {
     return vector;
 }
 
-QCArrayRef QCRandomWeightVector(size_t count, size_t weight) {
+QCArrayRef QNRandomWeightVector(size_t count, size_t weight) {
     QCArrayRef random_indices = QCArrayCreateWithInt(NULL, weight, false);
     while (QCArrayGetNonZeroCount(random_indices) < weight) {
         int ind = QCArrayGetNonZeroCount(random_indices);
@@ -40,6 +40,6 @@ QCArrayRef QCRandomWeightVector(size_t count, size_t weight) {
     return real;
 }
 
-int QCRandomFlipCoin() {
+int QNRandomFlipCoin() {
     return getRandomInt(0, 2);
 }
