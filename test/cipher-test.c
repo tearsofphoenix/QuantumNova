@@ -278,11 +278,7 @@ static bool key_256bit_test() {
     return _key_test(kQC256BitKeyConfig);
 }
 
-static void _init_test() {
-}
-
 void cipher_test() {
-    _init_test();
     QNT("cipher syndrome", NULL, cipher_syndrome_test, 1);
 
     QNT("cipher decrypt", NULL, decrypt_test, 1);
